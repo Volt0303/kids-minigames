@@ -1,0 +1,26 @@
+# dependencies / builds
+node_modules/
+dist/
+build/
+*.log
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+*.apk
+*.aab
+
+# signing secrets (never commit)
+*.jks
+*.keystore
+keystore.properties
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
