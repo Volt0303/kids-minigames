@@ -24,3 +24,7 @@ keystore.properties
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Private Claude Code context (contract/business notes) — never commit
+CLAUDE.local.md
+.claude/
