@@ -28,3 +28,6 @@ keystore.properties
 # Private Claude Code context (contract/business notes) — never commit
 CLAUDE.local.md
 .claude/
+
+# Built release APKs (tools/build-apks.mjs)
+/release/

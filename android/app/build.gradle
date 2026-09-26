@@ -1,14 +1,29 @@
 apply plugin: 'com.android.application'
 
+// One project builds six games. tools/build-apks.mjs passes the game with
+// -PgameId=<id> -PgameTitle=<name> -PversionCode=<n> -PversionName=<x.y.z>.
+// Without -PgameId (development) the demo build is produced.
+def gameId = project.findProperty('gameId')
+def gameTitle = project.findProperty('gameTitle') ?: 'Kids Mini Games'
+
+// Release signing: android/keystore.properties (git-ignored), see keystore.properties.example.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace = "jp.impactmirai.kidsgame"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "jp.impactmirai.kidsgame"
+        applicationId gameId ? "jp.impactmirai.kidsgame.${gameId}" : "jp.impactmirai.kidsgame"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode((project.findProperty('versionCode') ?: '1') as int)
+        versionName project.findProperty('versionName') ?: '0.0.0-dev'
+        resValue 'string', 'app_name', gameTitle
+        resValue 'string', 'title_activity_main', gameTitle
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,11 +31,34 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (!keystoreProps.isEmpty()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+    sourceSets {
+        // Per-game launcher icons, when present: app/game-res/<id>/res
+        main.res.srcDirs += gameId ? ["game-res/${gameId}/res"] : []
+    }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+// Fail early and clearly when a release build is requested without a signing key.
+gradle.taskGraph.whenReady { graph ->
+    def wantsRelease = graph.allTasks.any { it.name ==~ /(assemble|bundle|package)Release/ }
+    if (wantsRelease && keystoreProps.isEmpty()) {
+        throw new GradleException('Release signing needs android/keystore.properties (see keystore.properties.example)')
     }
 }
 

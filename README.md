@@ -46,4 +46,28 @@ docs/                specification and asset licences
 assets-src/          source art, audio and fonts
 ```
 
-Android build instructions: to be added.
+## Android builds
+
+Development (demo build on a connected emulator or device):
+
+```bash
+npm run android:run
+```
+
+Release — one signed APK per game into `release/`, plus `release/SHA256SUMS.txt`:
+
+```bash
+npm run build:apks               # all six games
+npm run build:apks -- ocean diff # only some games
+```
+
+Each game is a separate app: package `jp.impactmirai.kidsgame.<id>`, its own name, and the version from
+`package.json` (`1.2.3` becomes versionCode `10203`; raise it for every release you install as an update).
+Release builds contain no network permission.
+
+### Signing key
+
+Release builds are signed with the key configured in `android/keystore.properties` (not in the repository;
+see `android/keystore.properties.example`). **Every future update of the six apps must be signed with the same key**:
+Android refuses to install an update signed with a different key. Store the keystore file and its passwords safely
+and keep a backup.

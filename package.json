@@ -17,7 +17,8 @@
     "verify": "npm run check:size && npm run lint && npm run format:check && npm run typecheck && npm test",
     "cap:sync": "npm run build && cap sync android",
     "prepare": "husky",
-    "android:run": "npm run cap:sync && cd android && ./gradlew installDebug -q && adb shell monkey -p jp.impactmirai.kidsgame -c android.intent.category.LAUNCHER 1 > /dev/null 2>&1"
+    "android:run": "npm run cap:sync && cd android && ./gradlew installDebug -q && adb shell monkey -p jp.impactmirai.kidsgame -c android.intent.category.LAUNCHER 1 > /dev/null 2>&1",
+    "build:apks": "node tools/build-apks.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
