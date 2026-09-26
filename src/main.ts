@@ -1,12 +1,16 @@
 import * as Phaser from 'phaser';
 import { readScreenMetrics, ViewportController } from './core/display/ViewportController';
 import { computeViewport } from './core/logic/viewport';
+import { createPlatform } from './core/platform/createPlatform';
+import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
+import { SessionController } from './core/session/SessionController';
 import { GAME_TITLES, isGameId } from './games/registry';
-import { DevTestScene } from './scenes/DevTestScene';
+import { DEV_TEST_SCENE_KEY, DevTestScene } from './scenes/DevTestScene';
 
 // Which game this build is for (set by the build script; empty = development test scene).
 const gameId = import.meta.env.VITE_GAME as string | undefined;
-document.title = isGameId(gameId) ? GAME_TITLES[gameId] : 'Kids Mini Games (dev)';
+const title = isGameId(gameId) ? GAME_TITLES[gameId] : 'テストゲーム';
+document.title = title;
 
 // The canvas is sized in physical pixels; ViewportController keeps it that way on resize.
 const initial = computeViewport(readScreenMetrics());
@@ -22,7 +26,9 @@ const game = new Phaser.Game({
     zoom: initial.canvasZoom,
   },
   input: { activePointers: 1 },
-  scene: [DevTestScene],
+  // The first scene starts automatically; the session controller switches to the others.
+  scene: [new StartScene(title), DevTestScene],
 });
 
 ViewportController.attach(game, initial);
+SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: DEV_TEST_SCENE_KEY });

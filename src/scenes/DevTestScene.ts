@@ -1,10 +1,12 @@
 import * as Phaser from 'phaser';
-import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { LayoutScene } from '../core/display/LayoutScene';
+import { SessionController } from '../core/session/SessionController';
 import { minTouchSize } from '../core/logic/layout';
 import { inset, split, type Rect } from '../core/logic/rect';
 import type { Viewport } from '../core/logic/viewport';
+
+export const DEV_TEST_SCENE_KEY = 'DevTest';
 
 const INFO_REFRESH_MS = 500;
 const MARGIN = 40;
@@ -12,7 +14,7 @@ const CHROME_VERSION = /Chrome\/([\d.]+)/.exec(navigator.userAgent)?.[1] ?? 'unk
 
 /**
  * Development test scene: checks rendering, animation, touch, drag, sound,
- * layout modes, pause/resume and app exit on each target device.
+ * layout modes and the session (pause/resume, exit) on each target device.
  * Everything is positioned in design units (1080 tall).
  */
 export class DevTestScene extends LayoutScene {
@@ -22,11 +24,9 @@ export class DevTestScene extends LayoutScene {
   private ball!: Phaser.GameObjects.Arc;
   private exitButton!: Phaser.GameObjects.Container;
   private swim?: Phaser.Tweens.Tween;
-  private pauseCount = 0;
-  private resumeCount = 0;
 
   constructor() {
-    super('DevTest');
+    super(DEV_TEST_SCENE_KEY);
   }
 
   preload(): void {
@@ -57,7 +57,6 @@ export class DevTestScene extends LayoutScene {
       if (targets.length === 0) this.pop(p.worldX, p.worldY, 0xffffff);
     });
 
-    this.listenForLifecycle();
     this.time.addEvent({ delay: INFO_REFRESH_MS, loop: true, callback: () => this.refreshInfo() });
   }
 
@@ -107,25 +106,9 @@ export class DevTestScene extends LayoutScene {
         `Physical ${vp.physicalWidth}×${vp.physicalHeight}  pixel ratio ${(1 / vp.canvasZoom).toFixed(2)}`,
         `Design ${vp.designWidth}×${vp.designHeight}  layout: ${vp.mode}`,
         `FPS ${this.game.loop.actualFps.toFixed(0)}  platform: ${Capacitor.getPlatform()}`,
-        `paused ${this.pauseCount}  resumed ${this.resumeCount}`,
+        `session: ${SessionController.of(this.game).phase}  (Esc / back button = quit)`,
       ].join('\n'),
     );
-  }
-
-  /** Counts background/foreground switches (client requirement: pause and resume). */
-  private listenForLifecycle(): void {
-    const onChange = (isActive: boolean): void => {
-      if (isActive) this.resumeCount += 1;
-      else this.pauseCount += 1;
-      this.refreshInfo();
-    };
-    if (Capacitor.isNativePlatform()) {
-      App.addListener('appStateChange', ({ isActive }) => onChange(isActive)).catch((error: unknown) => {
-        console.error('Could not listen for app state changes', error);
-      });
-    } else {
-      document.addEventListener('visibilitychange', () => onChange(document.visibilityState === 'visible'));
-    }
   }
 
   private onFishTap(): void {
@@ -160,11 +143,6 @@ export class DevTestScene extends LayoutScene {
   }
 
   private exitApp(): void {
-    if (Capacitor.isNativePlatform()) {
-      App.exitApp().catch((error: unknown) => console.error('Could not exit the app', error));
-    } else {
-      this.pop(this.exitButton.x, this.exitButton.y, 0xff4d4d);
-      console.warn('Exit requested (only works inside the Android app).');
-    }
+    SessionController.of(this.game).dispatch({ type: 'quit' });
   }
 }

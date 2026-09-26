@@ -38,7 +38,7 @@ Requirements from the client's engineer (2026-09-24):
 2. **Self-exit:** when the game ends, the app closes itself and the calling app is shown again.
 3. **Pause/resume:** when another app comes to the front, the game pauses; when it returns, the game resumes.
 
-Implementation:
+Implementation (landscape only, system bars hidden, screen kept on):
 
 | Item | Behaviour |
 |---|---|
@@ -48,9 +48,9 @@ Implementation:
 | Exit triggers | All stages finished (after the clear screen); 「やめる」 on the start screen; close button; hardware back button; no touch for about 90 s during play **[TBC: timeout]**. |
 | Pause | On switching to another app: game loop, stage timer, hints, spawning and sound stop. |
 | Resume | On return: the game continues from where it stopped. |
-| Relaunch while paused | If the order app launches the game again, it starts fresh from the start screen. |
-| Long pause | Paused more than about 5 minutes → back to the start screen. **[TBC]** |
-| Process killed by Android | The game restarts from the beginning of the stage it was on. |
+| Relaunch while paused | The game is hidden from the recent-apps list, so being launched again by the order app is how it returns: a paused game **continues where it stopped**. Launching it while it is already in front changes nothing. |
+| Long pause | Paused more than about 5 minutes → back to the start screen when it returns. **[TBC]** |
+| Process killed by Android | The game starts again from the start screen. |
 | Kiosk mode | If the order app uses Android lock-task mode, the six package names must be added to its allowed list (client side). |
 
 ## 4. Common game rules
