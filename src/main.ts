@@ -5,9 +5,9 @@ import { createPlatform } from './core/platform/createPlatform';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_TITLES, isGameId } from './games/registry';
-import { DEV_TEST_SCENE_KEY, DevTestScene } from './scenes/DevTestScene';
+import { DEMO_GAME_SCENE_KEY, DemoGameScene } from './scenes/DemoGameScene';
 
-// Which game this build is for (set by the build script; empty = development test scene).
+// Which game this build is for (set by the build script; empty = framework demo game).
 const gameId = import.meta.env.VITE_GAME as string | undefined;
 const title = isGameId(gameId) ? GAME_TITLES[gameId] : 'テストゲーム';
 document.title = title;
@@ -27,8 +27,11 @@ const game = new Phaser.Game({
   },
   input: { activePointers: 1 },
   // The first scene starts automatically; the session controller switches to the others.
-  scene: [new StartScene(title), DevTestScene],
+  scene: [new StartScene(title), new DemoGameScene(title)],
 });
 
 ViewportController.attach(game, initial);
-SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: DEV_TEST_SCENE_KEY });
+SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: DEMO_GAME_SCENE_KEY });
+
+// Test hook for automated browser tests; removed from production builds.
+if (import.meta.env.DEV) window.__kidsGame = game;

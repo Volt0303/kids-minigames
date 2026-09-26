@@ -60,7 +60,7 @@ Implementation (landscape only, system bars hidden, screen kept on):
   positively (「よくできたね！」); there is no failure state. **[TBC]**
 - **Prompts:** picture first, short hiragana text, voice **[TBC: voice yes/no]**.
 - **Feedback:** correct = sparkle + sound; wrong = gentle wobble + soft sound; no penalty and no red ×.
-- **Hints:** after about 8 s without progress, the target pulses or a pointing hand appears.
+- **Hints:** after about 8 s without progress, a pulsing ring highlights something correct for 3 s; it repeats every 8 s while the child is still stuck and disappears on a correct tap.
 - **Touch:** targets at least about 13% of screen height; tap areas larger than the image; multi-touch ignored.
   Where dragging is used, tapping is also accepted where possible.
 - **Sound:** sound effects on; background music default **[TBC]**; audio stops while paused.
