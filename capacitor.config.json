@@ -1,0 +1,8 @@
+{
+  "appId": "jp.impactmirai.kidsgame",
+  "appName": "Kids Mini Games",
+  "webDir": "dist",
+  "android": {
+    "minWebViewVersion": 60
+  }
+}
