@@ -1,0 +1,7 @@
+# Blocks the commit unless every check passes.
+#  1. lint-staged: 300-line limit, ESLint (zero warnings) and formatting on staged files
+#  2. typecheck: the whole project must compile
+#  3. tests: game logic unit tests
+#
+# Bypass with `git commit --no-verify` only in a real emergency.
+npx lint-staged && npm run --silent typecheck && npm run --silent test

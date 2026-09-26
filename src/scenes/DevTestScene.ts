@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-import { getLayoutMode, minTouchSize } from '../core/layout';
+import { getLayoutMode, minTouchSize } from '../core/logic/layout';
 
 /**
  * Development test scene: checks rendering, animation, touch, drag,
@@ -95,7 +95,9 @@ export class DevTestScene extends Phaser.Scene {
 
   private makeButton(label: string, onTap: () => void): Phaser.GameObjects.Container {
     const bg = this.add.rectangle(0, 0, 190, 70, 0x3a86ff).setStrokeStyle(4, 0xffffff);
-    const text = this.add.text(0, 0, label, { fontFamily: 'sans-serif', fontSize: '28px', color: '#ffffff' }).setOrigin(0.5);
+    const text = this.add
+      .text(0, 0, label, { fontFamily: 'sans-serif', fontSize: '28px', color: '#ffffff' })
+      .setOrigin(0.5);
     const button = this.add.container(0, 0, [bg, text]).setSize(190, 70);
     button.setInteractive({ useHandCursor: true }).on('pointerup', onTap);
     return button;
@@ -111,7 +113,7 @@ export class DevTestScene extends Phaser.Scene {
       void App.exitApp();
     } else {
       this.pop(this.scale.width - 110, 50, 0xff4d4d);
-      console.info('Exit requested (only works inside the Android app).');
+      console.warn('Exit requested (only works inside the Android app).');
     }
   }
 }
