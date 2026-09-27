@@ -7,6 +7,12 @@ const PADDING = 36;
 const HEADING_HEIGHT = 90;
 const CAPTION_HEIGHT = 190;
 
+/** A texture, or one frame of an atlas. */
+export interface PromptPicture {
+  texture: string;
+  frame?: string;
+}
+
 /**
  * The "お題" (task) panel from the mockups: a picture of what to look for and
  * a short caption. Children who cannot read use the picture.
@@ -25,11 +31,11 @@ export class PromptCard {
     this.caption = scene.add.text(0, 0, '', TEXT.caption).setOrigin(0.5);
   }
 
-  /** Shows a picture (texture key) and caption; pass no texture for text only. */
-  setPrompt(caption: string, textureKey?: string): void {
+  /** Shows a picture and caption; pass no picture for text only. */
+  setPrompt(caption: string, picture?: PromptPicture): void {
     this.caption.setText(caption);
-    if (textureKey && this.scene.textures.exists(textureKey)) {
-      this.image.setTexture(textureKey).setVisible(true);
+    if (picture && this.scene.textures.exists(picture.texture)) {
+      this.image.setTexture(picture.texture, picture.frame).setVisible(true);
     } else {
       this.image.setVisible(false);
     }

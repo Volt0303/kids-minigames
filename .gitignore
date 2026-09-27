@@ -31,3 +31,6 @@ CLAUDE.local.md
 
 # Built release APKs (tools/build-apks.mjs)
 /release/
+
+# Generated texture atlases (npm run assets)
+/public/assets/

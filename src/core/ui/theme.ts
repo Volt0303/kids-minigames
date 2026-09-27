@@ -15,8 +15,9 @@ export const COLORS = {
   textLight: '#ffffff',
 } as const;
 
-/** Rounded Japanese font (Zen Maru Gothic) once bundled; system sans-serif until then. */
-export const FONT_FAMILY = '"Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif';
+/** Bundled rounded Japanese font (public/fonts, SIL Open Font License), declared in index.html. */
+export const FONT_FACE = 'Zen Maru Gothic';
+export const FONT_FAMILY = `"${FONT_FACE}", sans-serif`;
 
 export const TEXT = {
   title: { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '64px', color: COLORS.textLight },

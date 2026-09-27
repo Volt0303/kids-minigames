@@ -77,6 +77,7 @@ function main() {
 
   try {
     run('npm', ['run', '--silent', 'typecheck']);
+    run('npm', ['run', '--silent', 'assets']);
     mkdirSync(OUT_DIR, { recursive: true });
     const apks = games.map((id) => buildGame(id, version, versionCode));
     const sums = apks.map((file) => `${sha256(file)}  ${file.slice(OUT_DIR.length + 1)}`).join('\n');

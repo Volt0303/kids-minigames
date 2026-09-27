@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import { FONT_FAMILY } from './theme';
 
 export interface BigButtonStyle {
   label: string;
@@ -31,7 +32,7 @@ export class BigButton extends Phaser.GameObjects.Container {
 
     const text = scene.add
       .text(0, 0, style.icon ? `${style.icon} ${style.label}` : style.label, {
-        fontFamily: 'sans-serif',
+        fontFamily: FONT_FAMILY,
         fontStyle: 'bold',
         fontSize: `${style.fontSize ?? Math.round(height * 0.42)}px`,
         color: '#ffffff',

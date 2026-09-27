@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Six mini-games for preschool children on Android tablets (one codebase, six APKs).",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
+    "dev": "npm run --silent assets && vite --host 127.0.0.1",
+    "build": "tsc --noEmit && npm run --silent assets && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -18,7 +18,8 @@
     "cap:sync": "npm run build && cap sync android",
     "prepare": "husky",
     "android:run": "npm run cap:sync && cd android && ./gradlew installDebug -q && adb shell monkey -p jp.impactmirai.kidsgame -c android.intent.category.LAUNCHER 1 > /dev/null 2>&1",
-    "build:apks": "node tools/build-apks.mjs"
+    "build:apks": "node tools/build-apks.mjs",
+    "assets": "node tools/build-atlases.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
@@ -32,8 +33,10 @@
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
+    "maxrects-packer": "^2.7.3",
     "playwright-core": "^1.63.0",
     "prettier": "^3.9.9",
+    "sharp": "^0.35.5",
     "typescript": "~6.0",
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.1",

@@ -18,7 +18,7 @@ import { Banner } from '../ui/Banner';
 import { Feedback, SFX } from '../ui/Feedback';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
 import { Hud } from '../ui/Hud';
-import { PromptCard } from '../ui/PromptCard';
+import { PromptCard, type PromptPicture } from '../ui/PromptCard';
 
 /** The stage clock is advanced on a timer, not every frame, to keep per-frame work at zero. */
 const FLOW_TICK_MS = 100;
@@ -104,8 +104,8 @@ export abstract class GameScene extends LayoutScene {
     this.layoutField(regions.field, viewport);
   }
 
-  protected setPrompt(caption: string, textureKey?: string): void {
-    this.prompt.setPrompt(caption, textureKey);
+  protected setPrompt(caption: string, picture?: PromptPicture): void {
+    this.prompt.setPrompt(caption, picture);
   }
 
   protected reportCorrect(x: number, y: number): void {

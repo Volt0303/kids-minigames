@@ -4,6 +4,7 @@ import { center, inset, split } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
 import { BigButton } from '../ui/BigButton';
+import { FONT_FAMILY } from '../ui/theme';
 
 export const START_SCENE_KEY = 'Start';
 
@@ -27,7 +28,7 @@ export class StartScene extends LayoutScene {
     const session = SessionController.of(this.game);
     this.title = this.add
       .text(0, 0, this.gameTitle, {
-        fontFamily: 'sans-serif',
+        fontFamily: FONT_FAMILY,
         fontStyle: 'bold',
         fontSize: '110px',
         color: '#ffffff',
