@@ -4,7 +4,7 @@
  * public/assets/<atlas>.png + <atlas>.json (Phaser JSON-hash format).
  *
  * For each sprite it uses assets-src/images/<atlas>/<name>.png when present
- * (trimmed and scaled to fit the catalog size), otherwise a labelled
+ * (plain background removed, trimmed and scaled to fit the catalog size), otherwise a labelled
  * placeholder, so games can be built before the final art exists.
  *
  * Usage: node tools/build-atlases.mjs
@@ -14,6 +14,7 @@ import { basename, extname } from 'node:path';
 import { MaxRectsPacker } from 'maxrects-packer';
 import sharp from 'sharp';
 import { ATLASES } from '../src/core/assets/catalog.ts';
+import { removeBackground } from './lib/remove-background.mjs';
 
 const SOURCE_DIR = 'assets-src/images';
 const OUT_DIR = 'public/assets';
@@ -42,7 +43,7 @@ function placeholderSvg(name, { width, height }) {
 async function renderSprite(atlas, name, spec) {
   const source = `${SOURCE_DIR}/${atlas}/${name}.png`;
   if (existsSync(source)) {
-    const { data, info } = await sharp(source)
+    const { data, info } = await sharp(await removeBackground(source))
       .trim()
       .resize({ width: spec.width, height: spec.height, fit: 'inside' })
       .png()

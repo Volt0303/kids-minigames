@@ -12,7 +12,8 @@ Any sprite without a file is drawn as a labelled placeholder, so art can be adde
 
 ## Requirements
 
-- PNG with a **transparent background**, sRGB.
+- PNG, sRGB, on a **transparent or plain light background** (white is best): a plain background is removed
+  automatically (`tools/lib/remove-background.mjs`); light areas inside the object are kept.
 - At least the catalog size (width × height in design units, where the screen is 1080 tall); larger is fine —
   the build trims empty borders and scales the image to fit the catalog box.
 - **Fish and sea creatures face left.** The game flips them when they swim right.
@@ -27,3 +28,12 @@ npm run assets
 
 Packs everything into `public/assets/<atlas>.png` and `.json` (generated, not committed) and reports how many
 sprites per atlas still use placeholders. `npm run dev` and `npm run build` run it automatically.
+
+## Style samples
+
+Put samples in `assets-src/style-samples/<style>/tuna.png`, `nigiri.png`, `can.png` (one folder per style,
+e.g. `A`, `B`, `C`), then:
+
+```bash
+npm run style-sheet   # writes assets-src/style-samples/sheet.png
+```

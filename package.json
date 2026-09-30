@@ -19,7 +19,8 @@
     "prepare": "husky",
     "android:run": "npm run cap:sync && cd android && ./gradlew installDebug -q && adb shell monkey -p jp.impactmirai.kidsgame -c android.intent.category.LAUNCHER 1 > /dev/null 2>&1",
     "build:apks": "node tools/build-apks.mjs",
-    "assets": "node tools/build-atlases.mjs"
+    "assets": "node tools/build-atlases.mjs",
+    "style-sheet": "node tools/style-sheet.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
