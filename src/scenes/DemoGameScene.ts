@@ -39,7 +39,7 @@ export class DemoGameScene extends GameScene {
   private target: Fish = 'tuna';
 
   constructor(title: string) {
-    super(DEMO_GAME_SCENE_KEY, title);
+    super(DEMO_GAME_SCENE_KEY, title, { background: 'sea' });
   }
 
   protected preloadGame(): void {

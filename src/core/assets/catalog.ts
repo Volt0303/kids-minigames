@@ -1,5 +1,5 @@
 /**
- * Every sprite the six games use, grouped into texture atlases.
+ * Every sprite and background the six games use. Sprites are grouped into texture atlases.
  *
  * Plain data (no Phaser): read by tools/build-atlases.mjs, which packs the art
  * from assets-src/images/<atlas>/<name>.png — or a labelled placeholder when
@@ -57,6 +57,12 @@ export const ATLASES = {
     'food-tray': sprite('トレー', 270, 150),
     net: sprite('あみ', 290, 230),
   },
+  props: {
+    teacup: sprite('ゆのみ', 170, 190),
+    'soy-dish': sprite('しょうゆ', 230, 130),
+    wasabi: sprite('わさび', 150, 120),
+    ginger: sprite('ガリ', 180, 130),
+  },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),
     'seaweed-2': sprite('かいそう', 180, 440),
@@ -72,6 +78,19 @@ export const ATLASES = {
 
 export type AtlasName = keyof typeof ATLASES;
 export type SpriteName<A extends AtlasName> = keyof (typeof ATLASES)[A] & string;
+
+/**
+ * Full-screen backgrounds: assets-src/images/backgrounds/<name>.png, converted to
+ * public/assets/backgrounds/<name>.jpg by tools/build-images.mjs.
+ */
+export const BACKGROUNDS = ['sea', 'sushi-counter'] as const;
+
+export type BackgroundName = (typeof BACKGROUNDS)[number];
+
+/** Phaser texture key of a background. */
+export function backgroundKey(name: BackgroundName): string {
+  return `bg-${name}`;
+}
 
 /** Phaser texture key of an atlas. */
 export function atlasKey(atlas: AtlasName): string {

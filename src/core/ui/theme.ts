@@ -20,7 +20,15 @@ export const FONT_FACE = 'Zen Maru Gothic';
 export const FONT_FAMILY = `"${FONT_FACE}", sans-serif`;
 
 export const TEXT = {
-  title: { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '64px', color: COLORS.textLight },
+  // Dark edge keeps the white title readable on light backgrounds.
+  title: {
+    fontFamily: FONT_FAMILY,
+    fontStyle: 'bold',
+    fontSize: '64px',
+    color: COLORS.textLight,
+    stroke: '#0b3d6b',
+    strokeThickness: 12,
+  },
   pill: { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '52px', color: COLORS.textLight },
   heading: { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '56px', color: COLORS.textDark },
   caption: { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '60px', color: COLORS.textDark, align: 'center' },

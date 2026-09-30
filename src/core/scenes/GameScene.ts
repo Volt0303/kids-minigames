@@ -1,4 +1,6 @@
 import type * as Phaser from 'phaser';
+import { loadBackground } from '../assets/atlas';
+import { backgroundKey, type BackgroundName } from '../assets/catalog';
 import { LayoutScene } from '../display/LayoutScene';
 import { gameRegions } from '../logic/gameLayout';
 import type { Rect } from '../logic/rect';
@@ -14,6 +16,7 @@ import {
 } from '../logic/stageFlow';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
+import { Background } from '../ui/Background';
 import { Banner } from '../ui/Banner';
 import { Feedback, SFX } from '../ui/Feedback';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
@@ -23,8 +26,14 @@ import { PromptCard, type PromptPicture } from '../ui/PromptCard';
 /** The stage clock is advanced on a timer, not every frame, to keep per-frame work at zero. */
 const FLOW_TICK_MS = 100;
 
+export interface GameSceneOptions {
+  /** Full-screen background behind the game (plain colour when omitted). */
+  background?: BackgroundName;
+}
+
 /**
- * Base class for the six games. Provides the top bar, prompt card, stage flow
+ * Base class for the six games. Provides the background, top bar (with the × close
+ * button), prompt card, stage flow
  * (3 stages, 60 s each, no failure), hints, clear banners and the final exit.
  *
  * A game implements its field: `buildField`, `layoutField`, `startStage`,
@@ -38,10 +47,12 @@ export abstract class GameScene extends LayoutScene {
   private prompt!: PromptCard;
   private banner!: Banner;
   private hint!: HintMarker;
+  private background?: Background;
 
   constructor(
     key: string,
     private readonly gameTitle: string,
+    private readonly options: GameSceneOptions = {},
   ) {
     super(key);
   }
@@ -73,6 +84,7 @@ export abstract class GameScene extends LayoutScene {
     this.load.audio(SFX.correct, 'sfx/correct.wav');
     this.load.audio(SFX.wrong, 'sfx/wrong.wav');
     this.load.audio(SFX.clear, 'sfx/clear.wav');
+    if (this.options.background) loadBackground(this.load, this.options.background);
     this.preloadGame();
   }
 
@@ -82,7 +94,8 @@ export abstract class GameScene extends LayoutScene {
   }
 
   protected build(): void {
-    this.hud = new Hud(this, this.gameTitle);
+    if (this.options.background) this.background = new Background(this, backgroundKey(this.options.background));
+    this.hud = new Hud(this, this.gameTitle, () => SessionController.of(this.game).dispatch({ type: 'quit' }));
     this.prompt = new PromptCard(this);
     this.feedback = new Feedback(this);
     this.buildField();
@@ -98,6 +111,7 @@ export abstract class GameScene extends LayoutScene {
 
   protected layout(viewport: Viewport): void {
     const regions = gameRegions(viewport);
+    this.background?.layout(viewport);
     this.hud.layout(regions.hud);
     this.prompt.layout(regions.panel);
     this.banner.layout(regions.field);
