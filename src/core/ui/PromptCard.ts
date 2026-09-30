@@ -22,6 +22,8 @@ export class PromptCard {
   private readonly heading: Phaser.GameObjects.Text;
   private readonly image: Phaser.GameObjects.Image;
   private readonly caption: Phaser.GameObjects.Text;
+  /** Swallows taps on the card so objects moving behind it cannot be tapped through it. */
+  private readonly blocker: Phaser.GameObjects.Zone;
   private area?: Rect;
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -29,6 +31,7 @@ export class PromptCard {
     this.heading = scene.add.text(0, 0, 'おだい', TEXT.heading).setOrigin(0.5, 0);
     this.image = scene.add.image(0, 0, '__DEFAULT').setVisible(false);
     this.caption = scene.add.text(0, 0, '', TEXT.caption).setOrigin(0.5);
+    this.blocker = scene.add.zone(0, 0, 1, 1).setOrigin(0).setInteractive();
   }
 
   /** Shows a picture and caption; pass no picture for text only. */
@@ -44,6 +47,7 @@ export class PromptCard {
 
   layout(area: Rect): void {
     this.area = area;
+    this.blocker.setPosition(area.x, area.y).setSize(area.width, area.height);
     this.panel
       .clear()
       .fillStyle(COLORS.panel, 0.95)

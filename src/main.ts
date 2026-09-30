@@ -6,11 +6,16 @@ import { createPlatform } from './core/platform/createPlatform';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_TITLES, isGameId } from './games/registry';
-import { DEMO_GAME_SCENE_KEY, DemoGameScene } from './scenes/DemoGameScene';
+import { createGameScene } from './games/scenes';
 
-// Which game this build is for (set by the build script; empty = framework demo game).
-const gameId = import.meta.env.VITE_GAME as string | undefined;
-const title = isGameId(gameId) ? GAME_TITLES[gameId] : 'テストゲーム';
+// Which game this build is for: set by the build script (VITE_GAME), or in development
+// by the page address, e.g. http://127.0.0.1:5173/?game=findfish. Empty = framework demo.
+const requested =
+  (import.meta.env.VITE_GAME as string | undefined) ??
+  (import.meta.env.DEV ? (new URLSearchParams(window.location.search).get('game') ?? undefined) : undefined);
+const gameId = isGameId(requested) ? requested : undefined;
+const title = gameId ? GAME_TITLES[gameId] : 'テストゲーム';
+const play = createGameScene(gameId, title);
 document.title = title;
 
 function startGame(): Phaser.Game {
@@ -29,11 +34,11 @@ function startGame(): Phaser.Game {
     },
     input: { activePointers: 1 },
     // The first scene starts automatically; the session controller switches to the others.
-    scene: [new StartScene(title), new DemoGameScene(title)],
+    scene: [new StartScene(title), play.scene],
   });
 
   ViewportController.attach(game, initial);
-  SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: DEMO_GAME_SCENE_KEY });
+  SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: play.key });
   return game;
 }
 
