@@ -16,6 +16,11 @@ const contains = (outer: Rect, inner: Rect): boolean =>
   inner.x + inner.width <= outer.x + outer.width + 0.001 &&
   inner.y + inner.height <= outer.y + outer.height + 0.001;
 
+function required(r: Rect | undefined): Rect {
+  if (!r) throw new Error('expected a region');
+  return r;
+}
+
 const noOverlaps = (list: Rect[]): void => {
   for (const [i, a] of list.entries()) {
     for (const b of list.slice(i + 1)) expect(overlaps(a, b)).toBe(false);
@@ -28,7 +33,8 @@ describe.each<[string, Viewport]>([
   ['sub2 1920x1080', sub2],
 ])('gameRegions on %s', (_name, vp) => {
   const regions = gameRegions(vp);
-  const { header, field, prompt, howTo, message, mascot, footer, bubble, guide } = regions;
+  const { header, field, prompt, howTo, message, mascot, footer, bubble } = regions;
+  const guide = required(regions.guide);
   const screen: Rect = { x: 0, y: 0, width: vp.designWidth, height: vp.designHeight };
 
   it('keeps the five main areas on screen and apart', () => {
@@ -70,6 +76,27 @@ describe.each<[string, Viewport]>([
 
   it('leaves a play field tall enough for the games', () => {
     expect(field.height).toBeGreaterThan(650);
+  });
+});
+
+describe.each<[string, Viewport]>([
+  ['main 1920x540', main],
+  ['sub1 1280x800', sub1],
+  ['sub2 1920x1080', sub2],
+])('gameRegions without the guide character on %s', (_name, vp) => {
+  const withGuide = gameRegions(vp);
+  const without = gameRegions(vp, false);
+
+  it('has no guide region and gives the cards the full column', () => {
+    expect(without.guide).toBeUndefined();
+    expect(without.howTo.y + without.howTo.height).toBeGreaterThan(withGuide.howTo.y + withGuide.howTo.height);
+    expect(overlaps(without.howTo, without.message)).toBe(false);
+  });
+
+  it('moves the praise bubble to the right end of the message bar', () => {
+    expect(contains(without.message, without.bubble)).toBe(true);
+    expect(without.bubble.x).toBeGreaterThan(withGuide.bubble.x);
+    expect(without.bubble.x).toBeGreaterThan(without.footer.x + without.footer.width);
   });
 });
 

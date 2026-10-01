@@ -38,8 +38,8 @@ export interface GameRegions {
   footer: Rect;
   /** Where the 「せいかい！」 speech bubble appears, next to the guide. */
   bubble: Rect;
-  /** Guide character at the right end of the message bar, rising above it under the cards. */
-  guide: Rect;
+  /** Guide character at the right end of the message bar, rising above it under the cards (absent in games without it). */
+  guide?: Rect;
 }
 
 export const HEADER_HEIGHT = 180;
@@ -64,21 +64,25 @@ function parts(area: Rect, axis: 'horizontal' | 'vertical', weights: readonly nu
   return [first, second];
 }
 
-/** Message bar contents, left to right: mascot, text, praise bubble, guide. */
-function messageRow(bar: Rect): Pick<GameRegions, 'mascot' | 'footer' | 'bubble' | 'guide'> {
+/** Message bar contents, left to right: mascot, text, praise bubble, guide (if shown). */
+function messageRow(bar: Rect, withGuide: boolean): Pick<GameRegions, 'mascot' | 'footer' | 'bubble' | 'guide'> {
   const row = inset(bar, BAR_PADDING);
   const mascot = rect(row.x, row.y, row.height, row.height);
   const guideHeight = row.height + GUIDE_RISE;
   const guideWidth = guideHeight * GUIDE_ASPECT;
-  const guide = rect(row.x + row.width - guideWidth, row.y - GUIDE_RISE, guideWidth, guideHeight);
+  const guide = withGuide
+    ? rect(row.x + row.width - guideWidth, row.y - GUIDE_RISE, guideWidth, guideHeight)
+    : undefined;
+  const bubbleRight = guide ? guide.x - MARGIN / 2 : row.x + row.width;
   const bubbleWidth = Math.min(BUBBLE_WIDTH, row.width / 4);
-  const bubble = rect(guide.x - MARGIN / 2 - bubbleWidth, row.y, bubbleWidth, row.height);
+  const bubble = rect(bubbleRight - bubbleWidth, row.y, bubbleWidth, row.height);
   const footerX = mascot.x + mascot.width + MARGIN / 2;
   const footer = rect(footerX, row.y, bubble.x - MARGIN - footerX, row.height);
   return { mascot, footer, bubble, guide };
 }
 
-export function gameRegions(viewport: Viewport): GameRegions {
+/** `withGuide`: false for games without the guide character; the cards then use the full column. */
+export function gameRegions(viewport: Viewport, withGuide = true): GameRegions {
   const { designWidth: width, designHeight: height } = viewport;
   const header = inset(rect(0, 0, width, HEADER_HEIGHT), MARGIN / 2);
   const message = inset(rect(0, height - MESSAGE_HEIGHT, width, MESSAGE_HEIGHT), MARGIN / 2);
@@ -90,8 +94,8 @@ export function gameRegions(viewport: Viewport): GameRegions {
   );
 
   const [field, cards] = parts(body, 'horizontal', [FIELD_WEIGHT[viewport.mode], 1], MARGIN);
-  const cardColumn = rect(cards.x, cards.y, cards.width, cards.height - GUIDE_RISE);
+  const cardColumn = rect(cards.x, cards.y, cards.width, cards.height - (withGuide ? GUIDE_RISE : 0));
   const [prompt, howTo] = parts(cardColumn, 'vertical', CARD_WEIGHTS, MARGIN);
 
-  return { header, field, prompt, howTo, message, ...messageRow(message) };
+  return { header, field, prompt, howTo, message, ...messageRow(message, withGuide) };
 }

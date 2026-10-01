@@ -23,7 +23,13 @@ import type { RichLines } from '../ui/RichText';
 const FLOW_TICK_MS = 100;
 
 /** Everything a game shows around its field (title comes from the build). */
-export type GameSceneOptions = Omit<GameScreenConfig, 'title' | 'onClose'>;
+export type GameSceneOptions = Omit<GameScreenConfig, 'title' | 'guide' | 'onClose'>;
+
+/** What differs per app build: the game's name and whether it shows the guide character. */
+export interface GameSetup {
+  title: string;
+  guide: boolean;
+}
 
 /**
  * Base class for the six games. Provides the screen around the field (GameScreen:
@@ -43,7 +49,7 @@ export abstract class GameScene extends LayoutScene {
 
   constructor(
     key: string,
-    private readonly gameTitle: string,
+    private readonly setup: GameSetup,
     private readonly options: GameSceneOptions,
   ) {
     super(key);
@@ -167,7 +173,8 @@ export abstract class GameScene extends LayoutScene {
   private get screenConfig(): GameScreenConfig {
     return {
       ...this.options,
-      title: this.gameTitle,
+      title: this.setup.title,
+      guide: this.setup.guide,
       onClose: () => SessionController.of(this.game).dispatch({ type: 'quit' }),
     };
   }

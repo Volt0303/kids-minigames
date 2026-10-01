@@ -3,7 +3,7 @@ import { loadAtlas } from '../core/assets/atlas';
 import { atlasKey, spriteNames, spriteSpec, type SpriteName } from '../core/assets/catalog';
 import type { Rect } from '../core/logic/rect';
 import type { StageConfig } from '../core/logic/stageFlow';
-import { GameScene } from '../core/scenes/GameScene';
+import { GameScene, type GameSetup } from '../core/scenes/GameScene';
 import { plain } from '../core/ui/RichText';
 
 export const DEMO_GAME_SCENE_KEY = 'DemoGame';
@@ -44,8 +44,8 @@ export class DemoGameScene extends GameScene {
   private field?: Rect;
   private target: Fish = 'tuna';
 
-  constructor(title: string) {
-    super(DEMO_GAME_SCENE_KEY, title, {
+  constructor(setup: GameSetup) {
+    super(DEMO_GAME_SCENE_KEY, setup, {
       background: 'sea',
       bubbles: true,
       copy: {

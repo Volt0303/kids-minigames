@@ -35,6 +35,20 @@ export class Character {
     this.startIdle();
   }
 
+  /**
+   * Where a point of a pose ends up on screen, as fractions of that pose's picture
+   * (0,0 = top-left, 1,1 = bottom-right), standing at rest in its area.
+   */
+  pointOf(frame: string, fx: number, fy: number): { x: number; y: number } | undefined {
+    const area = this.area;
+    if (!area || !this.image.texture.has(frame)) return undefined;
+    const source = this.image.texture.get(frame);
+    const fit = fitContain(source.width, source.height, area);
+    const width = source.width * fit.scale;
+    const height = source.height * fit.scale;
+    return { x: fit.x - width / 2 + fx * width, y: area.y + area.height - height + fy * height };
+  }
+
   /** Shows another pose (frame of the same texture) for a while, then the normal one again. */
   showPose(frame: string, durationMs: number): void {
     this.poseTimer?.remove();

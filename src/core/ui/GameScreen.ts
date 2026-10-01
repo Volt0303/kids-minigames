@@ -12,12 +12,10 @@ import { FieldFrame } from './FieldFrame';
 import { FooterMessage } from './FooterMessage';
 import { Header } from './Header';
 import { HowToCard } from './HowToCard';
-import { drawPanel } from './panelShape';
 import type { Picture } from './picture';
 import { PraiseBubble, type Praise } from './PraiseBubble';
 import { PromptCard } from './PromptCard';
 import type { RichLines } from './RichText';
-import { COLORS } from './theme';
 
 /** The words each game shows around its field. */
 export interface GameCopy {
@@ -41,23 +39,26 @@ export interface GameScreenConfig {
   icon?: Picture;
   /** Picture after the title; defaults to the magnifying glass. */
   badge?: Picture;
+  /** Show the client's guide character (games ①–④ only). */
+  guide: boolean;
   onClose: () => void;
 }
 
 const UI = atlasKey('ui');
-/** How long the guide keeps its happy / cheering pose. */
-const PRAISE_POSE_MS = 1_300;
-const CHEER_POSE_MS = 2_200;
+/** How long the guide keeps its 「やったね」 pose after a correct answer / a cleared stage. */
+const HAPPY_POSE_MS = 1_300;
+const CELEBRATE_POSE_MS = 2_200;
+/** Just left of げんきくん's mouth in the 「やったね」 pose, as fractions of the picture. */
+const MOUTH = { x: 0.12, y: 0.36 } as const;
 
 /**
  * Everything around a game's play field, laid out like the client's layout diagram:
  * header bar (title / how-to / progress areas), the field with its background,
  * bubbles and frame, the 「お題」 and 「あそびかた」 cards, and the message bar
- * (starfish, message, praise bubble, guide character), plus the clear banner.
+ * (starfish, message in its own box, praise bubble, guide character), plus the clear banner.
  */
 export class GameScreen {
   readonly banner: Banner;
-  private readonly messageBar: Phaser.GameObjects.Graphics;
   private readonly background?: Background;
   private readonly frame: FieldFrame;
   private readonly bubbles?: Bubbles;
@@ -66,8 +67,9 @@ export class GameScreen {
   private readonly howTo: HowToCard;
   private readonly footer: FooterMessage;
   private readonly mascot: Character;
-  private readonly guide: Character;
+  private readonly guide?: Character;
   private readonly praise: PraiseBubble;
+  private readonly withGuide: boolean;
 
   /** Queues the shared images; call from the scene's preload. */
   static preload(load: Phaser.Loader.LoaderPlugin, config: GameScreenConfig): void {
@@ -88,33 +90,30 @@ export class GameScreen {
     });
     this.prompt = new PromptCard(scene);
     this.howTo = new HowToCard(scene, config.copy.howTo, { texture: UI, frame: 'hand-tap' });
-    this.messageBar = scene.add.graphics();
     this.footer = new FooterMessage(scene, config.copy.footer);
     this.mascot = new Character(scene, { texture: UI, frame: 'starfish' }, 8);
-    this.guide = new Character(scene, { texture: UI, frame: 'guide' }, 10);
-    this.praise = new PraiseBubble(scene, config.copy.praise);
+    this.guide = config.guide ? new Character(scene, { texture: UI, frame: 'guide' }, 10) : undefined;
+    this.praise = new PraiseBubble(scene, config.copy.praise, config.guide);
+    this.withGuide = config.guide;
     this.banner = new Banner(scene);
   }
 
   /** Positions everything; returns the play field for the game's own objects. */
   layout(viewport: Viewport): Rect {
-    const regions = gameRegions(viewport);
+    const regions = gameRegions(viewport, this.withGuide);
     this.background?.layout(regions.field);
     this.frame.layout(regions.field);
     this.bubbles?.layout(regions.field);
     this.header.layout(regions.header);
     this.prompt.layout(regions.prompt);
     this.howTo.layout(regions.howTo);
-    this.messageBar.clear();
-    drawPanel(this.messageBar, regions.message, {
-      fill: COLORS.bar,
-      border: COLORS.barBorder,
-      radius: 36,
-    });
     this.footer.layout(regions.footer);
     this.mascot.layout(regions.mascot);
-    this.guide.layout(regions.guide);
+    if (regions.guide) this.guide?.layout(regions.guide);
     this.praise.layout(regions.bubble);
+    // The bubble shows with the 「やったね」 pose, so its tail points at that pose's mouth.
+    const mouth = this.guide?.pointOf('guide-happy', MOUTH.x, MOUTH.y);
+    if (mouth) this.praise.speakFrom(mouth);
     this.banner.layout(regions.field);
     return regions.field;
   }
@@ -134,12 +133,12 @@ export class GameScreen {
 
   praiseCorrect(): void {
     this.praise.show();
-    this.guide.showPose('guide-happy', PRAISE_POSE_MS);
-    this.guide.hop();
+    this.guide?.showPose('guide-happy', HAPPY_POSE_MS);
+    this.guide?.hop();
   }
 
-  /** Stage or game cleared: the guide cheers while the banner is shown. */
+  /** Stage or game cleared: the guide shows its 「やったね」 pose while the banner is shown. */
   celebrate(): void {
-    this.guide.showPose('guide-cheer', CHEER_POSE_MS);
+    this.guide?.showPose('guide-happy', CELEBRATE_POSE_MS);
   }
 }

@@ -12,6 +12,8 @@ export interface Praise {
 const SHOW_MS = 1_300;
 const RADIUS = 44;
 const TAIL = 34;
+/** Height of the tail's tip, relative to the bubble's centre. */
+const TAIL_TIP_Y = 34;
 const HEIGHT = 190;
 /** Bubble height relative to its area. */
 const MAX_RISE = 1.35;
@@ -31,6 +33,8 @@ export class PraiseBubble {
   constructor(
     private readonly scene: Phaser.Scene,
     praise: Praise,
+    /** Draws a tail pointing right, at the guide character. */
+    private readonly tail: boolean,
   ) {
     this.shape = scene.add.graphics();
     const title = scene.add.text(0, -26, praise.title, TEXT.bubbleTitle).setOrigin(0.5);
@@ -46,11 +50,21 @@ export class PraiseBubble {
    */
   layout(area: Rect): void {
     // May rise a little above its area (over the field's edge), but not over the cards.
-    this.fitScale = Math.min(1, (area.width - TAIL) / this.width, (area.height * MAX_RISE) / HEIGHT);
+    const tail = this.tail ? TAIL : 0;
+    this.fitScale = Math.min(1, (area.width - tail) / this.width, (area.height * MAX_RISE) / HEIGHT);
     const height = HEIGHT * this.fitScale;
     this.container
-      .setPosition(area.x + (area.width - TAIL * this.fitScale) / 2, area.y + area.height - height / 2)
+      .setPosition(area.x + (area.width - tail * this.fitScale) / 2, area.y + area.height - height / 2)
       .setScale(this.fitScale);
+  }
+
+  /**
+   * Moves the bubble so its tail ends at `tip` (e.g. next to the character's mouth),
+   * keeping the size chosen by `layout`.
+   */
+  speakFrom(tip: { x: number; y: number }): void {
+    const scale = this.fitScale;
+    this.container.setPosition(tip.x - (this.width / 2 + TAIL) * scale, tip.y - TAIL_TIP_Y * scale);
   }
 
   show(): void {
@@ -72,14 +86,15 @@ export class PraiseBubble {
       .fillRoundedRect(left, top, width, height, RADIUS)
       .lineStyle(6, COLORS.panelBorder)
       .strokeRoundedRect(left, top, width, height, RADIUS);
+    if (!this.tail) return;
     // Tail on the right, pointing at the guide character; drawn over the border so it joins the bubble.
     const edge = width / 2;
     this.shape
       .fillStyle(COLORS.panel)
-      .fillTriangle(edge - 8, -8, edge - 8, 46, edge + TAIL, 34)
+      .fillTriangle(edge - 8, -8, edge - 8, 46, edge + TAIL, TAIL_TIP_Y)
       .beginPath()
       .moveTo(edge - 2, -8)
-      .lineTo(edge + TAIL, 34)
+      .lineTo(edge + TAIL, TAIL_TIP_Y)
       .lineTo(edge - 2, 46)
       .strokePath();
   }

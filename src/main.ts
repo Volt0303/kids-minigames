@@ -34,6 +34,10 @@ function startGame(): Phaser.Game {
       zoom: initial.canvasZoom,
     },
     input: { activePointers: 1 },
+    // Phaser caps each frame's time step at 1/60 s for its first 120 frames (and after every
+    // resume). On a tablet drawing 20–30 frames a second, that made everything move at a third
+    // to half speed for the first seconds of a stage. Long stalls are still capped (fps.min).
+    fps: { panicMax: 0 },
     // The first scene starts automatically; the session controller switches to the others.
     scene: [new StartScene(title), play.scene],
   });

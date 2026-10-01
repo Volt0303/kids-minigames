@@ -67,10 +67,9 @@ export const ATLASES = {
     'hand-tap': sprite('ゆび', 200, 200),
     magnifier: sprite('むしめがね', 180, 180),
     starfish: sprite('ヒトデ', 180, 180),
-    /** Guide character (client-provided げんきくん): normal, correct answer, stage clear. */
+    /** Guide character (client-provided げんきくん, games ①–④ only): normal and 「やったね」 poses. */
     guide: sprite('げんきくん', 300, 420),
     'guide-happy': sprite('げんきくん（やったね）', 300, 420),
-    'guide-cheer': sprite('げんきくん（おうえん）', 300, 420),
   },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),

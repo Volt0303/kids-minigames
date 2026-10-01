@@ -1,58 +1,56 @@
-import * as Phaser from 'phaser';
-import { COLORS } from './theme';
+import type * as Phaser from 'phaser';
 
-/** Anything the marker can point at: position plus on-screen size. */
+/** Anything the hint can point at: a picture that can be scaled. */
 export type HintTarget = Phaser.GameObjects.GameObject &
   Phaser.GameObjects.Components.Transform & { displayWidth: number; displayHeight: number; visible: boolean };
 
 const SHOW_MS = 3_000;
-const PULSE_MS = 380;
+const PULSE_MS = 320;
+/** How much bigger the target gets at the top of each pulse. */
+const PULSE_SCALE = 1.35;
 
 /**
- * A thick pulsing ring that follows a target so a young child cannot miss it.
- * One per scene, reused for every hint. Following copies a position each
- * frame and allocates nothing.
+ * Hint for a stuck child: the correct object grows and shrinks a few times, then
+ * goes back to its normal size. One per scene, reused for every hint.
  */
 export class HintMarker {
-  private readonly ring: Phaser.GameObjects.Arc;
   private target?: HintTarget;
+  private baseScaleX = 1;
+  private baseScaleY = 1;
   private pulse?: Phaser.Tweens.Tween;
   private hideTimer?: Phaser.Time.TimerEvent;
 
-  constructor(private readonly scene: Phaser.Scene) {
-    this.ring = scene.add.circle(0, 0, 100).setStrokeStyle(16, COLORS.star).setVisible(false).setDepth(80);
-    scene.events.on(Phaser.Scenes.Events.UPDATE, this.follow);
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.UPDATE, this.follow));
-  }
+  constructor(private readonly scene: Phaser.Scene) {}
 
   pointAt(target: HintTarget): void {
     this.hide();
     this.target = target;
-    this.ring
-      .setRadius(Math.max(target.displayWidth, target.displayHeight) * 0.65)
-      .setPosition(target.x, target.y)
-      .setScale(1)
-      .setVisible(true);
-    this.pulse = this.scene.tweens.add({ targets: this.ring, scale: 1.25, duration: PULSE_MS, yoyo: true, repeat: -1 });
+    this.baseScaleX = target.scaleX;
+    this.baseScaleY = target.scaleY;
+    this.pulse = this.scene.tweens.add({
+      targets: target,
+      scaleX: target.scaleX * PULSE_SCALE,
+      scaleY: target.scaleY * PULSE_SCALE,
+      duration: PULSE_MS,
+      ease: 'Sine.easeInOut',
+      yoyo: true,
+      repeat: -1,
+    });
     this.hideTimer = this.scene.time.delayedCall(SHOW_MS, () => this.hide());
   }
 
+  /** Stops the pulse and puts the target back to its normal size. */
   hide(): void {
-    this.pulse?.remove();
-    this.hideTimer?.remove();
-    this.pulse = undefined;
-    this.hideTimer = undefined;
-    this.target = undefined;
-    this.ring.setVisible(false);
-  }
-
-  private readonly follow = (): void => {
     const target = this.target;
-    if (!target) return;
-    if (!target.visible || !target.active) {
-      this.hide();
-      return;
-    }
-    this.ring.setPosition(target.x, target.y);
-  };
+    const pulse = this.pulse;
+    this.hideTimer?.remove();
+    this.hideTimer = undefined;
+    this.pulse = undefined;
+    this.target = undefined;
+    if (!target || !pulse) return;
+    // If the game already reset the object (its tweens killed for a new stage), its size is no longer ours to restore.
+    const ours = !pulse.isDestroyed();
+    pulse.remove();
+    if (ours && target.active) target.setScale(this.baseScaleX, this.baseScaleY);
+  }
 }

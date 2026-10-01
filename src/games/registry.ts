@@ -12,6 +12,19 @@ export const GAME_TITLES: Record<GameId, string> = {
   order: '注文のお手伝いゲーム',
 };
 
+/**
+ * Whether the game shows the client's guide character. The client allows it in
+ * games ①–④ only; ⑤ and ⑥ will be used for another kind of restaurant.
+ */
+export const GAME_HAS_GUIDE: Record<GameId, boolean> = {
+  ocean: true,
+  sushi: true,
+  findfish: true,
+  puzzle: true,
+  diff: false,
+  order: false,
+};
+
 export function isGameId(value: string | undefined): value is GameId {
   return !!value && (GAME_IDS as readonly string[]).includes(value);
 }

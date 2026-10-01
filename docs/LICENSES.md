@@ -86,15 +86,15 @@ followed by the message below. The atlases in `public/assets/` are built from th
 ### Client-provided character
 
 The guide character げんきくん is the client's own character, supplied by the client (Adobe Illustrator file,
-received 2026-10-01) for use in these six apps. All rights remain with the client; it is **not** covered by the
+received 2026-10-01). The client permits its use in games ①–④ only (海のおそうじゲーム, お寿司パズル,
+おさかな探し, おさかなパズル); ⑤ and ⑥ do not show it. All rights remain with the client; it is **not** covered by the
 licences above. The PNGs below were exported from the client's file (page rendered at 400 dpi, grey backing box
 removed with `tools/lib/remove-background.mjs`, trimmed); the drawings are unchanged.
 
 | File | Pose in the client's file | Used for |
 |---|---|---|
 | `ui/guide.png` | げんきくん ① (standing) | Normal |
-| `ui/guide-happy.png` | げんきくん ⑤ (jump kick) | After a correct answer |
-| `ui/guide-cheer.png` | げんきくん ④ (fighting stance) | Stage clear |
+| `ui/guide-happy.png` | げんきくん ⑤ (jump kick) | 「やったね」: after a correct answer and at stage clear |
 
 ## Libraries shipped in the apps
 

@@ -4,8 +4,9 @@ import { atlasKey, spriteNames, spriteSpec } from '../../core/assets/catalog';
 import { minTouchSize } from '../../core/logic/layout';
 import type { Rect } from '../../core/logic/rect';
 import { DESIGN_HEIGHT } from '../../core/logic/viewport';
-import { GameScene } from '../../core/scenes/GameScene';
+import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import { FIND_FISH_COPY, findPrompt, TITLE_FISH } from './copy';
+import { pickEvenlyByRow } from './logic/hintPick';
 import { buildRoster, type Roster } from './logic/roster';
 import { edgeAlpha, planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
 import { STAGES, type FindFishStage } from './stages';
@@ -42,6 +43,8 @@ function tapArea(width: number, height: number, scale: number): Phaser.Geom.Rect
 interface Swimmer {
   image: Phaser.GameObjects.Image;
   direction: 1 | -1;
+  /** Row the fish swims in (0 = top). */
+  row: number;
   /** Swimming and tappable. */
   active: boolean;
   /** Already found this stage: stays hidden even if the field is laid out again. */
@@ -62,8 +65,8 @@ export class FindFishScene extends GameScene {
   private roster?: Roster;
   private stage: FindFishStage = STAGES[0];
 
-  constructor(title: string) {
-    super(FIND_FISH_SCENE_KEY, title, {
+  constructor(setup: GameSetup) {
+    super(FIND_FISH_SCENE_KEY, setup, {
       background: 'sea',
       bubbles: true,
       copy: FIND_FISH_COPY,
@@ -78,7 +81,7 @@ export class FindFishScene extends GameScene {
   protected buildField(): void {
     for (let i = 0; i < POOL_SIZE; i++) {
       const image = this.add.image(0, 0, FISH_TEXTURE, 'tuna').setVisible(false).setDepth(-10);
-      const swimmer: Swimmer = { image, direction: 1, active: false, found: false };
+      const swimmer: Swimmer = { image, direction: 1, row: 0, active: false, found: false };
       image.on('pointerdown', () => this.onTap(swimmer));
       this.swimmers.push(swimmer);
     }
@@ -103,7 +106,8 @@ export class FindFishScene extends GameScene {
 
   protected findHintTarget(): Phaser.GameObjects.Image | undefined {
     const target = this.roster?.target;
-    return this.swimmers.find((s) => s.active && s.image.alpha === 1 && s.image.frame.name === target)?.image;
+    const candidates = this.swimmers.filter((s) => s.active && s.image.alpha === 1 && s.image.frame.name === target);
+    return pickEvenlyByRow(candidates, Math.random)?.image;
   }
 
   update(_time: number, delta: number): void {
@@ -136,7 +140,7 @@ export class FindFishScene extends GameScene {
         next += 1;
         if (swimmer?.found) this.hideSwimmer(swimmer);
         else if (swimmer && fish)
-          this.showSwimmer(swimmer, fish, { x, y: row.y, height: row.height, direction: row.direction });
+          this.showSwimmer(swimmer, fish, { x, y: row.y, height: row.height, direction: row.direction, row: rowIndex });
       }
     });
     for (const swimmer of this.swimmers.slice(next)) this.hideSwimmer(swimmer);
@@ -145,7 +149,7 @@ export class FindFishScene extends GameScene {
   private showSwimmer(
     swimmer: Swimmer,
     fish: string,
-    place: { x: number; y: number; height: number; direction: 1 | -1 },
+    place: { x: number; y: number; height: number; direction: 1 | -1; row: number },
   ): void {
     const image = swimmer.image;
     this.tweens.killTweensOf(image);
@@ -159,6 +163,7 @@ export class FindFishScene extends GameScene {
       .setVisible(true);
     image.setInteractive(tapArea(image.frame.width, image.frame.height, scale), containsPoint);
     swimmer.direction = place.direction;
+    swimmer.row = place.row;
     swimmer.active = true;
   }
 
