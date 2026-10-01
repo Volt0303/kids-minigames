@@ -66,6 +66,9 @@ export const ATLASES = {
   ui: {
     'hand-tap': sprite('ゆび', 200, 200),
     magnifier: sprite('むしめがね', 180, 180),
+    starfish: sprite('ヒトデ', 180, 180),
+    /** Guide character (bottom right); the client may supply its own character. */
+    guide: sprite('あんないやく', 320, 420),
   },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),

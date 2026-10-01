@@ -10,7 +10,7 @@ export const COLORS = {
   star: 0xffd166,
   /** Header status / score badges. */
   badge: 0x1f4e9c,
-  /** 「おだい」 card. */
+  /** 「お題」 card. */
   promptCard: 0xfff6dc,
   promptBorder: 0xf2c14e,
   promptLabel: 0xf5a623,
@@ -36,7 +36,7 @@ const bold = (fontSize: number, color: string) =>
 
 export const TEXT = {
   /** Game title in the header: blue with a white edge, as in the mockups. */
-  title: { ...bold(84, COLORS.textTitle), stroke: '#ffffff', strokeThickness: 14 },
+  title: { ...bold(96, COLORS.textTitle), stroke: '#ffffff', strokeThickness: 14 },
   /** Start-screen title on the background picture. */
   startTitle: { ...bold(120, COLORS.textTitle), stroke: '#ffffff', strokeThickness: 18 },
   subtitle: bold(38, COLORS.textDark),
@@ -47,6 +47,7 @@ export const TEXT = {
   cardText: bold(54, COLORS.textDark),
   howToText: bold(40, COLORS.textDark),
   footer: bold(42, COLORS.textDark),
+  footerStar: bold(52, '#ffc93c'),
   bubbleTitle: bold(72, COLORS.highlight),
   bubbleLine: bold(40, COLORS.textDark),
   banner: { ...bold(150, COLORS.textLight), stroke: '#e76f51', strokeThickness: 18 },

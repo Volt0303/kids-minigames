@@ -12,7 +12,7 @@ const TEXT_SHARE = 0.4;
 const MAX_PICTURE_SCALE = 1.6;
 
 /**
- * The 「おだい」 (task) card from the mockups: what to do, with the important word
+ * The 「お題」 (task) card from the mockups: what to do, with the important word
  * highlighted, and a picture of it. Children who cannot read use the picture.
  */
 export class PromptCard {
@@ -26,7 +26,7 @@ export class PromptCard {
 
   constructor(private readonly scene: Phaser.Scene) {
     this.panel = scene.add.graphics();
-    this.label = scene.add.text(0, 0, 'おだい', TEXT.cardLabel);
+    this.label = scene.add.text(0, 0, 'お題', TEXT.cardLabel);
     this.caption = new RichText(scene, TEXT.cardText);
     this.image = scene.add.image(0, 0, '__DEFAULT').setVisible(false);
     this.blocker = scene.add.zone(0, 0, 1, 1).setOrigin(0).setInteractive();

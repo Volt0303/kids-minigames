@@ -13,7 +13,6 @@ const SHOW_MS = 1_300;
 const RADIUS = 44;
 const TAIL = 34;
 const HEIGHT = 190;
-const INSET = 30;
 
 /**
  * Speech bubble that pops up after a correct answer (「せいかい！ よく みつけたね！」),
@@ -23,6 +22,8 @@ export class PraiseBubble {
   private readonly container: Phaser.GameObjects.Container;
   private readonly shape: Phaser.GameObjects.Graphics;
   private readonly width: number;
+  /** Scale that fits the bubble into its region (narrow screens). */
+  private fitScale = 1;
   private hideTimer?: Phaser.Time.TimerEvent;
 
   constructor(
@@ -37,19 +38,24 @@ export class PraiseBubble {
     this.container = scene.add.container(0, 0, [this.shape, title, line]).setDepth(95).setVisible(false);
   }
 
-  /** Sits in the bottom-right corner of the play field, as in the mockups. */
-  layout(field: Rect): void {
-    this.container.setPosition(
-      field.x + field.width - this.width / 2 - INSET,
-      field.y + field.height - HEIGHT / 2 - INSET - TAIL,
-    );
+  /**
+   * Sits in `area` next to the guide character, as in the mockups: bottom-aligned,
+   * taller than the area so it overlaps the bottom of the field a little.
+   */
+  layout(area: Rect): void {
+    this.fitScale = Math.min(1, (area.width - TAIL) / this.width);
+    const height = HEIGHT * this.fitScale;
+    this.container
+      .setPosition(area.x + (area.width - TAIL * this.fitScale) / 2, area.y + area.height - height / 2)
+      .setScale(this.fitScale);
   }
 
   show(): void {
     this.hideTimer?.remove();
     this.scene.tweens.killTweensOf(this.container);
-    this.container.setVisible(true).setScale(0.4);
-    this.scene.tweens.add({ targets: this.container, scale: 1, duration: 260, ease: 'Back.easeOut' });
+    this.container.setVisible(true);
+    this.container.setScale(this.fitScale * 0.4);
+    this.scene.tweens.add({ targets: this.container, scale: this.fitScale, duration: 260, ease: 'Back.easeOut' });
     this.hideTimer = this.scene.time.delayedCall(SHOW_MS, () => this.container.setVisible(false));
   }
 
@@ -61,8 +67,17 @@ export class PraiseBubble {
       .fillRoundedRect(left + 6, top + 8, width, height, RADIUS)
       .fillStyle(COLORS.panel)
       .fillRoundedRect(left, top, width, height, RADIUS)
-      .fillTriangle(width / 2 - 90, height / 2 - 4, width / 2 - 30, height / 2 - 4, width / 2 - 20, height / 2 + TAIL)
       .lineStyle(6, COLORS.panelBorder)
       .strokeRoundedRect(left, top, width, height, RADIUS);
+    // Tail on the right, pointing at the guide character; drawn over the border so it joins the bubble.
+    const edge = width / 2;
+    this.shape
+      .fillStyle(COLORS.panel)
+      .fillTriangle(edge - 8, -8, edge - 8, 46, edge + TAIL, 34)
+      .beginPath()
+      .moveTo(edge - 2, -8)
+      .lineTo(edge + TAIL, 34)
+      .lineTo(edge - 2, 46)
+      .strokePath();
   }
 }

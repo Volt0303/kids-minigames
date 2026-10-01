@@ -7,6 +7,7 @@ import type { Viewport } from '../logic/viewport';
 import { Background } from './Background';
 import { Banner } from './Banner';
 import { Bubbles } from './Bubbles';
+import { Character } from './Character';
 import { FooterMessage } from './FooterMessage';
 import { Header } from './Header';
 import { HowToCard } from './HowToCard';
@@ -44,8 +45,8 @@ const UI = atlasKey('ui');
 
 /**
  * Everything around a game's play field, laid out like the client's mockups:
- * background, header, 「おだい」 and 「あそびかた」 cards, footer message,
- * praise bubble and the clear banner.
+ * background, header, 「お題」 and 「あそびかた」 cards, starfish, footer message,
+ * guide character with its praise bubble, and the clear banner.
  */
 export class GameScreen {
   readonly banner: Banner;
@@ -55,6 +56,8 @@ export class GameScreen {
   private readonly prompt: PromptCard;
   private readonly howTo: HowToCard;
   private readonly footer: FooterMessage;
+  private readonly mascot: Character;
+  private readonly guide: Character;
   private readonly praise: PraiseBubble;
 
   /** Queues the shared images; call from the scene's preload. */
@@ -76,6 +79,8 @@ export class GameScreen {
     this.prompt = new PromptCard(scene);
     this.howTo = new HowToCard(scene, config.copy.howTo, { texture: UI, frame: 'hand-tap' });
     this.footer = new FooterMessage(scene, config.copy.footer);
+    this.mascot = new Character(scene, { texture: UI, frame: 'starfish' }, 8);
+    this.guide = new Character(scene, { texture: UI, frame: 'guide' }, 10);
     this.praise = new PraiseBubble(scene, config.copy.praise);
     this.banner = new Banner(scene);
   }
@@ -89,7 +94,9 @@ export class GameScreen {
     this.prompt.layout(regions.prompt);
     this.howTo.layout(regions.howTo);
     this.footer.layout(regions.footer);
-    this.praise.layout(regions.field);
+    this.mascot.layout(regions.mascot);
+    this.guide.layout(regions.guide);
+    this.praise.layout(regions.bubble);
     this.banner.layout(regions.field);
     return regions.field;
   }
@@ -109,5 +116,6 @@ export class GameScreen {
 
   praiseCorrect(): void {
     this.praise.show();
+    this.guide.hop();
   }
 }

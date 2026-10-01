@@ -16,8 +16,8 @@ describe.each<[string, Viewport]>([
   ['sub2 1920x1080', sub2],
 ])('gameRegions on %s', (_name, vp) => {
   const regions = gameRegions(vp);
-  const { header, field, prompt, howTo, footer, bubble } = regions;
-  const all: Rect[] = [header, field, prompt, howTo, footer, bubble];
+  const { header, field, prompt, howTo, guide, mascot, footer, bubble } = regions;
+  const all: Rect[] = [header, field, prompt, howTo, guide, mascot, footer, bubble];
 
   it('keeps every region on screen', () => {
     for (const r of all) {
@@ -39,6 +39,15 @@ describe.each<[string, Viewport]>([
     expect(prompt.x).toBeGreaterThan(field.x + field.width);
     expect(howTo.y).toBeGreaterThan(prompt.y + prompt.height);
     expect(field.y).toBeGreaterThanOrEqual(HEADER_HEIGHT);
+  });
+
+  it('puts the guide under the cards and the bottom row under the field, mascot first', () => {
+    const { field, howTo, guide, mascot, footer, bubble } = regions;
+    expect(guide.y).toBeGreaterThan(howTo.y + howTo.height);
+    for (const r of [mascot, footer, bubble]) expect(r.y).toBeGreaterThan(field.y + field.height);
+    expect(footer.x).toBeGreaterThan(mascot.x + mascot.width);
+    expect(bubble.x).toBeGreaterThan(footer.x + footer.width);
+    expect(footer.width).toBeGreaterThan(400);
   });
 
   it('leaves a play field tall enough for the games', () => {

@@ -13,7 +13,7 @@ export interface HeaderConfig {
   icon?: Picture;
   /** Small picture after the title (e.g. a magnifying glass). */
   badge?: Picture;
-  /** Short instruction next to the title; hidden when the screen is too narrow. */
+  /** Short instruction next to the title (always shown, as in the mockups). */
   subtitle: RichLines;
   onClose: () => void;
 }
@@ -22,6 +22,8 @@ const RADIUS = 36;
 const GAP = 24;
 const ICON_SIZE = 100;
 const CLOSE_RADIUS = 48;
+/** Magnifying glass size relative to the icon. */
+const BADGE_SIZE = 0.9;
 
 /**
  * Header panel from the mockups: icon, big title, instruction line on the left;
@@ -83,21 +85,26 @@ export class Header {
     return right - this.status.width;
   }
 
-  /** Icon, title, badge and subtitle; the subtitle hides and the title shrinks when space runs out. */
-  private layoutLeft(left: number, right: number, y: number): void {
-    let x = left;
-    if (this.icon) x = this.placePicture(this.icon, x, y);
-    const badgeSpace = this.badge ? ICON_SIZE * 0.8 + GAP : 0;
-    this.title.setScale(Math.min(1, (right - x - badgeSpace) / this.title.width));
-    this.title.setPosition(x, y);
-    x += this.title.displayWidth + GAP / 2;
-    if (this.badge) x = this.placePicture(this.badge, x, y, 0.8);
-    this.subtitle.setVisible(x + GAP + this.subtitle.textWidth <= right).setPosition(x + GAP, y);
+  /** Width of icon, title, badge and subtitle at full size. */
+  private get leftWidth(): number {
+    const pictures = (this.icon ? ICON_SIZE + GAP / 2 : 0) + (this.badge ? ICON_SIZE * BADGE_SIZE + GAP / 2 : 0);
+    return pictures + this.title.width + GAP / 2 + GAP + this.subtitle.textWidth;
   }
 
-  private placePicture(image: Phaser.GameObjects.Image, x: number, y: number, size = 1): number {
+  /** Icon, title, badge and subtitle, all shrunk by the same factor when space runs out. */
+  private layoutLeft(left: number, right: number, y: number): void {
+    const scale = Math.min(1, (right - left) / this.leftWidth);
+    let x = left;
+    if (this.icon) x = this.placePicture(this.icon, x, y, scale);
+    this.title.setScale(scale).setPosition(x, y);
+    x += this.title.displayWidth + (GAP / 2) * scale;
+    if (this.badge) x = this.placePicture(this.badge, x, y, BADGE_SIZE * scale);
+    this.subtitle.setScale(scale).setPosition(x + GAP * scale, y);
+  }
+
+  private placePicture(image: Phaser.GameObjects.Image, x: number, y: number, size: number): number {
     const scale = (ICON_SIZE * size) / Math.max(image.frame.width, image.frame.height);
     image.setScale(scale).setPosition(x + image.displayWidth / 2, y);
-    return x + image.displayWidth + GAP / 2;
+    return x + image.displayWidth + (GAP / 2) * size;
   }
 }

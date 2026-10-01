@@ -15,7 +15,7 @@ const LABEL_PADDING_X = 34;
 export const CARD_LABEL_SPACE = LABEL_HEIGHT / 2 + 12;
 
 /**
- * Draws a card with a coloured label tab centred on its top edge (「おだい」, 「あそびかた」),
+ * Draws a card with a coloured label tab centred on its top edge (「お題」, 「あそびかた」),
  * as in the mockups. `label` is the tab's text object; it is moved onto the tab.
  */
 export function drawCard(

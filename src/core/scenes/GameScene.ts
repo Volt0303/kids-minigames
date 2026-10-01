@@ -27,7 +27,7 @@ export type GameSceneOptions = Omit<GameScreenConfig, 'title' | 'onClose'>;
 
 /**
  * Base class for the six games. Provides the screen around the field (GameScreen:
- * header with × close button, 「おだい」 and 「あそびかた」 cards, footer, praise
+ * header with × close button, 「お題」 and 「あそびかた」 cards, footer, praise
  * bubble), the stage flow (3 stages, 60 s each, no failure), hints, clear banners
  * and the final exit.
  *
@@ -102,7 +102,7 @@ export abstract class GameScene extends LayoutScene {
     this.layoutField(this.ui.layout(viewport), viewport);
   }
 
-  /** Shows what to do now on the 「おだい」 card; highlight the key word with a colour. */
+  /** Shows what to do now on the 「お題」 card; highlight the key word with a colour. */
   protected setPrompt(lines: RichLines, picture?: Picture): void {
     this.ui.setPrompt(lines, picture);
   }
