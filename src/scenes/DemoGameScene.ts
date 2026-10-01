@@ -4,12 +4,18 @@ import { atlasKey, spriteNames, spriteSpec, type SpriteName } from '../core/asse
 import type { Rect } from '../core/logic/rect';
 import type { StageConfig } from '../core/logic/stageFlow';
 import { GameScene } from '../core/scenes/GameScene';
+import { plain } from '../core/ui/RichText';
 
 export const DEMO_GAME_SCENE_KEY = 'DemoGame';
 
 type Fish = SpriteName<'fish'>;
 
-const FISH_COUNT = 10;
+/** The field is split into a grid; each fish swims inside its own cell, so fish never overlap. */
+const GRID = { rows: 5, columns: 2 } as const;
+const FISH_COUNT = GRID.rows * GRID.columns;
+/** Fish height relative to its cell, leaving room between rows. */
+const CELL_FILL = 0.8;
+const FOUND_FLOAT = 140;
 const FISH_TEXTURE = atlasKey('fish');
 /** Fish asked for in stages 1, 2 and 3. */
 const TARGETS: readonly Fish[] = ['tuna', 'salmon', 'sea-bream'];
@@ -39,7 +45,15 @@ export class DemoGameScene extends GameScene {
   private target: Fish = 'tuna';
 
   constructor(title: string) {
-    super(DEMO_GAME_SCENE_KEY, title, { background: 'sea' });
+    super(DEMO_GAME_SCENE_KEY, title, {
+      background: 'sea',
+      copy: {
+        subtitle: plain('じゅんびちゅう'),
+        howTo: plain('このゲームは', 'じゅんびちゅう', 'です'),
+        footer: plain('もうすぐ あそべるよ！'),
+        praise: { title: 'せいかい！', line: 'よく できたね！' },
+      },
+    });
   }
 
   protected preloadGame(): void {
@@ -56,16 +70,19 @@ export class DemoGameScene extends GameScene {
 
   protected layoutField(field: Rect): void {
     this.field = field;
-    for (const fish of this.fish) this.place(fish);
+    this.fish.forEach((fish, i) => this.place(fish, i));
   }
 
   protected startStage(index: number): void {
     this.target = TARGETS[index] ?? 'tuna';
-    this.setPrompt(`${spriteSpec('fish', this.target).ja}を\nタッチ！`, { texture: FISH_TEXTURE, frame: this.target });
+    this.setPrompt(plain(`${spriteSpec('fish', this.target).ja}を`, 'タッチ！'), {
+      texture: FISH_TEXTURE,
+      frame: this.target,
+    });
     const decoys = spriteNames('fish').filter((name) => name !== this.target);
     const targetCount = TARGETS_ON_SCREEN[index] ?? 2;
     this.fish.forEach((fish, i) => fish.setFrame(i < targetCount ? this.target : Phaser.Utils.Array.GetRandom(decoys)));
-    for (const fish of this.fish) this.place(fish);
+    this.fish.forEach((fish, i) => this.place(fish, i));
   }
 
   protected findHintTarget(): Phaser.GameObjects.Image | undefined {
@@ -76,27 +93,43 @@ export class DemoGameScene extends GameScene {
     if (!this.isPlaying) return;
     if (fish.frame.name === this.target) {
       this.reportCorrect(fish.x, fish.y);
-      this.place(fish);
+      this.respawn(fish);
     } else {
       this.reportWrong(fish);
     }
   }
 
-  /** Moves a fish to a random spot in the field and sets it swimming. */
-  private place(fish: Phaser.GameObjects.Image): void {
+  /** A found fish floats up and fades away, then swims in again from another spot in its cell. */
+  private respawn(fish: Phaser.GameObjects.Image): void {
+    fish.disableInteractive();
+    this.tweens.add({
+      targets: fish,
+      y: fish.y - FOUND_FLOAT,
+      alpha: 0,
+      duration: 400,
+      onComplete: () => this.place(fish, this.fish.indexOf(fish)),
+    });
+  }
+
+  /** Puts fish number `index` in its grid cell and sets it swimming there. */
+  private place(fish: Phaser.GameObjects.Image, index: number): void {
     const field = this.field;
     if (!field) return;
-    const halfWidth = fish.width / 2;
-    const halfHeight = fish.height / 2;
+    const cellWidth = field.width / GRID.columns;
+    const cellHeight = field.height / GRID.rows;
+    const left = field.x + (index % GRID.columns) * cellWidth;
+    const y = field.y + (Math.floor(index / GRID.columns) + 0.5) * cellHeight;
+    const scale = Math.min(1, (cellHeight * CELL_FILL) / fish.frame.height, (cellWidth * 0.9) / fish.frame.width);
+    fish.setScale(scale);
+    const halfWidth = (fish.frame.width * scale) / 2;
     const lane = {
-      left: field.x + halfWidth,
-      right: field.x + field.width - halfWidth,
-      speed: Phaser.Math.FloatBetween(0.15, 0.3), // design units per ms
+      left: left + halfWidth,
+      right: left + cellWidth - halfWidth,
+      speed: Phaser.Math.FloatBetween(0.1, 0.2), // design units per ms
     };
-    const y = Phaser.Math.FloatBetween(field.y + halfHeight, field.y + field.height - halfHeight);
 
     this.tweens.killTweensOf(fish);
-    fish.setPosition(Phaser.Math.FloatBetween(lane.left, lane.right), y).setAngle(0);
+    fish.setPosition(Phaser.Math.FloatBetween(lane.left, lane.right), y).setAngle(0).setAlpha(1).setInteractive();
     this.swim(fish, lane, Math.random() < 0.5);
   }
 

@@ -63,6 +63,10 @@ export const ATLASES = {
     wasabi: sprite('わさび', 150, 120),
     ginger: sprite('ガリ', 180, 130),
   },
+  ui: {
+    'hand-tap': sprite('ゆび', 200, 200),
+    magnifier: sprite('むしめがね', 180, 180),
+  },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),
     'seaweed-2': sprite('かいそう', 180, 440),

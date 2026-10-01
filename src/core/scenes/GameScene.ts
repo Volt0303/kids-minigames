@@ -1,8 +1,5 @@
 import type * as Phaser from 'phaser';
-import { loadBackground } from '../assets/atlas';
-import { backgroundKey, type BackgroundName } from '../assets/catalog';
 import { LayoutScene } from '../display/LayoutScene';
-import { gameRegions } from '../logic/gameLayout';
 import type { Rect } from '../logic/rect';
 import {
   currentStage,
@@ -16,25 +13,23 @@ import {
 } from '../logic/stageFlow';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
-import { Background } from '../ui/Background';
-import { Banner } from '../ui/Banner';
 import { Feedback, SFX } from '../ui/Feedback';
+import { GameScreen, type GameScreenConfig } from '../ui/GameScreen';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
-import { Hud } from '../ui/Hud';
-import { PromptCard, type PromptPicture } from '../ui/PromptCard';
+import type { Picture } from '../ui/picture';
+import type { RichLines } from '../ui/RichText';
 
 /** The stage clock is advanced on a timer, not every frame, to keep per-frame work at zero. */
 const FLOW_TICK_MS = 100;
 
-export interface GameSceneOptions {
-  /** Full-screen background behind the game (plain colour when omitted). */
-  background?: BackgroundName;
-}
+/** Everything a game shows around its field (title comes from the build). */
+export type GameSceneOptions = Omit<GameScreenConfig, 'title' | 'onClose'>;
 
 /**
- * Base class for the six games. Provides the background, top bar (with the × close
- * button), prompt card, stage flow
- * (3 stages, 60 s each, no failure), hints, clear banners and the final exit.
+ * Base class for the six games. Provides the screen around the field (GameScreen:
+ * header with × close button, 「おだい」 and 「あそびかた」 cards, footer, praise
+ * bubble), the stage flow (3 stages, 60 s each, no failure), hints, clear banners
+ * and the final exit.
  *
  * A game implements its field: `buildField`, `layoutField`, `startStage`,
  * `findHintTarget`, and reports actions with `reportCorrect` / `reportWrong`.
@@ -43,16 +38,13 @@ export abstract class GameScene extends LayoutScene {
   protected abstract readonly stages: readonly StageConfig[];
   protected feedback!: Feedback;
   private flow!: FlowState;
-  private hud!: Hud;
-  private prompt!: PromptCard;
-  private banner!: Banner;
+  private ui!: GameScreen;
   private hint!: HintMarker;
-  private background?: Background;
 
   constructor(
     key: string,
     private readonly gameTitle: string,
-    private readonly options: GameSceneOptions = {},
+    private readonly options: GameSceneOptions,
   ) {
     super(key);
   }
@@ -84,7 +76,7 @@ export abstract class GameScene extends LayoutScene {
     this.load.audio(SFX.correct, 'sfx/correct.wav');
     this.load.audio(SFX.wrong, 'sfx/wrong.wav');
     this.load.audio(SFX.clear, 'sfx/clear.wav');
-    if (this.options.background) loadBackground(this.load, this.options.background);
+    GameScreen.preload(this.load, this.screenConfig);
     this.preloadGame();
   }
 
@@ -94,12 +86,9 @@ export abstract class GameScene extends LayoutScene {
   }
 
   protected build(): void {
-    if (this.options.background) this.background = new Background(this, backgroundKey(this.options.background));
-    this.hud = new Hud(this, this.gameTitle, () => SessionController.of(this.game).dispatch({ type: 'quit' }));
-    this.prompt = new PromptCard(this);
+    this.ui = new GameScreen(this, this.screenConfig);
     this.feedback = new Feedback(this);
     this.buildField();
-    this.banner = new Banner(this);
     this.hint = new HintMarker(this);
     this.flow = startFlow(this.stages);
     this.time.addEvent({
@@ -110,21 +99,18 @@ export abstract class GameScene extends LayoutScene {
   }
 
   protected layout(viewport: Viewport): void {
-    const regions = gameRegions(viewport);
-    this.background?.layout(viewport);
-    this.hud.layout(regions.hud);
-    this.prompt.layout(regions.panel);
-    this.banner.layout(regions.field);
-    this.layoutField(regions.field, viewport);
+    this.layoutField(this.ui.layout(viewport), viewport);
   }
 
-  protected setPrompt(caption: string, picture?: PromptPicture): void {
-    this.prompt.setPrompt(caption, picture);
+  /** Shows what to do now on the 「おだい」 card; highlight the key word with a colour. */
+  protected setPrompt(lines: RichLines, picture?: Picture): void {
+    this.ui.setPrompt(lines, picture);
   }
 
   protected reportCorrect(x: number, y: number): void {
     this.hint.hide();
     this.feedback.correct(x, y);
+    this.ui.praiseCorrect();
     this.apply(reduceFlow(this.flow, { type: 'correct' }));
   }
 
@@ -151,13 +137,13 @@ export abstract class GameScene extends LayoutScene {
         break;
       case 'stage-clear':
         this.feedback.clear();
-        this.banner.show(this.flow.endedBy === 'goal' ? 'クリア！' : 'よくできたね！', () =>
+        this.ui.banner.show(this.flow.endedBy === 'goal' ? 'クリア！' : 'よくできたね！', () =>
           this.apply(reduceFlow(this.flow, { type: 'next' })),
         );
         break;
       case 'all-clear':
         this.feedback.clear();
-        this.banner.show('ぜんぶクリア！', () => SessionController.of(this.game).dispatch({ type: 'finished' }));
+        this.ui.banner.show('ぜんぶクリア！', () => SessionController.of(this.game).dispatch({ type: 'finished' }));
         break;
       case 'stage-start':
         this.enterStage();
@@ -167,13 +153,20 @@ export abstract class GameScene extends LayoutScene {
 
   private enterStage(): void {
     this.hint.hide();
-    this.hud.setStage(this.flow.index, this.stages.length);
+    this.ui.setStage(this.flow.index, this.stages.length);
     this.refreshHud();
     this.startStage(this.flow.index, currentStage(this.flow));
   }
 
   private refreshHud(): void {
-    this.hud.setProgress(this.flow.progress, currentStage(this.flow).goal);
-    this.hud.setSecondsLeft(secondsLeft(this.flow));
+    this.ui.setProgress(this.flow.progress, currentStage(this.flow).goal, secondsLeft(this.flow));
+  }
+
+  private get screenConfig(): GameScreenConfig {
+    return {
+      ...this.options,
+      title: this.gameTitle,
+      onClose: () => SessionController.of(this.game).dispatch({ type: 'quit' }),
+    };
   }
 }

@@ -7,6 +7,8 @@ const BURST_COUNT = 14;
 const WOBBLE_DEGREES = 14;
 
 /** Sound keys loaded by GameScene (see public/sfx). */
+type Wobbly = Phaser.GameObjects.Components.Transform & Phaser.GameObjects.GameObject;
+
 export const SFX = { correct: 'sfx-correct', wrong: 'sfx-wrong', clear: 'sfx-clear' } as const;
 
 function ensureStarTexture(scene: Phaser.Scene): void {
@@ -25,7 +27,11 @@ function ensureStarTexture(scene: Phaser.Scene): void {
  */
 export class Feedback {
   private readonly emitter: Phaser.GameObjects.Particles.ParticleEmitter;
-  private readonly wobbling = new WeakSet<Phaser.GameObjects.Components.Transform>();
+  /**
+   * The running wobble per object. Checked with `isActive()` rather than cleared in
+   * `onComplete`, because a tween killed early (e.g. by a stage change) never completes.
+   */
+  private readonly wobbles = new WeakMap<Wobbly, Phaser.Tweens.Tween>();
 
   constructor(private readonly scene: Phaser.Scene) {
     ensureStarTexture(scene);
@@ -43,21 +49,18 @@ export class Feedback {
     this.play(SFX.correct);
   }
 
-  wrong(target: Phaser.GameObjects.Components.Transform & Phaser.GameObjects.GameObject): void {
+  wrong(target: Wobbly): void {
     this.play(SFX.wrong);
-    if (this.wobbling.has(target)) return;
-    this.wobbling.add(target);
-    this.scene.tweens.add({
+    if (this.wobbles.get(target)?.isActive()) return;
+    const wobble = this.scene.tweens.add({
       targets: target,
       angle: { from: -WOBBLE_DEGREES, to: WOBBLE_DEGREES },
       duration: 70,
       yoyo: true,
       repeat: 2,
-      onComplete: () => {
-        target.setAngle(0);
-        this.wobbling.delete(target);
-      },
+      onComplete: () => target.setAngle(0),
     });
+    this.wobbles.set(target, wobble);
   }
 
   clear(): void {

@@ -5,6 +5,7 @@ import { minTouchSize } from '../../core/logic/layout';
 import type { Rect } from '../../core/logic/rect';
 import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { GameScene } from '../../core/scenes/GameScene';
+import { FIND_FISH_COPY, findPrompt, TITLE_FISH } from './copy';
 import { buildRoster, type Roster } from './logic/roster';
 import { planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
 import { STAGES, type FindFishStage } from './stages';
@@ -39,7 +40,10 @@ function tapArea(width: number, height: number, scale: number): Phaser.Geom.Rect
 interface Swimmer {
   image: Phaser.GameObjects.Image;
   direction: 1 | -1;
+  /** Swimming and tappable. */
   active: boolean;
+  /** Already found this stage: stays hidden even if the field is laid out again. */
+  found: boolean;
 }
 
 /**
@@ -57,7 +61,11 @@ export class FindFishScene extends GameScene {
   private stage: FindFishStage = STAGES[0];
 
   constructor(title: string) {
-    super(FIND_FISH_SCENE_KEY, title, { background: 'sea' });
+    super(FIND_FISH_SCENE_KEY, title, {
+      background: 'sea',
+      copy: FIND_FISH_COPY,
+      icon: { texture: FISH_TEXTURE, frame: TITLE_FISH },
+    });
   }
 
   protected preloadGame(): void {
@@ -67,7 +75,7 @@ export class FindFishScene extends GameScene {
   protected buildField(): void {
     for (let i = 0; i < POOL_SIZE; i++) {
       const image = this.add.image(0, 0, FISH_TEXTURE, 'tuna').setVisible(false).setDepth(-10);
-      const swimmer: Swimmer = { image, direction: 1, active: false };
+      const swimmer: Swimmer = { image, direction: 1, active: false, found: false };
       image.on('pointerdown', () => this.onTap(swimmer));
       this.swimmers.push(swimmer);
     }
@@ -85,7 +93,8 @@ export class FindFishScene extends GameScene {
     const capacity = rowCapacity(field.width, MAX_FISH_WIDTH) * this.stage.rows;
     this.roster = buildRoster(this.stage, capacity, ALL_FISH, Math.random);
     const name = spriteSpec('fish', this.roster.target).ja;
-    this.setPrompt(`${name}を\nみつけてね！`, { texture: FISH_TEXTURE, frame: this.roster.target });
+    this.setPrompt(findPrompt(name), { texture: FISH_TEXTURE, frame: this.roster.target });
+    for (const swimmer of this.swimmers) swimmer.found = false;
     this.placeFish(this.roster);
   }
 
@@ -118,7 +127,8 @@ export class FindFishScene extends GameScene {
         const swimmer = this.swimmers[next];
         const fish = roster.fish[next];
         next += 1;
-        if (swimmer && fish)
+        if (swimmer?.found) this.hideSwimmer(swimmer);
+        else if (swimmer && fish)
           this.showSwimmer(swimmer, fish, { x, y: row.y, height: row.height, direction: row.direction });
       }
     });
@@ -160,6 +170,7 @@ export class FindFishScene extends GameScene {
     }
     // Found: the fish floats up and fades away.
     swimmer.active = false;
+    swimmer.found = true;
     image.disableInteractive();
     this.tweens.add({
       targets: image,
