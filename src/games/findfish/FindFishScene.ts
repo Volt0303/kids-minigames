@@ -63,6 +63,7 @@ export class FindFishScene extends GameScene {
   constructor(title: string) {
     super(FIND_FISH_SCENE_KEY, title, {
       background: 'sea',
+      bubbles: true,
       copy: FIND_FISH_COPY,
       icon: { texture: FISH_TEXTURE, frame: TITLE_FISH },
     });

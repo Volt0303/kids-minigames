@@ -6,6 +6,7 @@ import type { Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { Background } from './Background';
 import { Banner } from './Banner';
+import { Bubbles } from './Bubbles';
 import { FooterMessage } from './FooterMessage';
 import { Header } from './Header';
 import { HowToCard } from './HowToCard';
@@ -30,6 +31,8 @@ export interface GameScreenConfig {
   title: string;
   copy: GameCopy;
   background?: BackgroundName;
+  /** Rising air bubbles over the background (underwater games). */
+  bubbles?: boolean;
   /** Picture before the title. */
   icon?: Picture;
   /** Picture after the title; defaults to the magnifying glass. */
@@ -47,6 +50,7 @@ const UI = atlasKey('ui');
 export class GameScreen {
   readonly banner: Banner;
   private readonly background?: Background;
+  private readonly bubbles?: Bubbles;
   private readonly header: Header;
   private readonly prompt: PromptCard;
   private readonly howTo: HowToCard;
@@ -61,6 +65,7 @@ export class GameScreen {
 
   constructor(scene: Phaser.Scene, config: GameScreenConfig) {
     this.background = config.background && new Background(scene, backgroundKey(config.background));
+    this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
     this.header = new Header(scene, {
       title: config.title,
       icon: config.icon,
@@ -79,6 +84,7 @@ export class GameScreen {
   layout(viewport: Viewport): Rect {
     const regions = gameRegions(viewport);
     this.background?.layout(viewport);
+    this.bubbles?.layout(viewport);
     this.header.layout(regions.header);
     this.prompt.layout(regions.prompt);
     this.howTo.layout(regions.howTo);

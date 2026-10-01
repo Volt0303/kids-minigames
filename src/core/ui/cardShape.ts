@@ -30,7 +30,7 @@ export function drawCard(
   const centerX = area.x + area.width / 2;
   graphics
     .clear()
-    .fillStyle(colors.fill, 0.96)
+    .fillStyle(colors.fill)
     .fillRoundedRect(area.x, top, area.width, height, RADIUS)
     .lineStyle(8, colors.border)
     .strokeRoundedRect(area.x, top, area.width, height, RADIUS)

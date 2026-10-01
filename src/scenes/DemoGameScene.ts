@@ -47,6 +47,7 @@ export class DemoGameScene extends GameScene {
   constructor(title: string) {
     super(DEMO_GAME_SCENE_KEY, title, {
       background: 'sea',
+      bubbles: true,
       copy: {
         subtitle: plain('じゅんびちゅう'),
         howTo: plain('このゲームは', 'じゅんびちゅう', 'です'),
