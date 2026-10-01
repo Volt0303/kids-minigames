@@ -1,39 +1,61 @@
 # Source art
 
-Final game art goes here, one PNG per sprite:
+All game pictures live in `assets-src/images/`. `npm run assets` turns them into the files the games load
+(`public/assets/`, generated, not committed). `npm run dev` and `npm run build` run it automatically.
 
 ```
-assets-src/images/<atlas>/<name>.png
+assets-src/images/
+  atlases/<atlas>/<sprite>.png    small pictures, packed into one texture atlas per folder
+    fish/        sea creatures (おさかな探し, おさかなパズル …)
+    sushi/       rice, toppings, plates
+    trash/       litter for 海のおそうじゲーム
+    props/       table items (teacup, soy dish …)
+    scenery/     sea-floor decorations
+    ui/          shared buttons (btn-*) and small icons (icon-*)
+    characters/  guide character (client-provided) and the starfish
+  backgrounds/<name>.png          play-field pictures shared by several games (sea, sushi-counter)
+  games/<game-id>/                pictures used by one game only
+    start-background.png          start-screen picture
+    start-title.png               start-screen title logo (transparent)
+    backdrop.png                  full-screen picture behind the game screen
+  app-icons/<game-id>.png         launcher icon of each app
+  puzzles/<picture>.png           pictures cut into pieces by the puzzle game
 ```
 
-The atlases and sprite names are listed in `src/core/assets/catalog.ts` (for example
-`assets-src/images/fish/tuna.png`, `assets-src/images/sushi/topping-salmon.png`).
-Any sprite without a file is drawn as a labelled placeholder, so art can be added one file at a time.
+Game ids: `ocean` ① · `sushi` ② · `findfish` ③ · `puzzle` ④ · `diff` ⑤ · `order` ⑥.
+
+## Naming
+
+- Lowercase letters, digits and hyphens only (`sea-bream.png`, not `Sea Bream.png`); PNG.
+- The folder says what kind of picture it is, so the file name does not repeat it
+  (`app-icons/ocean.png`, not `icons/icon-ocean.png`).
+- In `ui/`, start buttons with `btn-` and icons with `icon-`; variants of one thing share a prefix
+  (`guide.png`, `guide-happy.png`).
+
+## Adding a picture
+
+1. Save it under the right folder and name.
+2. Register it in `src/core/assets/catalog.ts`:
+   - atlas sprite → add it to that atlas in `ATLASES` (with its Japanese name and display size);
+   - play-field picture → add the name to `BACKGROUNDS`;
+   - game picture → list the file under the game in `GAME_ART` (e.g. `ocean: ['start-background', 'start-title']`).
+3. Record it in `docs/LICENSES.md` (tool or source, prompt, licence, date).
+4. Run `npm run assets` and check the report: atlases show `art n/m`, other pictures their size, and anything
+   missing or unknown is listed.
+
+An atlas sprite without a file is drawn as a labelled placeholder; a game without its own start screen or
+backdrop shows the plain light-blue look. So art can be added one file at a time.
 
 ## Requirements
 
-- PNG, sRGB, on a **transparent or plain light background** (white is best): a plain background is removed
-  automatically (`tools/lib/remove-background.mjs`); light areas inside the object are kept.
-- At least the catalog size (width × height in design units, where the screen is 1080 tall); larger is fine —
-  the build trims empty borders and scales the image to fit the catalog box.
+- PNG, sRGB. Atlas sprites on a **transparent or plain light background** (white is best): a plain background
+  is removed automatically (`tools/lib/remove-background.mjs`); light areas inside the object are kept.
+- At least the catalog size (design units, screen 1080 tall); larger is fine — sprites are trimmed and scaled.
+- Backgrounds and game pictures: landscape, about 1536×1024 or larger. On the 32:9 main screen they are repeated
+  side by side with every other copy mirrored, so soft left/right edges look best.
 - **Fish and sea creatures face left.** The game flips them when they swim right.
-- No text, logos or brand marks inside images; no mascot characters.
-- Record every file in `docs/LICENSES.md` (tool or source, licence, date).
-
-## Build
-
-```bash
-npm run assets
-```
-
-Packs everything into `public/assets/<atlas>.png` and `.json` (generated, not committed) and reports how many
-sprites per atlas still use placeholders. `npm run dev` and `npm run build` run it automatically.
+- No text, logos or brand marks inside images, except title logos. The client's character is used only in games ①–④.
 
 ## Style samples
 
-Put samples in `assets-src/style-samples/<style>/tuna.png`, `nigiri.png`, `can.png` (one folder per style,
-e.g. `A`, `B`, `C`), then:
-
-```bash
-npm run style-sheet   # writes assets-src/style-samples/sheet.png
-```
+`assets-src/style-samples/` holds the early style comparison (`npm run style-sheet` writes `sheet.png`).

@@ -6,10 +6,11 @@ import type { Rect } from '../../core/logic/rect';
 import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import { FIND_FISH_COPY, findPrompt, TITLE_FISH } from './copy';
+import { fishScale } from './logic/fishSize';
 import { pickEvenlyByRow } from './logic/hintPick';
 import { buildRoster, type Roster } from './logic/roster';
 import { edgeAlpha, planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
-import { STAGES, type FindFishStage } from './stages';
+import { STAGES, type Fish, type FindFishStage } from './stages';
 
 export const FIND_FISH_SCENE_KEY = 'FindFish';
 
@@ -17,8 +18,6 @@ const FISH_TEXTURE = atlasKey('fish');
 const ALL_FISH = spriteNames('fish');
 /** Widest fish in the catalog; used to space the rows. */
 const MAX_FISH_WIDTH = 360;
-/** Fish height relative to its row, leaving room between rows. */
-const ROW_FILL = 0.78;
 /** Extra tap area around each fish (stays inside the gap between neighbours). */
 const TAP_PADDING = 20;
 /** Minimum tap area (requirements 6.6: about 13% of the screen height), even for small pictures. */
@@ -68,6 +67,7 @@ export class FindFishScene extends GameScene {
   constructor(setup: GameSetup) {
     super(FIND_FISH_SCENE_KEY, setup, {
       background: 'sea',
+      backdrop: 'findfish',
       bubbles: true,
       copy: FIND_FISH_COPY,
       icon: { texture: FISH_TEXTURE, frame: TITLE_FISH },
@@ -148,13 +148,14 @@ export class FindFishScene extends GameScene {
 
   private showSwimmer(
     swimmer: Swimmer,
-    fish: string,
+    fish: Fish,
     place: { x: number; y: number; height: number; direction: 1 | -1; row: number },
   ): void {
     const image = swimmer.image;
     this.tweens.killTweensOf(image);
     image.setFrame(fish).setAngle(0).setAlpha(1);
-    const scale = Math.min(1, (place.height * ROW_FILL) / image.frame.height);
+    // Each kind keeps its own size (big tuna, small tropical fish), as in the client's mockup.
+    const scale = fishScale(fish, image.frame, place.height, MAX_FISH_WIDTH);
     // Fish art faces left, so it is flipped when swimming right.
     image
       .setScale(scale)

@@ -3,7 +3,7 @@
  * Packs the sprites listed in src/core/assets/catalog.ts into texture atlases:
  * public/assets/<atlas>.png + <atlas>.json (Phaser JSON-hash format).
  *
- * For each sprite it uses assets-src/images/<atlas>/<name>.png when present
+ * For each sprite it uses assets-src/images/atlases/<atlas>/<name>.png when present
  * (plain background removed, trimmed and scaled to fit the catalog size), otherwise a labelled
  * placeholder, so games can be built before the final art exists.
  *
@@ -16,7 +16,7 @@ import sharp from 'sharp';
 import { ATLASES } from '../src/core/assets/catalog.ts';
 import { removeBackground } from './lib/remove-background.mjs';
 
-const SOURCE_DIR = 'assets-src/images';
+const SOURCE_DIR = 'assets-src/images/atlases';
 const OUT_DIR = 'public/assets';
 const MAX_SIZE = 2048;
 const PADDING = 4;

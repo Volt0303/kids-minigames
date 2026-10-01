@@ -1,37 +1,59 @@
 #!/usr/bin/env node
 /**
- * Converts full-screen images (backgrounds) that are not packed into atlases:
- * assets-src/images/backgrounds/<name>.png → public/assets/backgrounds/<name>.jpg
+ * Converts the large pictures that are not packed into atlases (names from src/core/assets/catalog.ts):
  *
- * Backgrounds have no transparency, so JPEG keeps the APK small. Names come from
- * BACKGROUNDS in src/core/assets/catalog.ts; a missing file is reported and the
- * game falls back to its plain background colour.
+ *   assets-src/images/backgrounds/<name>.png  → public/assets/backgrounds/<name>.jpg   (BACKGROUNDS)
+ *   assets-src/images/games/<game>/<file>.png → public/assets/games/<game>/<file>.jpg (GAME_ART)
+ *                                                (start-title stays PNG: it is transparent)
+ *
+ * A missing file is reported; the game then falls back to its plain look.
  *
  * Usage: node tools/build-images.mjs
  */
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import sharp from 'sharp';
-import { BACKGROUNDS } from '../src/core/assets/catalog.ts';
+import { BACKGROUNDS, GAME_ART, gameArtExtension } from '../src/core/assets/catalog.ts';
 
-const SOURCE_DIR = 'assets-src/images/backgrounds';
-const OUT_DIR = 'public/assets/backgrounds';
+const SOURCE_DIR = 'assets-src/images';
+const OUT_DIR = 'public/assets';
 const JPEG_QUALITY = 86;
+/** Title logos are shown at most about this wide (design units), so larger sources are scaled down. */
+const TITLE_MAX_WIDTH = 1600;
 
-async function convert(name) {
-  const source = `${SOURCE_DIR}/${name}.png`;
-  if (!existsSync(source)) return `${name.padEnd(14)} missing (${source})`;
-  const target = `${OUT_DIR}/${name}.jpg`;
-  const info = await sharp(source)
-    .flatten({ background: '#ffffff' })
-    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
-    .toFile(target);
+function report(label, target, info) {
   const kb = Math.round(statSync(target).size / 1024);
-  return `${name.padEnd(14)} ${info.width}x${info.height}  ${kb} KB`;
+  return `${label.padEnd(30)} ${info.width}x${info.height}  ${kb} KB`;
+}
+
+async function convert(label, source, target) {
+  if (!existsSync(source)) return `${label.padEnd(30)} missing (${source})`;
+  mkdirSync(target.slice(0, target.lastIndexOf('/')), { recursive: true });
+  const image = sharp(source);
+  const info = target.endsWith('.png')
+    ? await image
+        .resize({ width: TITLE_MAX_WIDTH, withoutEnlargement: true })
+        .png({ compressionLevel: 9, palette: true })
+        .toFile(target)
+    : await image.flatten({ background: '#ffffff' }).jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toFile(target);
+  return report(label, target, info);
 }
 
 async function main() {
-  mkdirSync(OUT_DIR, { recursive: true });
-  for (const name of BACKGROUNDS) console.log(`background ${await convert(name)}`);
+  for (const name of BACKGROUNDS) {
+    console.log(
+      await convert(
+        `background ${name}`,
+        `${SOURCE_DIR}/backgrounds/${name}.png`,
+        `${OUT_DIR}/backgrounds/${name}.jpg`,
+      ),
+    );
+  }
+  for (const [game, files] of Object.entries(GAME_ART)) {
+    for (const file of files) {
+      const target = `${OUT_DIR}/games/${game}/${file}.${gameArtExtension(file)}`;
+      console.log(await convert(`game ${game}/${file}`, `${SOURCE_DIR}/games/${game}/${file}.png`, target));
+    }
+  }
 }
 
 main().catch((error) => {

@@ -1,5 +1,14 @@
 import type * as Phaser from 'phaser';
-import { atlasKey, backgroundKey, type AtlasName, type BackgroundName } from './catalog';
+import {
+  atlasKey,
+  backgroundKey,
+  gameArtExtension,
+  gameArtKey,
+  type AtlasName,
+  type BackgroundName,
+  type GameArtFile,
+  type GameArtGame,
+} from './catalog';
 
 /** Queues an atlas built by tools/build-atlases.mjs (public/assets/<atlas>.png/.json). */
 export function loadAtlas(load: Phaser.Loader.LoaderPlugin, atlas: AtlasName): void {
@@ -11,4 +20,10 @@ export function loadAtlas(load: Phaser.Loader.LoaderPlugin, atlas: AtlasName): v
 export function loadBackground(load: Phaser.Loader.LoaderPlugin, name: BackgroundName): void {
   const key = backgroundKey(name);
   if (!load.textureManager.exists(key)) load.image(key, `assets/backgrounds/${name}.jpg`);
+}
+
+/** Queues one of a game's own pictures (public/assets/games/<game>/<file>.jpg|png). */
+export function loadGameArt(load: Phaser.Loader.LoaderPlugin, game: GameArtGame, file: GameArtFile): void {
+  const key = gameArtKey(game, file);
+  if (!load.textureManager.exists(key)) load.image(key, `assets/games/${game}/${file}.${gameArtExtension(file)}`);
 }

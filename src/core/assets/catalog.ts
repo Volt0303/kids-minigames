@@ -1,9 +1,12 @@
 /**
  * Every sprite and background the six games use. Sprites are grouped into texture atlases.
  *
- * Plain data (no Phaser): read by tools/build-atlases.mjs, which packs the art
- * from assets-src/images/<atlas>/<name>.png — or a labelled placeholder when
- * the art does not exist yet — into public/assets/<atlas>.{png,json}.
+ * Plain data (no Phaser): read by tools/build-atlases.mjs and tools/build-images.mjs.
+ * Source art lives in assets-src/images/ (see assets-src/README.md):
+ *   atlases/<atlas>/<name>.png   → packed into public/assets/<atlas>.{png,json}
+ *                                  (a labelled placeholder when the art does not exist yet)
+ *   backgrounds/<name>.png       → public/assets/backgrounds/<name>.jpg
+ *   games/<game>/<file>.png      → public/assets/games/<game>/<file>.jpg|png
  *
  * `width` / `height`: display size in design units (screen 1080 tall).
  * Art is scaled to fit inside this box. Fish and sea creatures face LEFT.
@@ -63,13 +66,21 @@ export const ATLASES = {
     wasabi: sprite('わさび', 150, 120),
     ginger: sprite('ガリ', 180, 130),
   },
+  /** Shared interface pictures: buttons (btn-*) and small icons (icon-*). */
   ui: {
-    'hand-tap': sprite('ゆび', 200, 200),
-    magnifier: sprite('むしめがね', 180, 180),
-    starfish: sprite('ヒトデ', 180, 180),
+    /** Start screen buttons (the yellow rays are part of the pictures). */
+    'btn-start': sprite('あそぶ', 600, 425),
+    'btn-close': sprite('やめる', 460, 452),
+    'icon-hand-tap': sprite('ゆび', 200, 200),
+    'icon-magnifier': sprite('むしめがね', 180, 180),
+  },
+  /** Characters around the play field. */
+  characters: {
     /** Guide character (client-provided げんきくん, games ①–④ only): normal and 「やったね」 poses. */
     guide: sprite('げんきくん', 300, 420),
     'guide-happy': sprite('げんきくん（やったね）', 300, 420),
+    /** Starfish next to the message. */
+    starfish: sprite('ヒトデ', 180, 180),
   },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),
@@ -87,13 +98,44 @@ export const ATLASES = {
 export type AtlasName = keyof typeof ATLASES;
 export type SpriteName<A extends AtlasName> = keyof (typeof ATLASES)[A] & string;
 
-/**
- * Full-screen backgrounds: assets-src/images/backgrounds/<name>.png, converted to
- * public/assets/backgrounds/<name>.jpg by tools/build-images.mjs.
- */
+/** Play-field pictures shared by games: assets-src/images/backgrounds/<name>.png (built to JPEG). */
 export const BACKGROUNDS = ['sea', 'sushi-counter'] as const;
 
 export type BackgroundName = (typeof BACKGROUNDS)[number];
+
+/**
+ * Pictures that belong to one game: assets-src/images/games/<game>/<file>.png.
+ * - start-background: start-screen picture (JPEG)
+ * - start-title:      start-screen title logo, transparent (PNG)
+ * - backdrop:         full-screen picture behind the game screen (JPEG)
+ * A game shows the plain look for any file it does not list here.
+ */
+export const GAME_ART_FILES = ['start-background', 'start-title', 'backdrop'] as const;
+
+export type GameArtFile = (typeof GAME_ART_FILES)[number];
+
+export const GAME_ART = {
+  findfish: ['start-background', 'start-title', 'backdrop'],
+} as const satisfies Record<string, readonly GameArtFile[]>;
+
+export type GameArtGame = keyof typeof GAME_ART;
+
+/** Whether `game` has its own `file` (false for games without any game art). */
+export function hasGameArt(game: string | undefined, file: GameArtFile): game is GameArtGame {
+  if (!game || !(game in GAME_ART)) return false;
+  const files: readonly GameArtFile[] = GAME_ART[game as GameArtGame];
+  return files.includes(file);
+}
+
+/** File extension after the build: transparent pictures stay PNG, the rest become JPEG. */
+export function gameArtExtension(file: GameArtFile): 'png' | 'jpg' {
+  return file === 'start-title' ? 'png' : 'jpg';
+}
+
+/** Phaser texture key of a game's picture. */
+export function gameArtKey(game: GameArtGame, file: GameArtFile): string {
+  return `game-${game}-${file}`;
+}
 
 /** Phaser texture key of a background. */
 export function backgroundKey(name: BackgroundName): string {

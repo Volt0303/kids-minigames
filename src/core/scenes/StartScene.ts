@@ -1,32 +1,92 @@
 import type * as Phaser from 'phaser';
+import { loadAtlas, loadGameArt } from '../assets/atlas';
+import { atlasKey, gameArtKey, hasGameArt, type GameArtGame } from '../assets/catalog';
 import { LayoutScene } from '../display/LayoutScene';
-import { center, inset, split } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
-import { BigButton } from '../ui/BigButton';
+import { Background } from '../ui/Background';
+import { ImageButton } from '../ui/ImageButton';
 import { FONT_FAMILY } from '../ui/theme';
 
 export const START_SCENE_KEY = 'Start';
 
-const BUTTON_WIDTH = 560;
-const BUTTON_HEIGHT = 220;
+const UI = atlasKey('ui');
+/** Title logo: centre height and largest width (design units), as in the start-screen mockup. */
+const TITLE_Y = 0.36;
+const TITLE_MAX_WIDTH = 1180;
+const TITLE_SCREEN_SHARE = 0.62;
+/** Buttons: centre height and sizes; the pair is centred with a clear gap between the pictures (rays included). */
+const BUTTONS_Y = 0.7;
+const BUTTON_GAP = 70;
+const START = { width: 470, disc: { x: 0.49, y: 0.545, radius: 0.3 } } as const;
+const CLOSE = { width: 330, disc: { x: 0.5, y: 0.55, radius: 0.335 } } as const;
 
 /**
- * First screen of every game (client requirement 1): the player chooses to
- * play (あそぶ) or not (やめる). Not choosing exits after the idle timeout.
+ * First screen of every game (client requirement 1): the player chooses to play (▶) or
+ * not (×); not choosing exits after the idle timeout. Games with start-screen art show
+ * their background and title logo; the others show the title as text.
  */
 export class StartScene extends LayoutScene {
-  private title!: Phaser.GameObjects.Text;
-  private playButton!: BigButton;
-  private stopButton!: BigButton;
+  private background?: Background;
+  /** The title logo; undefined when the game has none and the title is shown as text. */
+  private logo?: Phaser.GameObjects.Image;
+  private title!: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+  private playButton!: ImageButton;
+  private stopButton!: ImageButton;
 
-  constructor(private readonly gameTitle: string) {
+  constructor(
+    private readonly gameTitle: string,
+    /** The game whose start-screen art to show (when it has any). */
+    private readonly artGame?: GameArtGame,
+  ) {
     super(START_SCENE_KEY);
+  }
+
+  preload(): void {
+    loadAtlas(this.load, 'ui');
+    if (hasGameArt(this.artGame, 'start-background')) loadGameArt(this.load, this.artGame, 'start-background');
+    if (hasGameArt(this.artGame, 'start-title')) loadGameArt(this.load, this.artGame, 'start-title');
   }
 
   protected build(): void {
     const session = SessionController.of(this.game);
-    this.title = this.add
+    const backgroundKey = this.artGame && gameArtKey(this.artGame, 'start-background');
+    const titleKey = this.artGame && gameArtKey(this.artGame, 'start-title');
+    if (backgroundKey && this.textures.exists(backgroundKey)) this.background = new Background(this, backgroundKey);
+    this.logo = titleKey && this.textures.exists(titleKey) ? this.add.image(0, 0, titleKey) : undefined;
+    this.title = this.logo ?? this.makeTextTitle();
+
+    this.playButton = new ImageButton(
+      this,
+      { picture: { texture: UI, frame: 'btn-start' }, width: START.width, disc: START.disc },
+      () => session.dispatch({ type: 'play', at: Date.now() }),
+    );
+    this.stopButton = new ImageButton(
+      this,
+      { picture: { texture: UI, frame: 'btn-close' }, width: CLOSE.width, disc: CLOSE.disc },
+      () => session.dispatch({ type: 'quit' }),
+    );
+  }
+
+  protected layout(viewport: Viewport): void {
+    const { designWidth: width, designHeight: height } = viewport;
+    this.background?.layout(this.screen);
+    const centerX = width / 2;
+
+    if (this.logo) {
+      const titleWidth = Math.min(TITLE_MAX_WIDTH, width * TITLE_SCREEN_SHARE);
+      this.logo.setScale(titleWidth / this.logo.width);
+    }
+    this.title.setPosition(centerX, height * TITLE_Y);
+
+    const left = centerX - (START.width + BUTTON_GAP + CLOSE.width) / 2;
+    this.playButton.setPosition(left + START.width / 2, height * BUTTONS_Y);
+    this.stopButton.setPosition(left + START.width + BUTTON_GAP + CLOSE.width / 2, height * BUTTONS_Y);
+  }
+
+  /** Game name as text, for games without a title logo yet. */
+  private makeTextTitle(): Phaser.GameObjects.Text {
+    return this.add
       .text(0, 0, this.gameTitle, {
         fontFamily: FONT_FAMILY,
         fontStyle: 'bold',
@@ -36,28 +96,5 @@ export class StartScene extends LayoutScene {
         strokeThickness: 14,
       })
       .setOrigin(0.5);
-
-    const size = { width: BUTTON_WIDTH, height: BUTTON_HEIGHT };
-    this.playButton = new BigButton(this, { ...size, label: 'あそぶ', icon: '▶', color: 0x2a9d8f }, () =>
-      session.dispatch({ type: 'play', at: Date.now() }),
-    );
-    this.stopButton = new BigButton(this, { ...size, label: 'やめる', icon: '×', color: 0x8d99ae }, () =>
-      session.dispatch({ type: 'quit' }),
-    );
-  }
-
-  protected layout(viewport: Viewport): void {
-    const [titleArea, buttonArea] = split(inset(this.screen, 60), 'vertical', [1, 1]);
-    const titleCenter = center(titleArea);
-    this.title.setPosition(titleCenter.x, titleCenter.y);
-
-    // Buttons side by side, centred; wide screens spread them further apart.
-    const rowWidth = viewport.mode === 'wide' ? BUTTON_WIDTH * 3.2 : BUTTON_WIDTH * 2.4;
-    const row = { ...buttonArea, x: center(buttonArea).x - rowWidth / 2, width: rowWidth };
-    const [playArea, stopArea] = split(row, 'horizontal', [1, 1]);
-    const playCenter = center(playArea);
-    const stopCenter = center(stopArea);
-    this.playButton.setPosition(playCenter.x, playCenter.y);
-    this.stopButton.setPosition(stopCenter.x, stopCenter.y);
   }
 }

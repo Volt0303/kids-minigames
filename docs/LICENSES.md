@@ -16,72 +16,78 @@ Every font, image, sound and third-party library shipped in the apps is listed h
 
 ## Images
 
-All images in `assets-src/images/` except the client-provided character (see below) were generated for this project with **ChatGPT image generation (OpenAI)** on a paid
+All images in `assets-src/images/` (paths below are relative to it) except the client-provided character (see below) were generated for this project with **ChatGPT image generation (OpenAI)** on a paid
 plan, under OpenAI's Terms of Use, which assign the rights in generated output to the user. Each image was created with
 a style brief (children's picture-book illustration, flat colours, thick dark outline, no text, no logos, no characters)
 followed by the message below. The atlases in `public/assets/` are built from these files by `tools/build-atlases.mjs`.
 
 | # | File | Message (after the style brief) | Date |
 |---|---|---|---|
-| 1 | `fish/blue-tropical.png` | A small bright blue damselfish with light blue fins and a light blue tail. Not a blue tang. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 2 | `fish/bonito.png` | A skipjack tuna (katsuo): smaller than a tuna, dark blue back, silver belly with four dark horizontal stripes on the belly. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 3 | `fish/crab.png` | A red crab seen from the front, claws raised, eyes on stalks, neutral mouth. Size: 1024x1024 (square). | 2026-09-29 |
-| 4 | `fish/flatfish.png` | A Japanese flounder (hirame) seen from above: flat oval body, brown with light spots, both eyes on the upper side, head pointing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 5 | `fish/octopus.png` | A red octopus with eight curled tentacles, simple round eyes, neutral mouth. Side view, facing left. Size: 1024x1024 (square). | 2026-09-30 |
-| 6 | `fish/pufferfish.png` | A round inflated pufferfish with small soft spines, pale yellow-brown with spots. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 7 | `fish/salmon.png` | A salmon: silver body with a pink-orange tint, small dark spots on the back. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 8 | `fish/sea-bream.png` | A red sea bream (madai): pink-red body, tall rounded body shape, tiny blue spots. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 9 | `fish/squid.png` | A white squid in a vertical position: pointed fin at the top, tentacles hanging at the bottom, simple eyes. Size: 1024x1536 (portrait). | 2026-09-29 |
-| 10 | `fish/striped-orange.png` | A small round orange fish with thin yellow vertical stripes and a rounded tail. Not a clownfish. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 11 | `fish/tuna.png` | A bluefin tuna: dark blue back, silver belly, small yellow finlets near the tail, crescent-shaped tail. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 12 | `fish/turtle.png` | A green sea turtle swimming, flippers spread, simple eye, neutral mouth. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 13 | `fish/yellow-tropical.png` | A small yellow butterflyfish with a tall round body and a thin black stripe through the eye. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 14 | `fish/yellowtail.png` | A Japanese amberjack (buri): long slim body, blue-green back, silver belly, one yellow stripe along the side. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
-| 15 | `sushi/geta.png` | A plain wooden sushi serving board (geta) with two short legs, light natural wood, empty. Side view. Size: 1536x1024 (landscape). | 2026-09-30 |
-| 16 | `sushi/gunkan-ikura.png` | A complete battleship sushi (gunkan): rice wrapped in a band of dark seaweed, topped with shiny orange salmon roe. Size: 1024x1024 (square). | 2026-09-30 |
-| 17 | `sushi/plate.png` | An empty round sushi plate with a simple solid blue rim, no pattern, no text. Side view, slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
-| 18 | `sushi/rice.png` | A single nigiri rice ball (shari) with NO topping: an oval block of white sushi rice with visible grains, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
-| 19 | `sushi/topping-egg.png` | A block of Japanese rolled omelet (tamagoyaki) for nigiri sushi, yellow, shown alone WITHOUT rice and without seaweed. Size: 1024x1024 (square). | 2026-09-30 |
-| 20 | `sushi/topping-engawa.png` | A slice of flounder fin (engawa) for nigiri sushi, white with light ridges, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
-| 21 | `sushi/topping-fatty-tuna.png` | A single slice of fatty tuna (toro) for nigiri sushi, pale pink with white marbling, shown alone WITHOUT rice, gently curved. Side view, slightly from above. Size: 1024x1024 (square). | 2026-09-30 |
-| 22 | `sushi/topping-octopus.png` | A slice of boiled octopus tentacle for nigiri sushi, white with a purple-red edge and small suckers, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
-| 23 | `sushi/topping-salmon.png` | A single slice of salmon for nigiri sushi, orange with white fat lines, shown alone WITHOUT rice, gently curved, cartoon style like the attached fatty tuna. Size: 1024x1024 (square). | 2026-09-30 |
-| 24 | `sushi/topping-shrimp.png` | A butterflied boiled shrimp for nigiri sushi, orange-red and white stripes, tail at one end, shown alone WITHOUT rice. Size: 1024x1024 (square). | 2026-09-30 |
-| 25 | `sushi/topping-squid.png` | A slice of white squid for nigiri sushi with a few simple cut lines, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
-| 26 | `sushi/topping-tuna.png` | A single slice of red tuna for nigiri sushi, shown alone WITHOUT rice, gently curved, cartoon style like the attached fatty tuna. Size: 1024x1024 (square). | 2026-09-30 |
-| 27 | `trash/can.png` | Next image, same style and rules: an empty aluminium drink can standing upright, silver with one simple colored band around the middle, no text, no letters, no logo, no brand, no face. Size: 1024x1024 (square). | 2026-09-28 |
-| 28 | `trash/food-tray.png` | An empty light blue foam food tray, slightly from above, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
-| 29 | `trash/glass-bottle.png` | An empty green glass bottle, no label, no text. Size: 1024x1536 (portrait). | 2026-09-29 |
-| 30 | `trash/net.png` | A tangled piece of green fishing net with a short piece of rope. Size: 1024x1024 (square). | 2026-09-29 |
-| 31 | `trash/pet-bottle.png` | An empty clear plastic drink bottle with a blue cap, no label, no text. Size: 1024x1536 (portrait). | 2026-09-29 |
-| 32 | `trash/plastic-bag.png` | A crumpled white plastic shopping bag with handles, no text. Size: 1024x1024 (square). | 2026-09-29 |
-| 33 | `props/ginger.png` | A small pile of thin pink pickled ginger slices (gari). Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
-| 34 | `props/soy-dish.png` | A small round white dish with a little soy sauce in it. Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
-| 35 | `props/teacup.png` | A Japanese green tea cup (yunomi) without handle, plain, no text or pattern. Size: 1024x1024 (square). | 2026-09-29 |
-| 36 | `props/wasabi.png` | A small mound of green wasabi. Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
-| 37 | `scenery/bubble.png` | A single light blue air bubble with a light blue outline and a small white highlight. Size: 1024x1024 (square). | 2026-09-29 |
-| 38 | `scenery/coral-1.png` | Pink branching coral. Size: 1024x1024 (square). | 2026-09-29 |
-| 39 | `scenery/coral-2.png` | A round orange brain coral. Size: 1024x1024 (square). | 2026-09-29 |
-| 40 | `scenery/rock-1.png` | A large smooth grey sea-floor rock with a little green moss on top. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 41 | `scenery/rock-2.png` | A smaller rounded grey-brown rock. Size: 1024x1024 (square). | 2026-09-29 |
-| 42 | `scenery/seaweed-1.png` | Tall green kelp seaweed with long wavy fronds, growing from the bottom. Size: 1024x1536 (portrait). | 2026-09-29 |
-| 43 | `scenery/seaweed-2.png` | Shorter bushy green seaweed with several wavy leaves, growing from the bottom, cartoon style with thick dark outline. Size: 1024x1536 (portrait). | 2026-09-30 |
-| 44 | `scenery/shell.png` | A scallop shell seen from above. Size: 1024x1024 (square). | 2026-09-29 |
-| 45 | `scenery/starfish.png` | A five-armed orange starfish seen from above, no face. Size: 1024x1024 (square). | 2026-09-29 |
+| 1 | `atlases/fish/blue-tropical.png` | A small bright blue damselfish with light blue fins and a light blue tail. Not a blue tang. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 2 | `atlases/fish/bonito.png` | A skipjack tuna (katsuo): smaller than a tuna, dark blue back, silver belly with four dark horizontal stripes on the belly. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 3 | `atlases/fish/crab.png` | A red crab seen from the front, claws raised, eyes on stalks, neutral mouth. Size: 1024x1024 (square). | 2026-09-29 |
+| 4 | `atlases/fish/flatfish.png` | A Japanese flounder (hirame) seen from above: flat oval body, brown with light spots, both eyes on the upper side, head pointing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 5 | `atlases/fish/octopus.png` | A red octopus with eight curled tentacles, simple round eyes, neutral mouth. Side view, facing left. Size: 1024x1024 (square). | 2026-09-30 |
+| 6 | `atlases/fish/pufferfish.png` | A round inflated pufferfish with small soft spines, pale yellow-brown with spots. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 7 | `atlases/fish/salmon.png` | A salmon: silver body with a pink-orange tint, small dark spots on the back. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 8 | `atlases/fish/sea-bream.png` | A red sea bream (madai): pink-red body, tall rounded body shape, tiny blue spots. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 9 | `atlases/fish/squid.png` | A white squid in a vertical position: pointed fin at the top, tentacles hanging at the bottom, simple eyes. Size: 1024x1536 (portrait). | 2026-09-29 |
+| 10 | `atlases/fish/striped-orange.png` | A small round orange fish with thin yellow vertical stripes and a rounded tail. Not a clownfish. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 11 | `atlases/fish/tuna.png` | A bluefin tuna: dark blue back, silver belly, small yellow finlets near the tail, crescent-shaped tail. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 12 | `atlases/fish/turtle.png` | A green sea turtle swimming, flippers spread, simple eye, neutral mouth. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 13 | `atlases/fish/yellow-tropical.png` | A small yellow butterflyfish with a tall round body and a thin black stripe through the eye. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 14 | `atlases/fish/yellowtail.png` | A Japanese amberjack (buri): long slim body, blue-green back, silver belly, one yellow stripe along the side. Side view, facing left. Size: 1024x1024 (square). | 2026-09-29 |
+| 15 | `atlases/sushi/geta.png` | A plain wooden sushi serving board (geta) with two short legs, light natural wood, empty. Side view. Size: 1536x1024 (landscape). | 2026-09-30 |
+| 16 | `atlases/sushi/gunkan-ikura.png` | A complete battleship sushi (gunkan): rice wrapped in a band of dark seaweed, topped with shiny orange salmon roe. Size: 1024x1024 (square). | 2026-09-30 |
+| 17 | `atlases/sushi/plate.png` | An empty round sushi plate with a simple solid blue rim, no pattern, no text. Side view, slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
+| 18 | `atlases/sushi/rice.png` | A single nigiri rice ball (shari) with NO topping: an oval block of white sushi rice with visible grains, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
+| 19 | `atlases/sushi/topping-egg.png` | A block of Japanese rolled omelet (tamagoyaki) for nigiri sushi, yellow, shown alone WITHOUT rice and without seaweed. Size: 1024x1024 (square). | 2026-09-30 |
+| 20 | `atlases/sushi/topping-engawa.png` | A slice of flounder fin (engawa) for nigiri sushi, white with light ridges, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
+| 21 | `atlases/sushi/topping-fatty-tuna.png` | A single slice of fatty tuna (toro) for nigiri sushi, pale pink with white marbling, shown alone WITHOUT rice, gently curved. Side view, slightly from above. Size: 1024x1024 (square). | 2026-09-30 |
+| 22 | `atlases/sushi/topping-octopus.png` | A slice of boiled octopus tentacle for nigiri sushi, white with a purple-red edge and small suckers, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
+| 23 | `atlases/sushi/topping-salmon.png` | A single slice of salmon for nigiri sushi, orange with white fat lines, shown alone WITHOUT rice, gently curved, cartoon style like the attached fatty tuna. Size: 1024x1024 (square). | 2026-09-30 |
+| 24 | `atlases/sushi/topping-shrimp.png` | A butterflied boiled shrimp for nigiri sushi, orange-red and white stripes, tail at one end, shown alone WITHOUT rice. Size: 1024x1024 (square). | 2026-09-30 |
+| 25 | `atlases/sushi/topping-squid.png` | A slice of white squid for nigiri sushi with a few simple cut lines, shown alone WITHOUT rice, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
+| 26 | `atlases/sushi/topping-tuna.png` | A single slice of red tuna for nigiri sushi, shown alone WITHOUT rice, gently curved, cartoon style like the attached fatty tuna. Size: 1024x1024 (square). | 2026-09-30 |
+| 27 | `atlases/trash/can.png` | Next image, same style and rules: an empty aluminium drink can standing upright, silver with one simple colored band around the middle, no text, no letters, no logo, no brand, no face. Size: 1024x1024 (square). | 2026-09-28 |
+| 28 | `atlases/trash/food-tray.png` | An empty light blue foam food tray, slightly from above, thick dark outline. Size: 1024x1024 (square). | 2026-09-30 |
+| 29 | `atlases/trash/glass-bottle.png` | An empty green glass bottle, no label, no text. Size: 1024x1536 (portrait). | 2026-09-29 |
+| 30 | `atlases/trash/net.png` | A tangled piece of green fishing net with a short piece of rope. Size: 1024x1024 (square). | 2026-09-29 |
+| 31 | `atlases/trash/pet-bottle.png` | An empty clear plastic drink bottle with a blue cap, no label, no text. Size: 1024x1536 (portrait). | 2026-09-29 |
+| 32 | `atlases/trash/plastic-bag.png` | A crumpled white plastic shopping bag with handles, no text. Size: 1024x1024 (square). | 2026-09-29 |
+| 33 | `atlases/props/ginger.png` | A small pile of thin pink pickled ginger slices (gari). Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
+| 34 | `atlases/props/soy-dish.png` | A small round white dish with a little soy sauce in it. Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
+| 35 | `atlases/props/teacup.png` | A Japanese green tea cup (yunomi) without handle, plain, no text or pattern. Size: 1024x1024 (square). | 2026-09-29 |
+| 36 | `atlases/props/wasabi.png` | A small mound of green wasabi. Slightly from above. Size: 1024x1024 (square). | 2026-09-29 |
+| 37 | `atlases/scenery/bubble.png` | A single light blue air bubble with a light blue outline and a small white highlight. Size: 1024x1024 (square). | 2026-09-29 |
+| 38 | `atlases/scenery/coral-1.png` | Pink branching coral. Size: 1024x1024 (square). | 2026-09-29 |
+| 39 | `atlases/scenery/coral-2.png` | A round orange brain coral. Size: 1024x1024 (square). | 2026-09-29 |
+| 40 | `atlases/scenery/rock-1.png` | A large smooth grey sea-floor rock with a little green moss on top. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 41 | `atlases/scenery/rock-2.png` | A smaller rounded grey-brown rock. Size: 1024x1024 (square). | 2026-09-29 |
+| 42 | `atlases/scenery/seaweed-1.png` | Tall green kelp seaweed with long wavy fronds, growing from the bottom. Size: 1024x1536 (portrait). | 2026-09-29 |
+| 43 | `atlases/scenery/seaweed-2.png` | Shorter bushy green seaweed with several wavy leaves, growing from the bottom, cartoon style with thick dark outline. Size: 1024x1536 (portrait). | 2026-09-30 |
+| 44 | `atlases/scenery/shell.png` | A scallop shell seen from above. Size: 1024x1024 (square). | 2026-09-29 |
+| 45 | `atlases/scenery/starfish.png` | A five-armed orange starfish seen from above, no face. Size: 1024x1024 (square). | 2026-09-29 |
 | 46 | `backgrounds/sea.png` | An underwater scene: light turquoise-blue water getting lighter toward the top, soft light rays from the surface, a sandy sea floor along the bottom fifth, a few small rocks and seaweed only at the far left and far right edges. Size: 1536x1024 (landscape). | 2026-09-29 |
 | 47 | `backgrounds/sushi-counter.png` | The inside of a clean Japanese sushi restaurant seen from the front: a light wooden counter along the bottom quarter, a soft warm beige wall behind it, a plain dark blue fabric curtain along the top edge without any writing. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 48 | `puzzles/puzzle-sea-bream.png` | A big red sea bream swimming in light blue water with seaweed at the bottom. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 49 | `puzzles/puzzle-sushi.png` | A wooden board with four pieces of nigiri sushi in a row: tuna, salmon, shrimp and egg. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 50 | `puzzles/puzzle-tuna.png` | A big tuna swimming in blue water with a few bubbles. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 51 | `icons/icon-diff.png` | Green background. Two small square cards side by side, each with the same fish, but one fish is red and the other is blue. Size: 1024x1024 (square). | 2026-09-30 |
-| 52 | `icons/icon-findfish.png` | Aqua background. A magnifying glass over a small fish. Size: 1024x1024 (square). | 2026-09-29 |
-| 53 | `icons/icon-ocean.png` | Light blue background. A plastic bottle inside a big bubble, with a small fish beside it. Size: 1024x1024 (square). | 2026-09-30 |
-| 54 | `icons/icon-order.png` | Pink-red background. A plate with two pieces of nigiri sushi and a small blank order ticket. Size: 1024x1024 (square). | 2026-09-30 |
-| 55 | `icons/icon-puzzle.png` | Yellow background. A fish made of four jigsaw puzzle pieces fitting together. Size: 1024x1024 (square). | 2026-09-30 |
-| 56 | `icons/icon-sushi.png` | Warm orange background. One tuna nigiri sushi. Size: 1024x1024 (square). | 2026-09-29 |
-| 57 | `ui/hand-tap.png` | A small cartoon hand with the index finger pointing down, tapping, with three short curved "tap" lines around the fingertip. Warm skin tone. Size: 1024x1024 (square). | 2026-10-01 |
-| 58 | `ui/magnifier.png` | A magnifying glass tilted to the right, round light-blue lens with a white shine highlight, rounded navy-blue handle. Size: 1024x1024 (square). | 2026-10-01 |
-| 59 | `ui/starfish.png` | A small light-blue five-armed starfish with rounded arm tips, tiny white dots and a soft white shine highlight. No face. Size: 1024x1024 (square). | 2026-10-01 |
+| 48 | `puzzles/sea-bream.png` | A big red sea bream swimming in light blue water with seaweed at the bottom. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 49 | `puzzles/sushi.png` | A wooden board with four pieces of nigiri sushi in a row: tuna, salmon, shrimp and egg. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 50 | `puzzles/tuna.png` | A big tuna swimming in blue water with a few bubbles. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 51 | `app-icons/diff.png` | Green background. Two small square cards side by side, each with the same fish, but one fish is red and the other is blue. Size: 1024x1024 (square). | 2026-09-30 |
+| 52 | `app-icons/findfish.png` | Aqua background. A magnifying glass over a small fish. Size: 1024x1024 (square). | 2026-09-29 |
+| 53 | `app-icons/ocean.png` | Light blue background. A plastic bottle inside a big bubble, with a small fish beside it. Size: 1024x1024 (square). | 2026-09-30 |
+| 54 | `app-icons/order.png` | Pink-red background. A plate with two pieces of nigiri sushi and a small blank order ticket. Size: 1024x1024 (square). | 2026-09-30 |
+| 55 | `app-icons/puzzle.png` | Yellow background. A fish made of four jigsaw puzzle pieces fitting together. Size: 1024x1024 (square). | 2026-09-30 |
+| 56 | `app-icons/sushi.png` | Warm orange background. One tuna nigiri sushi. Size: 1024x1024 (square). | 2026-09-29 |
+| 57 | `atlases/ui/icon-hand-tap.png` | A small cartoon hand with the index finger pointing down, tapping, with three short curved "tap" lines around the fingertip. Warm skin tone. Size: 1024x1024 (square). | 2026-10-01 |
+| 58 | `atlases/ui/icon-magnifier.png` | A magnifying glass tilted to the right, round light-blue lens with a white shine highlight, rounded navy-blue handle. Size: 1024x1024 (square). | 2026-10-01 |
+| 59 | `atlases/characters/starfish.png` | A small light-blue five-armed starfish with rounded arm tips, tiny white dots and a soft white shine highlight. No face. Size: 1024x1024 (square). | 2026-10-01 |
+
+| 60 | `atlases/ui/btn-start.png` | *(prompt to be added)* | 2026-10-01 |
+| 61 | `atlases/ui/btn-close.png` | *(prompt to be added)* | 2026-10-01 |
+| 62 | `games/findfish/start-background.png` | *(prompt to be added)* | 2026-10-01 |
+| 63 | `games/findfish/start-title.png` | *(prompt to be added)* | 2026-10-01 |
+| 64 | `games/findfish/backdrop.png` | *(prompt to be added)* | 2026-10-01 |
 
 ### Client-provided character
 
@@ -93,8 +99,8 @@ removed with `tools/lib/remove-background.mjs`, trimmed); the drawings are uncha
 
 | File | Pose in the client's file | Used for |
 |---|---|---|
-| `ui/guide.png` | げんきくん ① (standing) | Normal |
-| `ui/guide-happy.png` | げんきくん ⑤ (jump kick) | 「やったね」: after a correct answer and at stage clear |
+| `atlases/characters/guide.png` | げんきくん ① (standing) | Normal |
+| `atlases/characters/guide-happy.png` | げんきくん ⑤ (jump kick) | 「やったね」: after a correct answer and at stage clear |
 
 ## Libraries shipped in the apps
 

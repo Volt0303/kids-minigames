@@ -1,14 +1,15 @@
 import type * as Phaser from 'phaser';
-import { loadAtlas, loadBackground } from '../assets/atlas';
-import { atlasKey, backgroundKey, type BackgroundName } from '../assets/catalog';
+import { loadAtlas, loadBackground, loadGameArt } from '../assets/atlas';
+import { atlasKey, backgroundKey, gameArtKey, type BackgroundName, type GameArtGame } from '../assets/catalog';
 import { gameRegions } from '../logic/gameLayout';
-import type { Rect } from '../logic/rect';
+import { rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
-import { Background } from './Background';
+import { BACKDROP_DEPTH, Background } from './Background';
 import { Banner } from './Banner';
 import { Bubbles } from './Bubbles';
 import { Character } from './Character';
-import { FieldFrame } from './FieldFrame';
+import { FIELD_RADIUS, FieldFrame } from './FieldFrame';
+import { FieldPicture } from './FieldPicture';
 import { FooterMessage } from './FooterMessage';
 import { Header } from './Header';
 import { HowToCard } from './HowToCard';
@@ -33,6 +34,8 @@ export interface GameScreenConfig {
   title: string;
   copy: GameCopy;
   background?: BackgroundName;
+  /** Show this game's backdrop (games/<game>/backdrop.png) behind everything, instead of plain light blue. */
+  backdrop?: GameArtGame;
   /** Rising air bubbles over the background (underwater games). */
   bubbles?: boolean;
   /** Picture before the title. */
@@ -45,6 +48,7 @@ export interface GameScreenConfig {
 }
 
 const UI = atlasKey('ui');
+const CHARACTERS = atlasKey('characters');
 /** How long the guide keeps its 「やったね」 pose after a correct answer / a cleared stage. */
 const HAPPY_POSE_MS = 1_300;
 const CELEBRATE_POSE_MS = 2_200;
@@ -59,7 +63,8 @@ const MOUTH = { x: 0.12, y: 0.36 } as const;
  */
 export class GameScreen {
   readonly banner: Banner;
-  private readonly background?: Background;
+  private readonly backdrop?: Background;
+  private readonly background?: FieldPicture;
   private readonly frame: FieldFrame;
   private readonly bubbles?: Bubbles;
   private readonly header: Header;
@@ -74,25 +79,28 @@ export class GameScreen {
   /** Queues the shared images; call from the scene's preload. */
   static preload(load: Phaser.Loader.LoaderPlugin, config: GameScreenConfig): void {
     loadAtlas(load, 'ui');
+    loadAtlas(load, 'characters');
     if (config.background) loadBackground(load, config.background);
+    if (config.backdrop) loadGameArt(load, config.backdrop, 'backdrop');
   }
 
   constructor(scene: Phaser.Scene, config: GameScreenConfig) {
-    this.background = config.background && new Background(scene, backgroundKey(config.background));
+    this.backdrop = config.backdrop && new Background(scene, gameArtKey(config.backdrop, 'backdrop'), BACKDROP_DEPTH);
+    this.background = config.background && new FieldPicture(scene, backgroundKey(config.background), FIELD_RADIUS);
     this.frame = new FieldFrame(scene);
     this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
     this.header = new Header(scene, {
       title: config.title,
       icon: config.icon,
-      badge: config.badge ?? { texture: UI, frame: 'magnifier' },
+      badge: config.badge ?? { texture: UI, frame: 'icon-magnifier' },
       subtitle: config.copy.subtitle,
       onClose: config.onClose,
     });
     this.prompt = new PromptCard(scene);
-    this.howTo = new HowToCard(scene, config.copy.howTo, { texture: UI, frame: 'hand-tap' });
+    this.howTo = new HowToCard(scene, config.copy.howTo, { texture: UI, frame: 'icon-hand-tap' });
     this.footer = new FooterMessage(scene, config.copy.footer);
-    this.mascot = new Character(scene, { texture: UI, frame: 'starfish' }, 8);
-    this.guide = config.guide ? new Character(scene, { texture: UI, frame: 'guide' }, 10) : undefined;
+    this.mascot = new Character(scene, { texture: CHARACTERS, frame: 'starfish' }, 8);
+    this.guide = config.guide ? new Character(scene, { texture: CHARACTERS, frame: 'guide' }, 10) : undefined;
     this.praise = new PraiseBubble(scene, config.copy.praise, config.guide);
     this.withGuide = config.guide;
     this.banner = new Banner(scene);
@@ -101,6 +109,7 @@ export class GameScreen {
   /** Positions everything; returns the play field for the game's own objects. */
   layout(viewport: Viewport): Rect {
     const regions = gameRegions(viewport, this.withGuide);
+    this.backdrop?.layout(rect(0, 0, viewport.designWidth, viewport.designHeight));
     this.background?.layout(regions.field);
     this.frame.layout(regions.field);
     this.bubbles?.layout(regions.field);

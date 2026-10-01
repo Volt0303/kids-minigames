@@ -4,6 +4,7 @@ import { readScreenMetrics, ViewportController } from './core/display/ViewportCo
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
 import { COLORS, toCssHex } from './core/ui/theme';
+import { GAME_ART, type GameArtGame } from './core/assets/catalog';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_TITLES, isGameId } from './games/registry';
@@ -17,6 +18,7 @@ const requested =
 const gameId = isGameId(requested) ? requested : undefined;
 const title = gameId ? GAME_TITLES[gameId] : 'テストゲーム';
 const play = createGameScene(gameId, title);
+const artGame = gameId && gameId in GAME_ART ? (gameId as GameArtGame) : undefined;
 document.title = title;
 
 function startGame(): Phaser.Game {
@@ -39,7 +41,7 @@ function startGame(): Phaser.Game {
     // to half speed for the first seconds of a stage. Long stalls are still capped (fps.min).
     fps: { panicMax: 0 },
     // The first scene starts automatically; the session controller switches to the others.
-    scene: [new StartScene(title), play.scene],
+    scene: [new StartScene(title, artGame), play.scene],
   });
 
   ViewportController.attach(game, initial);
