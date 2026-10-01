@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rect } from '../../../core/logic/rect';
-import { FISH_GAP, planRows, rowCapacity, slotPositions, wrap } from './rows';
+import { EDGE_FADE, edgeAlpha, FISH_GAP, planRows, rowCapacity, slotPositions, wrap } from './rows';
 
 const standardField = rect(30, 180, 1126, 870);
 const wideField = rect(30, 180, 3100, 870);
@@ -63,5 +63,22 @@ describe('wrap', () => {
     expect(wrap(110, 0, 100)).toBe(10);
     expect(wrap(-10, 0, 100)).toBe(90);
     expect(wrap(50, 0, 100)).toBe(50);
+  });
+});
+
+describe('edgeAlpha', () => {
+  it('is fully visible in the middle of the field', () => {
+    expect(edgeAlpha(500, 100, 0, 1000)).toBe(1);
+  });
+
+  it('is invisible once the fish edge reaches the border, on either side', () => {
+    expect(edgeAlpha(100, 100, 0, 1000)).toBe(0);
+    expect(edgeAlpha(900, 100, 0, 1000)).toBe(0);
+    expect(edgeAlpha(-50, 100, 0, 1000)).toBe(0);
+  });
+
+  it('fades in between', () => {
+    const alpha = edgeAlpha(100 + EDGE_FADE / 2, 100, 0, 1000);
+    expect(alpha).toBeCloseTo(0.5);
   });
 });

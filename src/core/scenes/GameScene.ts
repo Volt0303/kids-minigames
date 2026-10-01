@@ -137,12 +137,14 @@ export abstract class GameScene extends LayoutScene {
         break;
       case 'stage-clear':
         this.feedback.clear();
+        this.ui.celebrate();
         this.ui.banner.show(this.flow.endedBy === 'goal' ? 'クリア！' : 'よくできたね！', () =>
           this.apply(reduceFlow(this.flow, { type: 'next' })),
         );
         break;
       case 'all-clear':
         this.feedback.clear();
+        this.ui.celebrate();
         this.ui.banner.show('ぜんぶクリア！', () => SessionController.of(this.game).dispatch({ type: 'finished' }));
         break;
       case 'stage-start':

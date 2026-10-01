@@ -11,7 +11,7 @@ import {
   type Bubble,
   type BubbleArea,
 } from '../logic/bubbles';
-import type { Viewport } from '../logic/viewport';
+import type { Rect } from '../logic/rect';
 
 const TEXTURE = 'fx-bubble';
 const TEXTURE_RADIUS = 64;
@@ -41,13 +41,16 @@ function ensureBubbleTexture(scene: Phaser.Scene): void {
 }
 
 /**
- * Air bubbles of different sizes slowly rising and swaying over an underwater
- * background. Sprites are created once (pool); each frame only updates numbers.
+ * Air bubbles of different sizes slowly rising and swaying over the underwater
+ * play field (not the whole screen). Sprites are created once (pool); each
+ * frame only updates numbers.
  */
 export class Bubbles {
   private readonly images: Phaser.GameObjects.Image[] = [];
   private readonly bubbles: Bubble[] = [];
   private area?: BubbleArea;
+  /** World x of the field's left edge; bubbleX() returns a local [0, width] coordinate. */
+  private offsetX = 0;
   private elapsed = 0;
 
   constructor(private readonly scene: Phaser.Scene) {
@@ -56,22 +59,24 @@ export class Bubbles {
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.UPDATE, this.update));
   }
 
-  layout(viewport: Viewport): void {
-    const area: BubbleArea = {
-      width: viewport.designWidth,
-      top: -EDGE,
-      bottom: viewport.designHeight + EDGE,
-      vents: ventPositions(viewport.designWidth, Math.random),
+  /** Confines the bubbles to `area` (the play field), not the whole screen. */
+  layout(area: Rect): void {
+    const bubbleArea: BubbleArea = {
+      width: area.width,
+      top: area.y - EDGE,
+      bottom: area.y + area.height + EDGE,
+      vents: ventPositions(area.width, Math.random),
     };
-    this.area = area;
-    const count = bubbleCount(area.width);
+    this.area = bubbleArea;
+    this.offsetX = area.x;
+    const count = bubbleCount(bubbleArea.width);
     while (this.images.length < Math.min(count, MAX_BUBBLES)) {
       this.images.push(this.scene.add.image(0, 0, TEXTURE).setDepth(DEPTH));
-      this.bubbles.push(createBubble(area, Math.random, true));
+      this.bubbles.push(createBubble(bubbleArea, Math.random, true));
     }
     this.images.forEach((image, i) => image.setVisible(i < count));
-    // Spread them over the new screen so a resize does not leave an empty area.
-    for (const bubble of this.bubbles) spawnBubble(bubble, area, Math.random, true);
+    // Spread them over the new field so a resize does not leave an empty area.
+    for (const bubble of this.bubbles) spawnBubble(bubble, bubbleArea, Math.random, true);
   }
 
   private readonly update = (_time: number, delta: number): void => {
@@ -84,7 +89,7 @@ export class Bubbles {
       if (!bubble || !image.visible) return;
       stepBubble(bubble, area, seconds, Math.random);
       image
-        .setPosition(bubbleX(bubble, this.elapsed), bubble.y)
+        .setPosition(this.offsetX + bubbleX(bubble, this.elapsed), bubble.y)
         .setScale(bubble.radius / TEXTURE_RADIUS)
         .setAlpha(bubbleAlpha(bubble, area));
     });

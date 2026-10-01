@@ -7,7 +7,7 @@ import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { GameScene } from '../../core/scenes/GameScene';
 import { FIND_FISH_COPY, findPrompt, TITLE_FISH } from './copy';
 import { buildRoster, type Roster } from './logic/roster';
-import { planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
+import { edgeAlpha, planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
 import { STAGES, type FindFishStage } from './stages';
 
 export const FIND_FISH_SCENE_KEY = 'FindFish';
@@ -24,6 +24,8 @@ const TAP_PADDING = 20;
 const MIN_TAP = minTouchSize(DESIGN_HEIGHT);
 const POOL_SIZE = 16;
 const FOUND_FLOAT = 140;
+/** Fish fainter than this are fading out at the field's edge and cannot be tapped. */
+const TAPPABLE_ALPHA = 0.5;
 
 const containsPoint = (area: Phaser.Geom.Rectangle, x: number, y: number): boolean => area.contains(x, y);
 
@@ -101,17 +103,21 @@ export class FindFishScene extends GameScene {
 
   protected findHintTarget(): Phaser.GameObjects.Image | undefined {
     const target = this.roster?.target;
-    return this.swimmers.find((s) => s.active && s.image.frame.name === target)?.image;
+    return this.swimmers.find((s) => s.active && s.image.alpha === 1 && s.image.frame.name === target)?.image;
   }
 
   update(_time: number, delta: number): void {
     const plan = this.plan;
-    if (!plan) return;
+    const field = this.field;
+    if (!plan || !field) return;
     const step = (this.stage.speed * delta) / 1000;
+    const right = field.x + field.width;
     for (const swimmer of this.swimmers) {
       if (!swimmer.active) continue;
       const image = swimmer.image;
       image.x = wrap(image.x + swimmer.direction * step, plan.loopStart, plan.loopLength);
+      // Fade out near the border so no fish is ever drawn outside the field's frame.
+      image.alpha = edgeAlpha(image.x, image.displayWidth / 2, field.x, right);
     }
   }
 
@@ -163,7 +169,7 @@ export class FindFishScene extends GameScene {
   }
 
   private onTap(swimmer: Swimmer): void {
-    if (!this.isPlaying || !swimmer.active) return;
+    if (!this.isPlaying || !swimmer.active || swimmer.image.alpha < TAPPABLE_ALPHA) return;
     const image = swimmer.image;
     if (image.frame.name !== this.roster?.target) {
       this.reportWrong(image);

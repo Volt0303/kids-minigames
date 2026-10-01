@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gameRegions, HEADER_HEIGHT } from './gameLayout';
+import { gameRegions } from './gameLayout';
 import type { Rect } from './rect';
 import { computeViewport, type Viewport } from './viewport';
 
@@ -10,48 +10,66 @@ const sub2 = computeViewport({ cssWidth: 1920, cssHeight: 1080, pixelRatio: 1 })
 const overlaps = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
+const contains = (outer: Rect, inner: Rect): boolean =>
+  inner.x >= outer.x - 0.001 &&
+  inner.y >= outer.y - 0.001 &&
+  inner.x + inner.width <= outer.x + outer.width + 0.001 &&
+  inner.y + inner.height <= outer.y + outer.height + 0.001;
+
+const noOverlaps = (list: Rect[]): void => {
+  for (const [i, a] of list.entries()) {
+    for (const b of list.slice(i + 1)) expect(overlaps(a, b)).toBe(false);
+  }
+};
+
 describe.each<[string, Viewport]>([
   ['main 1920x540', main],
   ['sub1 1280x800', sub1],
   ['sub2 1920x1080', sub2],
 ])('gameRegions on %s', (_name, vp) => {
   const regions = gameRegions(vp);
-  const { header, field, prompt, howTo, guide, mascot, footer, bubble } = regions;
-  const all: Rect[] = [header, field, prompt, howTo, guide, mascot, footer, bubble];
+  const { header, field, prompt, howTo, message, mascot, footer, bubble, guide } = regions;
+  const screen: Rect = { x: 0, y: 0, width: vp.designWidth, height: vp.designHeight };
 
-  it('keeps every region on screen', () => {
-    for (const r of all) {
-      expect(r.x).toBeGreaterThanOrEqual(0);
-      expect(r.y).toBeGreaterThanOrEqual(0);
-      expect(r.x + r.width).toBeLessThanOrEqual(vp.designWidth + 0.001);
-      expect(r.y + r.height).toBeLessThanOrEqual(vp.designHeight + 0.001);
-    }
+  it('keeps the five main areas on screen and apart', () => {
+    const areas = [header, field, prompt, howTo, message];
+    for (const r of areas) expect(contains(screen, r)).toBe(true);
+    noOverlaps(areas);
   });
 
-  it('never lets two regions overlap', () => {
-    for (const [i, a] of all.entries()) {
-      for (const b of all.slice(i + 1)) expect(overlaps(a, b)).toBe(false);
-    }
+  it('stacks header, then field and cards, then the full-width message bar', () => {
+    expect(field.y).toBeGreaterThan(header.y + header.height);
+    expect(prompt.y).toBeGreaterThan(header.y + header.height);
+    expect(message.y).toBeGreaterThan(field.y + field.height);
+    expect(message.y).toBeGreaterThan(howTo.y + howTo.height);
+    expect(message.width).toBeCloseTo(header.width);
   });
 
   it('puts the cards to the right of the field, prompt above how-to', () => {
-    const { field, prompt, howTo } = regions;
     expect(prompt.x).toBeGreaterThan(field.x + field.width);
     expect(howTo.y).toBeGreaterThan(prompt.y + prompt.height);
-    expect(field.y).toBeGreaterThanOrEqual(HEADER_HEIGHT);
   });
 
-  it('puts the guide under the cards and the bottom row under the field, mascot first', () => {
-    const { field, howTo, guide, mascot, footer, bubble } = regions;
-    expect(guide.y).toBeGreaterThan(howTo.y + howTo.height);
-    for (const r of [mascot, footer, bubble]) expect(r.y).toBeGreaterThan(field.y + field.height);
+  it('fits mascot, text, bubble and guide in the message bar, in that order', () => {
+    const inner = [mascot, footer, bubble, guide];
+    for (const r of [mascot, footer, bubble]) expect(contains(message, r)).toBe(true);
+    noOverlaps(inner);
     expect(footer.x).toBeGreaterThan(mascot.x + mascot.width);
     expect(bubble.x).toBeGreaterThan(footer.x + footer.width);
+    expect(guide.x).toBeGreaterThan(bubble.x + bubble.width);
     expect(footer.width).toBeGreaterThan(400);
   });
 
+  it('lets the guide rise above the message bar without covering the cards or the field', () => {
+    expect(guide.y + guide.height).toBeLessThanOrEqual(message.y + message.height);
+    expect(guide.y).toBeLessThan(message.y);
+    expect(overlaps(guide, howTo)).toBe(false);
+    expect(overlaps(guide, field)).toBe(false);
+    expect(guide.height).toBeGreaterThan(200);
+  });
+
   it('leaves a play field tall enough for the games', () => {
-    expect(regions.field.height).toBeGreaterThan(650);
+    expect(field.height).toBeGreaterThan(650);
   });
 });
 

@@ -16,7 +16,7 @@ Every font, image, sound and third-party library shipped in the apps is listed h
 
 ## Images
 
-All images in `assets-src/images/` were generated for this project with **ChatGPT image generation (OpenAI)** on a paid
+All images in `assets-src/images/` except the client-provided character (see below) were generated for this project with **ChatGPT image generation (OpenAI)** on a paid
 plan, under OpenAI's Terms of Use, which assign the rights in generated output to the user. Each image was created with
 a style brief (children's picture-book illustration, flat colours, thick dark outline, no text, no logos, no characters)
 followed by the message below. The atlases in `public/assets/` are built from these files by `tools/build-atlases.mjs`.
@@ -79,6 +79,22 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 54 | `icons/icon-order.png` | Pink-red background. A plate with two pieces of nigiri sushi and a small blank order ticket. Size: 1024x1024 (square). | 2026-09-30 |
 | 55 | `icons/icon-puzzle.png` | Yellow background. A fish made of four jigsaw puzzle pieces fitting together. Size: 1024x1024 (square). | 2026-09-30 |
 | 56 | `icons/icon-sushi.png` | Warm orange background. One tuna nigiri sushi. Size: 1024x1024 (square). | 2026-09-29 |
+| 57 | `ui/hand-tap.png` | A small cartoon hand with the index finger pointing down, tapping, with three short curved "tap" lines around the fingertip. Warm skin tone. Size: 1024x1024 (square). | 2026-10-01 |
+| 58 | `ui/magnifier.png` | A magnifying glass tilted to the right, round light-blue lens with a white shine highlight, rounded navy-blue handle. Size: 1024x1024 (square). | 2026-10-01 |
+| 59 | `ui/starfish.png` | A small light-blue five-armed starfish with rounded arm tips, tiny white dots and a soft white shine highlight. No face. Size: 1024x1024 (square). | 2026-10-01 |
+
+### Client-provided character
+
+The guide character げんきくん is the client's own character, supplied by the client (Adobe Illustrator file,
+received 2026-10-01) for use in these six apps. All rights remain with the client; it is **not** covered by the
+licences above. The PNGs below were exported from the client's file (page rendered at 400 dpi, grey backing box
+removed with `tools/lib/remove-background.mjs`, trimmed); the drawings are unchanged.
+
+| File | Pose in the client's file | Used for |
+|---|---|---|
+| `ui/guide.png` | げんきくん ① (standing) | Normal |
+| `ui/guide-happy.png` | げんきくん ⑤ (jump kick) | After a correct answer |
+| `ui/guide-cheer.png` | げんきくん ④ (fighting stance) | Stage clear |
 
 ## Libraries shipped in the apps
 

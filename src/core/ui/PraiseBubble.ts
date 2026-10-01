@@ -13,6 +13,8 @@ const SHOW_MS = 1_300;
 const RADIUS = 44;
 const TAIL = 34;
 const HEIGHT = 190;
+/** Bubble height relative to its area. */
+const MAX_RISE = 1.35;
 
 /**
  * Speech bubble that pops up after a correct answer (「せいかい！ よく みつけたね！」),
@@ -43,7 +45,8 @@ export class PraiseBubble {
    * taller than the area so it overlaps the bottom of the field a little.
    */
   layout(area: Rect): void {
-    this.fitScale = Math.min(1, (area.width - TAIL) / this.width);
+    // May rise a little above its area (over the field's edge), but not over the cards.
+    this.fitScale = Math.min(1, (area.width - TAIL) / this.width, (area.height * MAX_RISE) / HEIGHT);
     const height = HEIGHT * this.fitScale;
     this.container
       .setPosition(area.x + (area.width - TAIL * this.fitScale) / 2, area.y + area.height - height / 2)

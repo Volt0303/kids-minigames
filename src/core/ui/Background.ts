@@ -1,13 +1,13 @@
 import * as Phaser from 'phaser';
-import type { Viewport } from '../logic/viewport';
+import { tileBackground } from '../logic/backgroundTiling';
+import type { Rect } from '../logic/rect';
 
 const DEPTH = -1000;
 
 /**
- * Full-screen background that fits every aspect ratio without losing the top or
- * bottom of the picture: the image is scaled to the screen height and, when the
- * screen is wider than one copy (the 32:9 main device), repeated side by side with
- * alternate copies mirrored so the edges meet seamlessly.
+ * Picture that fills the play field (not the whole screen): the image is scaled to
+ * the field's height and tiled side by side (mirroring alternate copies) to exactly
+ * cover its width, with no overflow past the field's edges on any screen size.
  */
 export class Background {
   private readonly tiles: Phaser.GameObjects.Image[] = [];
@@ -22,26 +22,19 @@ export class Background {
     return this.scene.textures.exists(this.textureKey);
   }
 
-  layout(viewport: Viewport): void {
+  /** Fills `area` (the play field) with the picture; never draws outside it. */
+  layout(area: Rect): void {
     if (!this.available) return;
     const source = this.scene.textures.get(this.textureKey).getSourceImage();
-    const scale = Math.max(viewport.designHeight / source.height, viewport.designWidth / (source.width * 3));
-    const tileWidth = source.width * scale;
-    const tileHeight = source.height * scale;
+    const placements = tileBackground(area, source.width, source.height);
+    this.ensureTiles(placements.length);
 
-    // An odd count keeps an unmirrored copy in the middle.
-    let count = Math.ceil(viewport.designWidth / tileWidth);
-    if (count % 2 === 0) count += 1;
-    this.ensureTiles(count);
-
-    const middle = (count - 1) / 2;
-    const left = viewport.designWidth / 2 - (count * tileWidth) / 2;
+    const centerY = area.y + area.height / 2;
     this.tiles.forEach((tile, i) => {
-      tile
-        .setVisible(i < count)
-        .setDisplaySize(tileWidth, tileHeight)
-        .setPosition(left + tileWidth * (i + 0.5), viewport.designHeight / 2)
-        .setFlipX(Math.abs(i - middle) % 2 === 1);
+      const placement = placements[i];
+      tile.setVisible(!!placement);
+      if (!placement) return;
+      tile.setDisplaySize(placement.width, area.height).setPosition(placement.x, centerY).setFlipX(placement.flip);
     });
   }
 

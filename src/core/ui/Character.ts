@@ -13,7 +13,10 @@ const HOP_HEIGHT = 40;
  */
 export class Character {
   private readonly image: Phaser.GameObjects.Image;
+  private readonly restFrame?: string;
   private idle?: Phaser.Tweens.Tween;
+  private poseTimer?: Phaser.Time.TimerEvent;
+  private area?: Rect;
   private baseY = 0;
 
   constructor(
@@ -23,13 +26,20 @@ export class Character {
     private readonly bob: number,
   ) {
     this.image = scene.add.image(0, 0, picture.texture, picture.frame).setOrigin(0.5, 1);
+    this.restFrame = picture.frame;
   }
 
   layout(area: Rect): void {
-    const fit = fitContain(this.image.frame.width, this.image.frame.height, area);
-    this.baseY = area.y + area.height;
-    this.image.setScale(fit.scale).setPosition(fit.x, this.baseY);
+    this.area = area;
+    this.fit();
     this.startIdle();
+  }
+
+  /** Shows another pose (frame of the same texture) for a while, then the normal one again. */
+  showPose(frame: string, durationMs: number): void {
+    this.poseTimer?.remove();
+    this.setFrame(frame);
+    this.poseTimer = this.scene.time.delayedCall(durationMs, () => this.setFrame(this.restFrame));
   }
 
   /** Jumps once (correct answer), then goes back to the idle movement. */
@@ -44,6 +54,22 @@ export class Character {
       ease: 'Quad.easeOut',
       onComplete: () => this.startIdle(),
     });
+  }
+
+  private setFrame(frame: string | undefined): void {
+    if (frame === undefined || !this.image.texture.has(frame)) return;
+    this.image.setFrame(frame);
+    this.fit();
+  }
+
+  /** Fits the current frame into the area, standing on its bottom edge. */
+  private fit(): void {
+    const area = this.area;
+    if (!area) return;
+    const fit = fitContain(this.image.frame.width, this.image.frame.height, area);
+    this.baseY = area.y + area.height;
+    this.image.setScale(fit.scale).setX(fit.x);
+    if (!this.idle?.isPlaying()) this.image.setY(this.baseY);
   }
 
   private startIdle(): void {

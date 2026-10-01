@@ -32,7 +32,7 @@ export function drawCard(
     .clear()
     .fillStyle(colors.fill)
     .fillRoundedRect(area.x, top, area.width, height, RADIUS)
-    .lineStyle(8, colors.border)
+    .lineStyle(5, colors.border)
     .strokeRoundedRect(area.x, top, area.width, height, RADIUS)
     .fillStyle(colors.label)
     .fillRoundedRect(centerX - tabWidth / 2, area.y, tabWidth, LABEL_HEIGHT, LABEL_HEIGHT / 2);

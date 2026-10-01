@@ -1,6 +1,9 @@
 import type * as Phaser from 'phaser';
+import { BAR_PADDING } from '../logic/gameLayout';
+import { headerColumns } from '../logic/headerLayout';
 import type { Rect } from '../logic/rect';
 import { IconButton } from './IconButton';
+import { drawPanel } from './panelShape';
 import type { Picture } from './picture';
 import { RichText, type RichLines } from './RichText';
 import { ScoreBadge } from './ScoreBadge';
@@ -9,28 +12,35 @@ import { COLORS, TEXT } from './theme';
 
 export interface HeaderConfig {
   title: string;
-  /** Small picture before the title (e.g. a fish). */
+  /** Picture before the title (e.g. a fish). */
   icon?: Picture;
-  /** Small picture after the title (e.g. a magnifying glass). */
+  /** Picture in the how-to area (e.g. a magnifying glass). */
   badge?: Picture;
-  /** Short instruction next to the title (always shown, as in the mockups). */
+  /** Short instruction in the how-to area. */
   subtitle: RichLines;
   onClose: () => void;
 }
 
-const RADIUS = 36;
-const GAP = 24;
+/** Inner padding of each area. */
+const PAD = 20;
+const GAP = 20;
+/** Space between the three areas. */
+const AREA_GAP = 16;
 const ICON_SIZE = 100;
-const CLOSE_RADIUS = 48;
 /** Magnifying glass size relative to the icon. */
 const BADGE_SIZE = 0.9;
+const BADGE_HEIGHT = 120;
+const CLOSE_RADIUS = 48;
+/** Keeps contents clear of an area's border. */
+const VERTICAL_ROOM = 12;
 
 /**
- * Header panel from the mockups: icon, big title, instruction line on the left;
- * stage/time, score and the close (×) button on the right.
+ * Header bar from the client's layout diagram and sample: one plain panel holding three
+ * areas side by side — title (icon + game name), how-to (magnifying glass + instruction)
+ * and progress (stage/time, ★ correct count, close ×).
  */
 export class Header {
-  private readonly panel: Phaser.GameObjects.Graphics;
+  private readonly panels: Phaser.GameObjects.Graphics;
   private readonly title: Phaser.GameObjects.Text;
   private readonly icon?: Phaser.GameObjects.Image;
   private readonly badge?: Phaser.GameObjects.Image;
@@ -40,13 +50,13 @@ export class Header {
   private readonly close: IconButton;
 
   constructor(scene: Phaser.Scene, config: HeaderConfig) {
-    this.panel = scene.add.graphics();
+    this.panels = scene.add.graphics();
     this.icon = config.icon && scene.add.image(0, 0, config.icon.texture, config.icon.frame);
     this.title = scene.add.text(0, 0, config.title, TEXT.title).setOrigin(0, 0.5);
     this.badge = config.badge && scene.add.image(0, 0, config.badge.texture, config.badge.frame);
     this.subtitle = new RichText(scene, TEXT.subtitle, 'left').setContent(config.subtitle);
-    this.status = new StatusBadge(scene, 120);
-    this.score = new ScoreBadge(scene, 120);
+    this.status = new StatusBadge(scene, BADGE_HEIGHT);
+    this.score = new ScoreBadge(scene, BADGE_HEIGHT);
     this.close = new IconButton(scene, { symbol: '×', radius: CLOSE_RADIUS, color: COLORS.muted }, config.onClose);
   }
 
@@ -62,44 +72,50 @@ export class Header {
     this.score.setScore(done, goal);
   }
 
-  layout(area: Rect): void {
-    this.panel
-      .clear()
-      .fillStyle(COLORS.panel, 0.94)
-      .fillRoundedRect(area.x, area.y, area.width, area.height, RADIUS)
-      .lineStyle(6, COLORS.panelBorder)
-      .strokeRoundedRect(area.x, area.y, area.width, area.height, RADIUS);
+  layout(bar: Rect): void {
+    const columns = headerColumns(bar, BAR_PADDING, AREA_GAP, {
+      title: PAD * 2 + (this.icon ? ICON_SIZE + GAP / 2 : 0) + this.title.width,
+      howTo: PAD * 2 + (this.badge ? ICON_SIZE * BADGE_SIZE + GAP / 2 : 0) + this.subtitle.textWidth,
+      progress: PAD * 2 + this.status.width + GAP + this.score.width + GAP + CLOSE_RADIUS * 2,
+    });
+    const tallest = Math.max(this.title.height, this.subtitle.textHeight, BADGE_HEIGHT, ICON_SIZE);
+    const scale = Math.min(columns.scale, (columns.title.height - VERTICAL_ROOM) / tallest);
+
+    // One plain panel; the three areas are arranged inside it without boxes of their own.
+    this.panels.clear();
+    drawPanel(this.panels, bar, { fill: COLORS.bar, border: COLORS.barBorder, radius: 36 });
+
+    this.layoutTitle(columns.title, scale);
+    this.layoutHowTo(columns.howTo, scale);
+    this.layoutProgress(columns.progress, scale);
+  }
+
+  /** Icon and game name, from the left of the title area. */
+  private layoutTitle(area: Rect, scale: number): void {
     const y = area.y + area.height / 2;
-    const leftEnd = this.layoutRight(area, y);
-    this.layoutLeft(area.x + GAP, leftEnd - GAP, y);
-  }
-
-  /** Places close, score and status from the right edge; returns where the left side must end. */
-  private layoutRight(area: Rect, y: number): number {
-    let right = area.x + area.width - GAP;
-    this.close.setPosition(right - CLOSE_RADIUS, y);
-    right -= CLOSE_RADIUS * 2 + GAP;
-    this.score.setPosition(right - this.score.width / 2, y);
-    right -= this.score.width + GAP;
-    this.status.setPosition(right - this.status.width / 2, y);
-    return right - this.status.width;
-  }
-
-  /** Width of icon, title, badge and subtitle at full size. */
-  private get leftWidth(): number {
-    const pictures = (this.icon ? ICON_SIZE + GAP / 2 : 0) + (this.badge ? ICON_SIZE * BADGE_SIZE + GAP / 2 : 0);
-    return pictures + this.title.width + GAP / 2 + GAP + this.subtitle.textWidth;
-  }
-
-  /** Icon, title, badge and subtitle, all shrunk by the same factor when space runs out. */
-  private layoutLeft(left: number, right: number, y: number): void {
-    const scale = Math.min(1, (right - left) / this.leftWidth);
-    let x = left;
+    let x = area.x + PAD * scale;
     if (this.icon) x = this.placePicture(this.icon, x, y, scale);
     this.title.setScale(scale).setPosition(x, y);
-    x += this.title.displayWidth + (GAP / 2) * scale;
+  }
+
+  /** Magnifying glass and the instruction, from the left of the how-to area. */
+  private layoutHowTo(area: Rect, scale: number): void {
+    const y = area.y + area.height / 2;
+    let x = area.x + PAD * scale;
     if (this.badge) x = this.placePicture(this.badge, x, y, BADGE_SIZE * scale);
-    this.subtitle.setScale(scale).setPosition(x + GAP * scale, y);
+    this.subtitle.setScale(scale).setPosition(x, y);
+  }
+
+  /** Stage/time, score and close, at the right end of the progress area (as in the sample). */
+  private layoutProgress(area: Rect, scale: number): void {
+    const y = area.y + area.height / 2;
+    const total = (this.status.width + GAP + this.score.width + GAP + CLOSE_RADIUS * 2) * scale;
+    let x = area.x + area.width - PAD * scale - total;
+    this.status.setScale(scale).setPosition(x + (this.status.width * scale) / 2, y);
+    x += (this.status.width + GAP) * scale;
+    this.score.setScale(scale).setPosition(x + (this.score.width * scale) / 2, y);
+    x += (this.score.width + GAP) * scale;
+    this.close.setScale(scale).setPosition(x + CLOSE_RADIUS * scale, y);
   }
 
   private placePicture(image: Phaser.GameObjects.Image, x: number, y: number, size: number): number {

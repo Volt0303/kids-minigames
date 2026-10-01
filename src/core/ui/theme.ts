@@ -3,20 +3,25 @@
  * Change the look of every game here.
  */
 export const COLORS = {
-  background: 0x0b3d6b,
+  /** Page background outside every panel (light sky blue, per the client's mockup). */
+  background: 0xdcf2ff,
   panel: 0xffffff,
   panelBorder: 0xb9dff5,
+  /** Header and message bars: white panels with a soft light-blue edge, as in the client's sample. */
+  bar: 0xffffff,
+  barBorder: 0xc4e3f6,
+  fieldBorder: 0xc4e3f6,
   muted: 0x8d99ae,
   star: 0xffd166,
   /** Header status / score badges. */
   badge: 0x1f4e9c,
   /** 「お題」 card. */
   promptCard: 0xfff6dc,
-  promptBorder: 0xf2c14e,
+  promptBorder: 0xf5d98a,
   promptLabel: 0xf5a623,
   /** 「あそびかた」 card. */
   howToCard: 0xfdeaf1,
-  howToBorder: 0xf28bb0,
+  howToBorder: 0xf6bccd,
   howToLabel: 0xe8547f,
   textDark: '#1d3557',
   textLight: '#ffffff',
@@ -33,6 +38,11 @@ export const FONT_FAMILY = `"${FONT_FACE}", sans-serif`;
 
 const bold = (fontSize: number, color: string) =>
   ({ fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: `${fontSize}px`, color }) as const;
+
+/** A numeric 0xRRGGBB colour as the CSS hex string Phaser's game config expects. */
+export function toCssHex(color: number): string {
+  return `#${color.toString(16).padStart(6, '0')}`;
+}
 
 export const TEXT = {
   /** Game title in the header: blue with a white edge, as in the mockups. */

@@ -3,6 +3,7 @@ import { loadFonts } from './core/display/fonts';
 import { readScreenMetrics, ViewportController } from './core/display/ViewportController';
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
+import { COLORS, toCssHex } from './core/ui/theme';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_TITLES, isGameId } from './games/registry';
@@ -25,7 +26,7 @@ function startGame(): Phaser.Game {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
-    backgroundColor: '#0b3d6b',
+    backgroundColor: toCssHex(COLORS.background),
     scale: {
       mode: Phaser.Scale.NONE,
       width: initial.physicalWidth,
