@@ -2,6 +2,7 @@ import type * as Phaser from 'phaser';
 import { loadAtlas, loadGameArt } from '../assets/atlas';
 import { atlasKey, gameArtKey, hasGameArt, type GameArtGame } from '../assets/catalog';
 import { LayoutScene } from '../display/LayoutScene';
+import { watchSceneLoading } from '../display/loadingOverlay';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
 import { Background } from '../ui/Background';
@@ -43,6 +44,8 @@ export class StartScene extends LayoutScene {
   }
 
   preload(): void {
+    // Spinner on until this screen's own pictures are ready (an already-loaded screen just blips it).
+    watchSceneLoading(this);
     loadAtlas(this.load, 'ui');
     if (hasGameArt(this.artGame, 'start-background')) loadGameArt(this.load, this.artGame, 'start-background');
     if (hasGameArt(this.artGame, 'start-title')) loadGameArt(this.load, this.artGame, 'start-title');

@@ -2,15 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { fishScale, RELATIVE_SIZE, ROW_FILL } from './fishSize';
 
 const ROW = 230;
-const SLOT = 360;
+const SLOT = 420;
 
 describe('fishScale', () => {
   it('draws each fish exactly at its relative size, so changing a value always changes the fish', () => {
     const picture = { width: 300, height: 160 };
-    const tuna = fishScale('tuna', picture, ROW, SLOT) * picture.height;
+    // The turtle is the current largest (relative size 1), so it reaches the row's full height.
+    const turtle = fishScale('turtle', picture, ROW, SLOT) * picture.height;
     const tropical = fishScale('blue-tropical', picture, ROW, SLOT) * picture.height;
-    expect(tuna).toBeCloseTo(ROW * ROW_FILL);
-    expect(tropical / tuna).toBeCloseTo(RELATIVE_SIZE['blue-tropical'] / RELATIVE_SIZE.tuna);
+    expect(turtle).toBeCloseTo(ROW * ROW_FILL);
+    expect(tropical / turtle).toBeCloseTo(RELATIVE_SIZE['blue-tropical'] / RELATIVE_SIZE.turtle);
   });
 
   it('keeps tall pictures (squid, octopus) at their own size instead of the row maximum', () => {
@@ -32,10 +33,24 @@ describe('fishScale', () => {
     }
   });
 
-  it('keeps every size between 0.55 and 1', () => {
+  it('keeps every size between 0.42 and 1', () => {
     const sizes = Object.values(RELATIVE_SIZE);
     expect(Math.max(...sizes)).toBeLessThanOrEqual(1);
-    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(0.55);
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(0.42);
+  });
+
+  it('keeps tuna and the turtle as the largest, and the reef fish as the smallest', () => {
+    const large = Math.max(RELATIVE_SIZE.tuna, RELATIVE_SIZE.turtle);
+    const small = Math.max(
+      RELATIVE_SIZE['blue-tropical'],
+      RELATIVE_SIZE['yellow-tropical'],
+      RELATIVE_SIZE['striped-orange'],
+    );
+    for (const [fish, size] of Object.entries(RELATIVE_SIZE)) {
+      if (fish === 'tuna' || fish === 'turtle') continue;
+      expect(size).toBeLessThanOrEqual(large);
+    }
+    expect(small).toBeLessThan(RELATIVE_SIZE.bonito);
   });
 
   it('rejects an empty picture', () => {

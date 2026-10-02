@@ -75,6 +75,9 @@ export const ATLASES = {
     'icon-magnifier': sprite('むしめがね', 180, 180),
     'icon-clock': sprite('とけい', 120, 120),
     'icon-star': sprite('ほし', 120, 110),
+    /** Message panel with bubbles at both ends; stretched in the middle only (nine-slice). */
+    'panel-message': sprite('メッセージ', 1000, 340),
+    'deco-bubbles': sprite('あわ', 180, 180),
   },
   /** Characters around the play field. */
   characters: {

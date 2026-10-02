@@ -9,7 +9,7 @@ import {
   type GameArtGame,
 } from '../assets/catalog';
 import { gameRegions } from '../logic/gameLayout';
-import { rect, type Rect } from '../logic/rect';
+import { fitContain, rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { BACKDROP_DEPTH, Background } from './Background';
 import { Banner } from './Banner';
@@ -73,6 +73,7 @@ export class GameScreen {
   private readonly header: Header;
   private readonly prompt: PromptCard;
   private readonly howTo: HowToCard;
+  private readonly deco: Phaser.GameObjects.Image;
   private readonly footer: FooterMessage;
   private readonly mascot: Character;
   private readonly guide?: Character;
@@ -103,9 +104,10 @@ export class GameScreen {
       star: { texture: UI, frame: 'icon-star' },
       onClose: config.onClose,
     });
-    this.prompt = new PromptCard(scene);
+    this.prompt = new PromptCard(scene, { texture: UI, frame: 'deco-bubbles' });
     this.howTo = new HowToCard(scene, config.copy.howTo, { texture: UI, frame: 'icon-hand-tap' });
-    this.footer = new FooterMessage(scene, config.copy.footer);
+    this.deco = scene.add.image(0, 0, UI, 'deco-bubbles');
+    this.footer = new FooterMessage(scene, config.copy.footer, { texture: UI, frame: 'panel-message' });
     this.mascot = new Character(scene, { texture: CHARACTERS, frame: 'starfish' }, 8);
     this.guide = config.guide ? new Character(scene, { texture: CHARACTERS, frame: 'guide' }, 10) : undefined;
     this.praise = new PraiseBubble(scene, config.copy.praise, config.guide);
@@ -123,6 +125,8 @@ export class GameScreen {
     this.header.layout(regions.header);
     this.prompt.layout(regions.prompt);
     this.howTo.layout(regions.howTo);
+    const decoFit = fitContain(this.deco.frame.width, this.deco.frame.height, regions.deco);
+    this.deco.setScale(decoFit.scale).setPosition(decoFit.x, decoFit.y);
     this.footer.layout(regions.footer);
     this.mascot.layout(regions.mascot);
     if (regions.guide) this.guide?.layout(regions.guide);

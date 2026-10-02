@@ -16,8 +16,14 @@ export const FIND_FISH_SCENE_KEY = 'FindFish';
 
 const FISH_TEXTURE = atlasKey('fish');
 const ALL_FISH = spriteNames('fish');
-/** Widest fish in the catalog; used to space the rows. */
+/** Assumed widest fish, used to plan row spacing (how many fish fit, how far apart). */
 const MAX_FISH_WIDTH = 360;
+/**
+ * How wide a fish may actually be drawn. A little more than MAX_FISH_WIDTH, so a fish's
+ * own size setting (fishSize.ts) is never silently capped by the spacing assumption —
+ * still safely under the minimum real gap between fish (FISH_GAP added to MAX_FISH_WIDTH).
+ */
+const MAX_FISH_DISPLAY_WIDTH = 400;
 /** Extra tap area around each fish (stays inside the gap between neighbours). */
 const TAP_PADDING = 20;
 /** Minimum tap area (requirements 6.6: about 13% of the screen height), even for small pictures. */
@@ -155,7 +161,7 @@ export class FindFishScene extends GameScene {
     this.tweens.killTweensOf(image);
     image.setFrame(fish).setAngle(0).setAlpha(1);
     // Each kind keeps its own size (big tuna, small tropical fish), as in the client's mockup.
-    const scale = fishScale(fish, image.frame, place.height, MAX_FISH_WIDTH);
+    const scale = fishScale(fish, image.frame, place.height, MAX_FISH_DISPLAY_WIDTH);
     // Fish art faces left, so it is flipped when swimming right.
     image
       .setScale(scale)

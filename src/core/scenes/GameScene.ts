@@ -1,5 +1,6 @@
 import type * as Phaser from 'phaser';
 import { LayoutScene } from '../display/LayoutScene';
+import { watchSceneLoading } from '../display/loadingOverlay';
 import type { Rect } from '../logic/rect';
 import {
   currentStage,
@@ -79,6 +80,8 @@ export abstract class GameScene extends LayoutScene {
   }
 
   preload(): void {
+    // Spinner on until this screen's own pictures are ready (an already-loaded screen just blips it).
+    watchSceneLoading(this);
     this.load.audio(SFX.correct, 'sfx/correct.wav');
     this.load.audio(SFX.wrong, 'sfx/wrong.wav');
     this.load.audio(SFX.clear, 'sfx/clear.wav');

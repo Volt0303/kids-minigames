@@ -91,6 +91,8 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 65 | `atlases/ui/icon-clock.png` | *(prompt to be added)* | 2026-10-02 |
 | 66 | `atlases/ui/icon-star.png` | *(prompt to be added)* | 2026-10-02 |
 | 67 | `games/findfish/header-title.png` | *(prompt to be added)* | 2026-10-02 |
+| 68 | `atlases/ui/panel-message.png` | *(prompt to be added)* | 2026-10-02 |
+| 69 | `atlases/ui/deco-bubbles.png` | *(prompt to be added)* — painted-in checkerboard removed by flood fill | 2026-10-02 |
 
 ### Client-provided character
 

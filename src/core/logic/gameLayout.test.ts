@@ -57,8 +57,9 @@ describe.each<[string, Viewport]>([
   });
 
   it('fits mascot, text, bubble and guide in the message bar, in that order', () => {
-    const inner = [mascot, footer, bubble, guide];
-    for (const r of [mascot, footer, bubble]) expect(contains(message, r)).toBe(true);
+    const inner = [regions.deco, mascot, footer, bubble, guide];
+    for (const r of [regions.deco, mascot, footer, bubble]) expect(contains(message, r)).toBe(true);
+    expect(mascot.x).toBeGreaterThanOrEqual(regions.deco.x + regions.deco.width);
     noOverlaps(inner);
     expect(footer.x).toBeGreaterThan(mascot.x + mascot.width);
     expect(bubble.x).toBeGreaterThan(footer.x + footer.width);

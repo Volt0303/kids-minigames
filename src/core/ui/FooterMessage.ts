@@ -1,42 +1,50 @@
 import type * as Phaser from 'phaser';
 import type { Rect } from '../logic/rect';
-import { drawPanel } from './panelShape';
+import type { Picture } from './picture';
 import { RichText, type RichLines } from './RichText';
-import { COLORS, TEXT } from './theme';
+import { TEXT } from './theme';
 
-const PADDING_X = 40;
-const PADDING_Y = 10;
-/** Space on the right of the text for the little star decoration. */
-const STAR_SPACE = 70;
+/** Parts of the panel picture that must not stretch (its bubble ends), as fractions of its width. */
+const LEFT_CAP = 0.17;
+const RIGHT_CAP = 0.15;
+/** Text starts this far in from the panel's left edge, relative to the panel's height. */
+const TEXT_LEFT = 0.66;
+/** Space after the text for the right-hand bubbles, relative to the panel's height. */
+const TEXT_RIGHT = 0.85;
+/** Text height relative to the panel's height (leaves room for the panel's rim). */
+const TEXT_SHARE = 0.62;
 
 /**
- * Encouraging message (e.g. 「おさかなはかせを めざそう!」) in its own rounded box next to
- * the starfish, with a small star at the end, as in the client's mockup.
+ * Encouraging message (e.g. 「おさかなはかせを めざそう!」) in the bubble panel next to the
+ * starfish, as in the client's mockup. The panel picture is a nine-slice: only its middle
+ * stretches with the text, so the bubbles at both ends keep their shape.
  */
 export class FooterMessage {
-  private readonly panel: Phaser.GameObjects.Graphics;
+  private readonly panel: Phaser.GameObjects.NineSlice;
   private readonly text: RichText;
-  private readonly star: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, lines: RichLines) {
-    this.panel = scene.add.graphics();
+  constructor(scene: Phaser.Scene, lines: RichLines, panel: Picture) {
+    this.panel = scene.add.nineslice(0, 0, panel.texture, panel.frame).setOrigin(0, 0.5);
+    const frame = this.panel.frame;
+    this.panel.setSlices(frame.width, frame.height, frame.width * LEFT_CAP, frame.width * RIGHT_CAP, 0, 0);
     this.text = new RichText(scene, TEXT.footer, 'left').setContent(lines);
-    this.star = scene.add.text(0, 0, '★', TEXT.footerStar).setOrigin(0.5);
   }
 
   layout(area: Rect): void {
-    const scale = Math.min(
-      1,
-      (area.height - PADDING_Y * 2) / Math.max(1, this.text.textHeight),
-      (area.width - PADDING_X * 2 - STAR_SPACE) / Math.max(1, this.text.textWidth),
+    const height = area.height;
+    const textScale = Math.min(
+      (height * TEXT_SHARE) / Math.max(1, this.text.textHeight),
+      (area.width - height * (TEXT_LEFT + TEXT_RIGHT)) / Math.max(1, this.text.textWidth),
     );
-    const width = Math.min(area.width, this.text.textWidth * scale + PADDING_X * 2 + STAR_SPACE);
-    const box = { x: area.x, y: area.y, width, height: area.height };
-    this.panel.clear();
-    drawPanel(this.panel, box, { fill: COLORS.bar, border: COLORS.barBorder, radius: 32 });
+    const width = Math.min(area.width, this.text.textWidth * textScale + height * (TEXT_LEFT + TEXT_RIGHT));
 
-    const y = area.y + area.height / 2;
-    this.text.setScale(scale).setPosition(area.x + PADDING_X, y);
-    this.star.setPosition(area.x + width - PADDING_X / 2 - STAR_SPACE / 2, y + area.height * 0.12);
+    // Built at the picture's own height and scaled as a whole, so the ends are never squashed.
+    const scale = height / this.panel.frame.height;
+    const y = area.y + height / 2;
+    this.panel
+      .setSize(width / scale, this.panel.frame.height)
+      .setScale(scale)
+      .setPosition(area.x, y);
+    this.text.setScale(textScale).setPosition(area.x + height * TEXT_LEFT, y);
   }
 }

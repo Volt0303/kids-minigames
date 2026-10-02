@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { loadFonts } from './core/display/fonts';
+import { hideLoadingOverlay } from './core/display/loadingOverlay';
 import { readScreenMetrics, ViewportController } from './core/display/ViewportController';
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
@@ -41,8 +42,11 @@ function startGame(): Phaser.Game {
     // to half speed for the first seconds of a stage. Long stalls are still capped (fps.min).
     fps: { panicMax: 0 },
     // The first scene starts automatically; the session controller switches to the others.
+    // Each scene shows the loading spinner itself, for as long as its own pictures take to load.
     scene: [new StartScene(title, artGame), play.scene],
   });
+  // Fallback: hide it after the first frame regardless, in case a scene never queues a loader event.
+  game.events.once(Phaser.Core.Events.POST_RENDER, hideLoadingOverlay);
 
   ViewportController.attach(game, initial);
   SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: play.key });

@@ -32,6 +32,8 @@ export interface GameRegions {
   howTo: Rect;
   /** Bottom bar holding the message, mascot, praise bubble and guide. */
   message: Rect;
+  /** A few bubbles at the far left of the message bar. */
+  deco: Rect;
   /** Small decoration (starfish) at the left of the message bar. */
   mascot: Rect;
   /** Encouraging message text. */
@@ -64,10 +66,17 @@ function parts(area: Rect, axis: 'horizontal' | 'vertical', weights: readonly nu
   return [first, second];
 }
 
-/** Message bar contents, left to right: mascot, text, praise bubble, guide (if shown). */
-function messageRow(bar: Rect, withGuide: boolean): Pick<GameRegions, 'mascot' | 'footer' | 'bubble' | 'guide'> {
+/** Width of the bubble decoration relative to the message bar's height. */
+const DECO_SHARE = 0.6;
+
+/** Message bar contents, left to right: bubbles, mascot, text, praise bubble, guide (if shown). */
+function messageRow(
+  bar: Rect,
+  withGuide: boolean,
+): Pick<GameRegions, 'deco' | 'mascot' | 'footer' | 'bubble' | 'guide'> {
   const row = inset(bar, BAR_PADDING);
-  const mascot = rect(row.x, row.y, row.height, row.height);
+  const deco = rect(row.x, row.y, row.height * DECO_SHARE, row.height);
+  const mascot = rect(deco.x + deco.width, row.y, row.height, row.height);
   const guideHeight = row.height + GUIDE_RISE;
   const guideWidth = guideHeight * GUIDE_ASPECT;
   const guide = withGuide
@@ -78,7 +87,7 @@ function messageRow(bar: Rect, withGuide: boolean): Pick<GameRegions, 'mascot' |
   const bubble = rect(bubbleRight - bubbleWidth, row.y, bubbleWidth, row.height);
   const footerX = mascot.x + mascot.width + MARGIN / 2;
   const footer = rect(footerX, row.y, bubble.x - MARGIN - footerX, row.height);
-  return { mascot, footer, bubble, guide };
+  return { deco, mascot, footer, bubble, guide };
 }
 
 /** `withGuide`: false for games without the guide character; the cards then use the full column. */
