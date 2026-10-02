@@ -29,4 +29,9 @@ export class BrowserPlatform implements Platform {
     // A browser tab is never relaunched while running.
     return () => undefined;
   }
+
+  /** Nothing to do: a browser page has no launch picture behind it. */
+  pageShown(): Promise<void> {
+    return Promise.resolve();
+  }
 }

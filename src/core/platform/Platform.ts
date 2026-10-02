@@ -18,4 +18,12 @@ export interface Platform {
 
   /** The launching app opened this game again while it was still running. */
   onRelaunch(listener: () => void): Unsubscribe;
+
+  /**
+   * The page now draws its own loading screen, so the launch picture behind it is no longer
+   * needed. On Android this makes the web view opaque again: it starts see-through (so the
+   * launch picture shows until the page is ready), but a see-through web view loses its WebGL
+   * drawing when the app returns from the background on Android 12.
+   */
+  pageShown(): Promise<void>;
 }

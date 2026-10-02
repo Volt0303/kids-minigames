@@ -63,7 +63,7 @@ export class StartScene extends LayoutScene {
       this,
       { picture: { texture: UI, frame: 'btn-start' }, width: START.width, disc: START.disc },
       () => session.dispatch({ type: 'play', at: Date.now() }),
-    );
+    ).startAttention(); // touch screens have no hover: ▶ invites a tap on its own
     this.stopButton = new ImageButton(
       this,
       { picture: { texture: UI, frame: 'btn-close' }, width: CLOSE.width, disc: CLOSE.disc },
@@ -83,8 +83,8 @@ export class StartScene extends LayoutScene {
     this.title.setPosition(centerX, height * TITLE_Y);
 
     const left = centerX - (START.width + BUTTON_GAP + CLOSE.width) / 2;
-    this.playButton.setPosition(left + START.width / 2, height * BUTTONS_Y);
-    this.stopButton.setPosition(left + START.width + BUTTON_GAP + CLOSE.width / 2, height * BUTTONS_Y);
+    this.playButton.place(left + START.width / 2, height * BUTTONS_Y);
+    this.stopButton.place(left + START.width + BUTTON_GAP + CLOSE.width / 2, height * BUTTONS_Y);
   }
 
   /** Game name as text, for games without a title logo yet. */

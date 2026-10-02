@@ -24,10 +24,14 @@ document.title = title;
 
 // Before anything else loads: the loading screen already shows this game's own backdrop and,
 // for the games the client allows it in (GAME_HAS_GUIDE), the guide character.
-configureLoadingOverlay({
-  backdropUrl: artGame && hasGameArt(artGame, 'backdrop') ? gameArtUrl(artGame, 'backdrop') : undefined,
-  avatarUrl: gameId && GAME_HAS_GUIDE[gameId] ? LOADING_GUIDE_URL : undefined,
-});
+const platform = createPlatform();
+configureLoadingOverlay(
+  {
+    backdropUrl: artGame && hasGameArt(artGame, 'backdrop') ? gameArtUrl(artGame, 'backdrop') : undefined,
+    avatarUrl: gameId && GAME_HAS_GUIDE[gameId] ? LOADING_GUIDE_URL : undefined,
+  },
+  () => void platform.pageShown().catch((error: unknown) => console.error('pageShown failed', error)),
+);
 
 function startGame(): Phaser.Game {
   // The canvas is sized in physical pixels; ViewportController keeps it that way on resize.
@@ -54,7 +58,7 @@ function startGame(): Phaser.Game {
   });
 
   ViewportController.attach(game, initial);
-  SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: play.key });
+  SessionController.attach(game, platform, { start: START_SCENE_KEY, play: play.key });
   return game;
 }
 

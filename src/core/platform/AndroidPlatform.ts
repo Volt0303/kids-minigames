@@ -5,6 +5,7 @@ import type { Platform, Unsubscribe } from './Platform';
 /** Native side: android/app/src/main/java/.../KioskPlugin.java */
 interface KioskPlugin {
   exit(): Promise<void>;
+  pageShown(): Promise<void>;
   addListener(event: 'relaunch', listener: () => void): Promise<PluginListenerHandle>;
 }
 
@@ -49,5 +50,9 @@ export class AndroidPlatform implements Platform {
 
   onRelaunch(listener: () => void): Unsubscribe {
     return subscribe(Kiosk.addListener('relaunch', listener), 'relaunch');
+  }
+
+  pageShown(): Promise<void> {
+    return Kiosk.pageShown();
   }
 }

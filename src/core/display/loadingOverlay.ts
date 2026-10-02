@@ -62,7 +62,7 @@ function whenImagesReady(urls: readonly string[], onReady: () => void): void {
  * and the backdrop appear together once both pictures are decoded; games without the
  * character get the plain circle (`no-guide`).
  */
-export function configureLoadingOverlay({ backdropUrl, avatarUrl }: LoadingOverlayArt): void {
+export function configureLoadingOverlay({ backdropUrl, avatarUrl }: LoadingOverlayArt, onShown: () => void): void {
   const root = document.documentElement;
   root.classList.toggle('no-guide', !avatarUrl);
   root.classList.toggle('has-backdrop', !!backdropUrl);
@@ -71,6 +71,7 @@ export function configureLoadingOverlay({ backdropUrl, avatarUrl }: LoadingOverl
     if (avatarUrl) root.style.setProperty('--loading-avatar', `url('${avatarUrl}')`);
     if (backdropUrl) root.style.setProperty('--loading-backdrop', `url('${backdropUrl}')`);
     root.classList.add('revealed');
+    onShown();
   });
 }
 
