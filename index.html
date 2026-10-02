@@ -7,6 +7,15 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
     <title>Kids Mini Games</title>
+    <!--
+      Starts fetching this the moment the browser sees <head> — before the body, before any
+      script runs — so that by the time the loading screen needs it, it is usually already
+      there. It is the same one picture for every game that uses the guide character, so this
+      is always safe to start, whichever game this build turns out to be.
+    -->
+    <link rel="preload" as="image" href="assets/loading-guide.png" />
+    <!-- Which game this build is: filled in by Vite from VITE_GAME when the app is built. -->
+    <meta name="game-id" content="%VITE_GAME%" />
     <style>
       /* Bundled font (SIL Open Font License, see fonts/OFL.txt). */
       @font-face {
@@ -38,7 +47,9 @@
       /*
        * Shown until the game has something to draw (first boot, and again whenever a screen
        * change needs to load its own pictures) — so the page is never just a plain colour.
-       * Pure CSS: it is already spinning before any JavaScript has run.
+       * Pure CSS: it is already spinning before any JavaScript has run. main.ts sets the
+       * backdrop picture and the guide character (only for games that use it) as soon as it
+       * knows which game this build is — still before anything else loads.
        */
       #loading {
         position: fixed;
@@ -54,24 +65,129 @@
         opacity: 0;
         pointer-events: none;
       }
-      #loading .spinner {
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        border: 12px solid #ffffff;
-        border-top-color: #2b7de9;
-        animation: spin 0.9s linear infinite;
+      #loading .backdrop {
+        position: absolute;
+        inset: 0;
+        background-image: var(--loading-backdrop, none);
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
       }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
+      /* A soft wash so the loader stays readable over a busy backdrop picture. */
+      #loading .backdrop::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: #dcf2ff;
+        opacity: 0.35;
+      }
+      html.revealed.has-backdrop #loading .backdrop {
+        opacity: 1;
+      }
+      /*
+       * The guide character (when this game has one): no frame or circle around it, just the
+       * picture itself, slowly growing and shrinking in place so it reads as "loading". Blank
+       * (not even a placeholder shape) until that picture is actually ready to show — games
+       * that must not show the character (GAME_HAS_GUIDE in games/registry.ts) get the plain
+       * breathing circle instead, immediately, since they have nothing else to wait for.
+       */
+      #loading .avatar {
+        width: 170px;
+        height: 170px;
+        background-image: var(--loading-avatar, none);
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      /* Starts breathing only once shown, so it takes over from the app's still launch
+         screen at exactly the same size. */
+      html.revealed #loading .avatar {
+        animation: breathe 1.6s ease-in-out infinite;
+      }
+      html.no-guide #loading .avatar {
+        border-radius: 50%;
+        background-color: #2b7de9;
+      }
+      /*
+       * Inside the app, the Android launch screen (tools/build-launch-screen.mjs) already shows
+       * this same picture behind a transparent web view. Until the page's own pictures are
+       * ready, the page stays see-through so that launch screen stays visible — then the page
+       * takes over with an identical picture (stretched the same way), so nothing changes.
+       */
+      html.in-app,
+      html.in-app body,
+      html.in-app:not(.revealed) #loading {
+        background: transparent;
+      }
+      html.in-app:not(.revealed) #game {
+        visibility: hidden;
+      }
+      html.in-app #loading .backdrop {
+        background-size: 100% 100%;
+      }
+      @keyframes breathe {
+        50% {
+          transform: scale(1.18);
         }
       }
     </style>
+    <script>
+      // Decides the loading screen's whole look here in <head>, before anything in the page
+      // body can be painted — so even the very first frame is already right. A plain, non-module
+      // script: it does not wait for src/main.ts and all its imports.
+      //
+      // Kept in sync by hand with GAME_HAS_GUIDE (src/games/registry.ts) and GAME_ART
+      // (src/core/assets/catalog.ts); main.ts applies the same values again (no visible change).
+      (function () {
+        // A built app: the game id Vite wrote into the page. Dev: the ?game= page address.
+        var built = document.querySelector('meta[name="game-id"]').getAttribute('content');
+        var game = built && built.charAt(0) !== '%' ? built : new URLSearchParams(location.search).get('game');
+        var hasGuide = { ocean: true, sushi: true, findfish: true, puzzle: true, diff: false, order: false };
+        var hasBackdrop = { findfish: true };
+        var root = document.documentElement;
+        // Inside the app (Capacitor's bridge is there from the start): see-through until ready.
+        if (window.androidBridge) root.classList.add('in-app');
+        // No character for this game (or not known, e.g. no page address in dev): the plain circle.
+        var avatarUrl = game && hasGuide[game] ? 'assets/loading-guide.png' : null;
+        var backdropUrl = game && hasBackdrop[game] ? 'assets/games/' + game + '/backdrop.jpg' : null;
+        if (!avatarUrl) root.classList.add('no-guide');
+        if (backdropUrl) root.classList.add('has-backdrop');
+        // The character and the backdrop appear together, once both pictures are decoded —
+        // never the character alone on plain sky-blue, never a half-painted frame.
+        var urls = [avatarUrl, backdropUrl].filter(Boolean);
+        var pending = urls.length;
+        function reveal() {
+          if (avatarUrl) root.style.setProperty('--loading-avatar', "url('" + avatarUrl + "')");
+          if (backdropUrl) root.style.setProperty('--loading-backdrop', "url('" + backdropUrl + "')");
+          root.classList.add('revealed');
+        }
+        urls.forEach(function (url) {
+          var img = new Image();
+          var done = false;
+          function ready() {
+            if (done) return;
+            done = true;
+            if (--pending === 0) reveal();
+          }
+          function decoded() {
+            if (img.decode) img.decode().then(ready, ready);
+            else ready();
+          }
+          img.onload = decoded;
+          img.onerror = ready;
+          img.src = url;
+          if (img.complete) decoded();
+        });
+        if (urls.length === 0) reveal();
+      })();
+    </script>
   </head>
   <body>
     <div id="game"></div>
-    <div id="loading"><div class="spinner"></div></div>
+    <div id="loading">
+      <div id="loading-backdrop" class="backdrop"></div>
+      <div id="loading-avatar" class="avatar"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

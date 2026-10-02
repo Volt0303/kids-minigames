@@ -17,6 +17,10 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(KioskPlugin.class);
         super.onCreate(savedInstanceState);
+        // Same picture as the launch screen and the web loading screen, behind the transparent
+        // web view until the page draws its own — so there is no black or white frame between.
+        // (On the content view: the window background alone is not drawn here and shows black.)
+        findViewById(android.R.id.content).setBackgroundResource(R.drawable.launch_screen);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         hideSystemBars();
     }

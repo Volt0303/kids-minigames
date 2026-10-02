@@ -1,14 +1,14 @@
 import * as Phaser from 'phaser';
 import { loadFonts } from './core/display/fonts';
-import { hideLoadingOverlay } from './core/display/loadingOverlay';
+import { configureLoadingOverlay } from './core/display/loadingOverlay';
 import { readScreenMetrics, ViewportController } from './core/display/ViewportController';
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
 import { COLORS, toCssHex } from './core/ui/theme';
-import { GAME_ART, type GameArtGame } from './core/assets/catalog';
+import { GAME_ART, gameArtUrl, hasGameArt, LOADING_GUIDE_URL, type GameArtGame } from './core/assets/catalog';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
-import { GAME_TITLES, isGameId } from './games/registry';
+import { GAME_HAS_GUIDE, GAME_TITLES, isGameId } from './games/registry';
 import { createGameScene } from './games/scenes';
 
 // Which game this build is for: set by the build script (VITE_GAME), or in development
@@ -21,6 +21,13 @@ const title = gameId ? GAME_TITLES[gameId] : 'テストゲーム';
 const play = createGameScene(gameId, title);
 const artGame = gameId && gameId in GAME_ART ? (gameId as GameArtGame) : undefined;
 document.title = title;
+
+// Before anything else loads: the loading screen already shows this game's own backdrop and,
+// for the games the client allows it in (GAME_HAS_GUIDE), the guide character.
+configureLoadingOverlay({
+  backdropUrl: artGame && hasGameArt(artGame, 'backdrop') ? gameArtUrl(artGame, 'backdrop') : undefined,
+  avatarUrl: gameId && GAME_HAS_GUIDE[gameId] ? LOADING_GUIDE_URL : undefined,
+});
 
 function startGame(): Phaser.Game {
   // The canvas is sized in physical pixels; ViewportController keeps it that way on resize.
@@ -45,8 +52,6 @@ function startGame(): Phaser.Game {
     // Each scene shows the loading spinner itself, for as long as its own pictures take to load.
     scene: [new StartScene(title, artGame), play.scene],
   });
-  // Fallback: hide it after the first frame regardless, in case a scene never queues a loader event.
-  game.events.once(Phaser.Core.Events.POST_RENDER, hideLoadingOverlay);
 
   ViewportController.attach(game, initial);
   SessionController.attach(game, createPlatform(), { start: START_SCENE_KEY, play: play.key });

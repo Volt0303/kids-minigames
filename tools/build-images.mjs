@@ -2,9 +2,10 @@
 /**
  * Converts the large pictures that are not packed into atlases (names from src/core/assets/catalog.ts):
  *
- *   assets-src/images/backgrounds/<name>.png  → public/assets/backgrounds/<name>.jpg   (BACKGROUNDS)
- *   assets-src/images/games/<game>/<file>.png → public/assets/games/<game>/<file>.jpg (GAME_ART)
- *                                                (title logos stay PNG: they are transparent)
+ *   assets-src/images/backgrounds/<name>.png             → public/assets/backgrounds/<name>.jpg   (BACKGROUNDS)
+ *   assets-src/images/games/<game>/<file>.png            → public/assets/games/<game>/<file>.jpg (GAME_ART)
+ *                                                           (title logos stay PNG: they are transparent)
+ *   assets-src/images/atlases/characters/guide-happy.png → public/assets/loading-guide.png (LOADING_GUIDE_URL)
  *
  * A missing file is reported; the game then falls back to its plain look.
  *
@@ -12,7 +13,7 @@
  */
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import sharp from 'sharp';
-import { BACKGROUNDS, GAME_ART, gameArtExtension } from '../src/core/assets/catalog.ts';
+import { BACKGROUNDS, GAME_ART, gameArtExtension, LOADING_GUIDE_URL } from '../src/core/assets/catalog.ts';
 
 const SOURCE_DIR = 'assets-src/images';
 const OUT_DIR = 'public/assets';
@@ -56,6 +57,10 @@ async function main() {
       console.log(await convert(`game ${game}/${file}`, `${SOURCE_DIR}/games/${game}/${file}.png`, target));
     }
   }
+  // Built on its own (not packed into the characters atlas), so the pre-game loading
+  // screen can show it before Phaser has loaded anything.
+  const loadingGuideTarget = `public/${LOADING_GUIDE_URL}`;
+  console.log(await convert('loading guide', `${SOURCE_DIR}/atlases/characters/guide-happy.png`, loadingGuideTarget));
 }
 
 main().catch((error) => {

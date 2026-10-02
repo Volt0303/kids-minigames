@@ -34,3 +34,8 @@ CLAUDE.local.md
 
 # Generated texture atlases (npm run assets)
 /public/assets/
+
+# Generated Android launch screen for the game being built (tools/build-launch-screen.mjs)
+/android/app/src/main/res/drawable-nodpi/launch_backdrop.jpg
+/android/app/src/main/res/drawable-nodpi/launch_guide.png
+/android/app/src/main/res/values/launch_screen.xml

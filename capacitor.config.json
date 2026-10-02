@@ -3,6 +3,7 @@
   "appName": "Kids Mini Games",
   "webDir": "dist",
   "android": {
-    "minWebViewVersion": 60
+    "minWebViewVersion": 60,
+    "backgroundColor": "#00000000"
   }
 }

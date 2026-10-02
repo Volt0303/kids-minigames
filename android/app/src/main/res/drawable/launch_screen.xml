@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launch screen: the game's backdrop with the guide character (or the plain circle) in the
+  centre, matching the web loading screen in index.html. The pictures and sizes are generated
+  for the game being built by tools/build-launch-screen.mjs.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <bitmap android:src="@drawable/launch_backdrop" android:gravity="fill" />
+    </item>
+    <item
+        android:drawable="@drawable/launch_guide"
+        android:gravity="center"
+        android:width="@dimen/launch_guide_width"
+        android:height="@dimen/launch_guide_height" />
+</layer-list>

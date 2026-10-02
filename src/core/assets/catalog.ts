@@ -143,6 +143,18 @@ export function gameArtKey(game: GameArtGame, file: GameArtFile): string {
   return `game-${game}-${file}`;
 }
 
+/** Where a game's picture is served from (relative, like Phaser's own loader paths). */
+export function gameArtUrl(game: GameArtGame, file: GameArtFile): string {
+  return `assets/games/${game}/${file}.${gameArtExtension(file)}`;
+}
+
+/**
+ * The guide character's happy pose, built on its own (not packed into the `characters` atlas)
+ * so the pre-game loading screen can show it before Phaser has loaded anything. Games without
+ * the guide character (per GAME_HAS_GUIDE in games/registry.ts) must not use this.
+ */
+export const LOADING_GUIDE_URL = 'assets/loading-guide.png';
+
 /** Phaser texture key of a background. */
 export function backgroundKey(name: BackgroundName): string {
   return `bg-${name}`;

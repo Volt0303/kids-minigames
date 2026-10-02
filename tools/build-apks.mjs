@@ -46,6 +46,8 @@ function selectGames() {
 
 function buildGame(id, version, versionCode) {
   console.log(`\n=== ${id}: ${GAME_TITLES[id]} ===`);
+  // This game's own Android launch screen (its backdrop and character, or the plain circle).
+  run('node', ['tools/build-launch-screen.mjs'], { env: { ...process.env, VITE_GAME: id } });
   run('npx', ['vite', 'build', '--logLevel', 'warn'], { env: { ...process.env, VITE_GAME: id } });
   run('npx', ['cap', 'copy', 'android']);
   run(
