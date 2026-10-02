@@ -88,6 +88,9 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 62 | `games/findfish/start-background.png` | *(prompt to be added)* | 2026-10-01 |
 | 63 | `games/findfish/start-title.png` | *(prompt to be added)* | 2026-10-01 |
 | 64 | `games/findfish/backdrop.png` | *(prompt to be added)* | 2026-10-01 |
+| 65 | `atlases/ui/icon-clock.png` | *(prompt to be added)* | 2026-10-02 |
+| 66 | `atlases/ui/icon-star.png` | *(prompt to be added)* | 2026-10-02 |
+| 67 | `games/findfish/header-title.png` | *(prompt to be added)* | 2026-10-02 |
 
 ### Client-provided character
 

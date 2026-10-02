@@ -1,6 +1,13 @@
 import type * as Phaser from 'phaser';
 import { loadAtlas, loadBackground, loadGameArt } from '../assets/atlas';
-import { atlasKey, backgroundKey, gameArtKey, type BackgroundName, type GameArtGame } from '../assets/catalog';
+import {
+  atlasKey,
+  backgroundKey,
+  gameArtKey,
+  hasGameArt,
+  type BackgroundName,
+  type GameArtGame,
+} from '../assets/catalog';
 import { gameRegions } from '../logic/gameLayout';
 import { rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
@@ -20,8 +27,6 @@ import type { RichLines } from './RichText';
 
 /** The words each game shows around its field. */
 export interface GameCopy {
-  /** Instruction next to the title (header). */
-  subtitle: RichLines;
   /** 「あそびかた」 card. */
   howTo: RichLines;
   /** Encouraging message under the field. */
@@ -34,14 +39,12 @@ export interface GameScreenConfig {
   title: string;
   copy: GameCopy;
   background?: BackgroundName;
-  /** Show this game's backdrop (games/<game>/backdrop.png) behind everything, instead of plain light blue. */
-  backdrop?: GameArtGame;
+  /** The game whose own pictures to use: its backdrop behind everything and its title logo in the header. */
+  art?: GameArtGame;
   /** Rising air bubbles over the background (underwater games). */
   bubbles?: boolean;
   /** Picture before the title. */
   icon?: Picture;
-  /** Picture after the title; defaults to the magnifying glass. */
-  badge?: Picture;
   /** Show the client's guide character (games ①–④ only). */
   guide: boolean;
   onClose: () => void;
@@ -81,19 +84,23 @@ export class GameScreen {
     loadAtlas(load, 'ui');
     loadAtlas(load, 'characters');
     if (config.background) loadBackground(load, config.background);
-    if (config.backdrop) loadGameArt(load, config.backdrop, 'backdrop');
+    if (hasGameArt(config.art, 'backdrop')) loadGameArt(load, config.art, 'backdrop');
+    if (hasGameArt(config.art, 'header-title')) loadGameArt(load, config.art, 'header-title');
   }
 
   constructor(scene: Phaser.Scene, config: GameScreenConfig) {
-    this.backdrop = config.backdrop && new Background(scene, gameArtKey(config.backdrop, 'backdrop'), BACKDROP_DEPTH);
+    this.backdrop = hasGameArt(config.art, 'backdrop')
+      ? new Background(scene, gameArtKey(config.art, 'backdrop'), BACKDROP_DEPTH)
+      : undefined;
     this.background = config.background && new FieldPicture(scene, backgroundKey(config.background), FIELD_RADIUS);
     this.frame = new FieldFrame(scene);
     this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
     this.header = new Header(scene, {
       title: config.title,
+      logo: hasGameArt(config.art, 'header-title') ? { texture: gameArtKey(config.art, 'header-title') } : undefined,
       icon: config.icon,
-      badge: config.badge ?? { texture: UI, frame: 'icon-magnifier' },
-      subtitle: config.copy.subtitle,
+      clock: { texture: UI, frame: 'icon-clock' },
+      star: { texture: UI, frame: 'icon-star' },
       onClose: config.onClose,
     });
     this.prompt = new PromptCard(scene);

@@ -67,7 +67,7 @@ export class FindFishScene extends GameScene {
   constructor(setup: GameSetup) {
     super(FIND_FISH_SCENE_KEY, setup, {
       background: 'sea',
-      backdrop: 'findfish',
+      art: 'findfish',
       bubbles: true,
       copy: FIND_FISH_COPY,
       icon: { texture: FISH_TEXTURE, frame: TITLE_FISH },

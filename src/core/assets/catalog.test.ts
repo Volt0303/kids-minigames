@@ -45,6 +45,7 @@ describe('game art', () => {
 
   it('keeps the transparent title as PNG and the pictures as JPEG', () => {
     expect(gameArtExtension('start-title')).toBe('png');
+    expect(gameArtExtension('header-title')).toBe('png');
     expect(gameArtExtension('start-background')).toBe('jpg');
     expect(gameArtExtension('backdrop')).toBe('jpg');
   });

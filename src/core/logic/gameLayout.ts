@@ -42,7 +42,7 @@ export interface GameRegions {
   guide?: Rect;
 }
 
-export const HEADER_HEIGHT = 180;
+export const HEADER_HEIGHT = 200;
 export const MESSAGE_HEIGHT = 150;
 export const MARGIN = 24;
 /** Padding between a bar's border and the things inside it. */

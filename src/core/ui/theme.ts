@@ -13,8 +13,12 @@ export const COLORS = {
   fieldBorder: 0xc4e3f6,
   muted: 0x8d99ae,
   star: 0xffd166,
-  /** Header status / score badges. */
-  badge: 0x1f4e9c,
+  /** Header status / score badges: blue with a pale edge, values in a darker pill. */
+  badge: 0x2b7de9,
+  badgeBorder: 0xd6f0ff,
+  badgeInset: 0x1b5fc8,
+  /** The red × close button. */
+  close: 0xf2506e,
   /** 「お題」 card. */
   promptCard: 0xfff6dc,
   promptBorder: 0xf5d98a,
@@ -50,8 +54,11 @@ export const TEXT = {
   /** Start-screen title on the background picture. */
   startTitle: { ...bold(120, COLORS.textTitle), stroke: '#ffffff', strokeThickness: 18 },
   subtitle: bold(38, COLORS.textDark),
-  badgeLabel: bold(30, COLORS.textLight),
-  badgeValue: bold(40, COLORS.textLight),
+  /** Header badge texts, slightly spaced out so they read easily at a glance. */
+  badgeLabel: { ...bold(36, COLORS.textLight), letterSpacing: 4 },
+  badgeValue: { ...bold(42, COLORS.textLight), letterSpacing: 4 },
+  /** Big yellow number in a badge (seconds left, correct count). */
+  badgeNumber: { ...bold(66, COLORS.scoreValue), letterSpacing: 3 },
   scoreValue: bold(64, COLORS.scoreValue),
   cardLabel: bold(38, COLORS.textLight),
   cardText: bold(54, COLORS.textDark),

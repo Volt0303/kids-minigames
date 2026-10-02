@@ -17,6 +17,7 @@ assets-src/images/
   games/<game-id>/                pictures used by one game only
     start-background.png          start-screen picture
     start-title.png               start-screen title logo (transparent)
+    header-title.png              flatter title logo for the game screen's header (transparent)
     backdrop.png                  full-screen picture behind the game screen
   app-icons/<game-id>.png         launcher icon of each app
   puzzles/<picture>.png           pictures cut into pieces by the puzzle game

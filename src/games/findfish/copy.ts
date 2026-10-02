@@ -9,7 +9,6 @@ import { COLORS } from '../../core/ui/theme';
 const tap = { text: 'タップ', color: COLORS.action };
 
 export const FIND_FISH_COPY: GameCopy = {
-  subtitle: [[{ text: 'お題の おさかなを' }], [tap, { text: 'して見つけよう!' }]],
   howTo: [[{ text: 'お題の' }], [{ text: 'おさかなを' }], [tap, { text: 'しよう!' }]],
   footer: [
     [{ text: 'いろいろな おさかなを見つけて、' }],

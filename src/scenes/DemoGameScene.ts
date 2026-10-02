@@ -49,7 +49,6 @@ export class DemoGameScene extends GameScene {
       background: 'sea',
       bubbles: true,
       copy: {
-        subtitle: plain('じゅんびちゅう'),
         howTo: plain('このゲームは', 'じゅんびちゅう', 'です'),
         footer: plain('もうすぐ あそべるよ！'),
         praise: { title: 'せいかい！', line: 'よく できたね！' },

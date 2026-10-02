@@ -4,7 +4,7 @@
  *
  *   assets-src/images/backgrounds/<name>.png  → public/assets/backgrounds/<name>.jpg   (BACKGROUNDS)
  *   assets-src/images/games/<game>/<file>.png → public/assets/games/<game>/<file>.jpg (GAME_ART)
- *                                                (start-title stays PNG: it is transparent)
+ *                                                (title logos stay PNG: they are transparent)
  *
  * A missing file is reported; the game then falls back to its plain look.
  *
@@ -31,6 +31,8 @@ async function convert(label, source, target) {
   const image = sharp(source);
   const info = target.endsWith('.png')
     ? await image
+        // Title logos: drop the empty transparent border so the letters fill the space they are given.
+        .trim({ threshold: 1 })
         .resize({ width: TITLE_MAX_WIDTH, withoutEnlargement: true })
         .png({ compressionLevel: 9, palette: true })
         .toFile(target)

@@ -73,6 +73,8 @@ export const ATLASES = {
     'btn-close': sprite('やめる', 460, 452),
     'icon-hand-tap': sprite('ゆび', 200, 200),
     'icon-magnifier': sprite('むしめがね', 180, 180),
+    'icon-clock': sprite('とけい', 120, 120),
+    'icon-star': sprite('ほし', 120, 110),
   },
   /** Characters around the play field. */
   characters: {
@@ -107,15 +109,16 @@ export type BackgroundName = (typeof BACKGROUNDS)[number];
  * Pictures that belong to one game: assets-src/images/games/<game>/<file>.png.
  * - start-background: start-screen picture (JPEG)
  * - start-title:      start-screen title logo, transparent (PNG)
+ * - header-title:     flatter title logo for the game screen's header, transparent (PNG)
  * - backdrop:         full-screen picture behind the game screen (JPEG)
  * A game shows the plain look for any file it does not list here.
  */
-export const GAME_ART_FILES = ['start-background', 'start-title', 'backdrop'] as const;
+export const GAME_ART_FILES = ['start-background', 'start-title', 'header-title', 'backdrop'] as const;
 
 export type GameArtFile = (typeof GAME_ART_FILES)[number];
 
 export const GAME_ART = {
-  findfish: ['start-background', 'start-title', 'backdrop'],
+  findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
 export type GameArtGame = keyof typeof GAME_ART;
@@ -129,7 +132,7 @@ export function hasGameArt(game: string | undefined, file: GameArtFile): game is
 
 /** File extension after the build: transparent pictures stay PNG, the rest become JPEG. */
 export function gameArtExtension(file: GameArtFile): 'png' | 'jpg' {
-  return file === 'start-title' ? 'png' : 'jpg';
+  return file === 'start-title' || file === 'header-title' ? 'png' : 'jpg';
 }
 
 /** Phaser texture key of a game's picture. */
