@@ -21,11 +21,11 @@ export const COLORS = {
   close: 0xf2506e,
   /** 「お題」 card. */
   promptCard: 0xfff6dc,
-  promptBorder: 0xf5d98a,
+  promptBorder: 0xe6a21c,
   promptLabel: 0xf5a623,
   /** 「あそびかた」 card. */
   howToCard: 0xfdeaf1,
-  howToBorder: 0xf6bccd,
+  howToBorder: 0xe2668f,
   howToLabel: 0xe8547f,
   textDark: '#1d3557',
   textLight: '#ffffff',
