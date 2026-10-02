@@ -9,12 +9,12 @@ for or eating their meal. Each game is a separate Android application.
 
 | ID | Game | Package name [TBC] |
 |---|---|---|
-| ocean | ① 海のおそうじゲーム | `jp.impactmirai.kidsgame.ocean` |
-| sushi | ② お寿司パズル | `jp.impactmirai.kidsgame.sushi` |
-| findfish | ③ おさかな探し | `jp.impactmirai.kidsgame.findfish` |
-| puzzle | ④ おさかなパズル | `jp.impactmirai.kidsgame.puzzle` |
-| diff | ⑤ 間違い探し | `jp.impactmirai.kidsgame.diff` |
-| order | ⑥ 注文のお手伝いゲーム | `jp.impactmirai.kidsgame.order` |
+| ocean | ① 海のおそうじゲーム | `jp.entertainmentlane.kidsgame.ocean` |
+| sushi | ② お寿司パズル | `jp.entertainmentlane.kidsgame.sushi` |
+| findfish | ③ おさかな探し | `jp.entertainmentlane.kidsgame.findfish` |
+| puzzle | ④ おさかなパズル | `jp.entertainmentlane.kidsgame.puzzle` |
+| diff | ⑤ 間違い探し | `jp.entertainmentlane.kidsgame.diff` |
+| order | ⑥ 注文のお手伝いゲーム | `jp.entertainmentlane.kidsgame.order` |
 
 Each game: **3 stages, about 60 seconds per stage.**
 

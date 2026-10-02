@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <!-- app_name and title_activity_main are set per game in app/build.gradle -->
-    <string name="package_name">jp.impactmirai.kidsgame</string>
-    <string name="custom_url_scheme">jp.impactmirai.kidsgame</string>
+    <string name="package_name">jp.entertainmentlane.kidsgame</string>
+    <string name="custom_url_scheme">jp.entertainmentlane.kidsgame</string>
 </resources>

@@ -61,7 +61,7 @@ npm run build:apks               # all six games
 npm run build:apks -- ocean diff # only some games
 ```
 
-Each game is a separate app: package `jp.impactmirai.kidsgame.<id>`, its own name, and the version from
+Each game is a separate app: package `jp.entertainmentlane.kidsgame.<id>`, its own name, and the version from
 `package.json` (`1.2.3` becomes versionCode `10203`; raise it for every release you install as an update).
 Release builds contain no network permission.
 

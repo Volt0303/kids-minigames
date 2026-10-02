@@ -19,7 +19,8 @@ assets-src/images/
     start-title.png               start-screen title logo (transparent)
     header-title.png              flatter title logo for the game screen's header (transparent)
     backdrop.png                  full-screen picture behind the game screen
-  app-icons/<game-id>.png         launcher icon of each app
+  app-icons/<game-id>.png         launcher icon of each app: a square picture on a flat background
+                                  colour (tools/build-app-icon.mjs turns it into the Android icons)
   puzzles/<picture>.png           pictures cut into pieces by the puzzle game
 ```
 

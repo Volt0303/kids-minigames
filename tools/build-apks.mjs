@@ -6,7 +6,7 @@
  *   node tools/build-apks.mjs             all six games
  *   node tools/build-apks.mjs ocean diff  only the listed games
  *
- * Each game gets its own package name (jp.impactmirai.kidsgame.<id>), app
+ * Each game gets its own package name (jp.entertainmentlane.kidsgame.<id>), app
  * name and version, from one codebase. Signing uses android/keystore.properties.
  */
 import { execFileSync } from 'node:child_process';
@@ -48,6 +48,8 @@ function buildGame(id, version, versionCode) {
   console.log(`\n=== ${id}: ${GAME_TITLES[id]} ===`);
   // This game's own Android launch screen (its backdrop and character, or the plain circle).
   run('node', ['tools/build-launch-screen.mjs'], { env: { ...process.env, VITE_GAME: id } });
+  // …and its own launcher icon.
+  run('node', ['tools/build-app-icon.mjs'], { env: { ...process.env, VITE_GAME: id } });
   run('npx', ['vite', 'build', '--logLevel', 'warn'], { env: { ...process.env, VITE_GAME: id } });
   run('npx', ['cap', 'copy', 'android']);
   run(

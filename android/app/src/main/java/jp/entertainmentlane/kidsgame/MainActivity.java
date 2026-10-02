@@ -1,4 +1,4 @@
-package jp.impactmirai.kidsgame;
+package jp.entertainmentlane.kidsgame;
 
 import android.os.Bundle;
 import android.os.Process;

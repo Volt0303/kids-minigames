@@ -14,10 +14,10 @@ if (keystorePropsFile.exists()) {
 }
 
 android {
-    namespace = "jp.impactmirai.kidsgame"
+    namespace = "jp.entertainmentlane.kidsgame"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId gameId ? "jp.impactmirai.kidsgame.${gameId}" : "jp.impactmirai.kidsgame"
+        applicationId gameId ? "jp.entertainmentlane.kidsgame.${gameId}" : "jp.entertainmentlane.kidsgame"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode((project.findProperty('versionCode') ?: '1') as int)
@@ -40,10 +40,6 @@ android {
                 keyPassword keystoreProps['keyPassword']
             }
         }
-    }
-    sourceSets {
-        // Per-game launcher icons, when present: app/game-res/<id>/res
-        main.res.srcDirs += gameId ? ["game-res/${gameId}/res"] : []
     }
     buildTypes {
         release {
