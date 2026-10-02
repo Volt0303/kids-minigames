@@ -14,6 +14,7 @@ import {
 } from '../logic/stageFlow';
 import type { Viewport } from '../logic/viewport';
 import { SessionController } from '../session/SessionController';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Feedback, SFX } from '../ui/Feedback';
 import { GameScreen, type GameScreenConfig } from '../ui/GameScreen';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
@@ -47,6 +48,7 @@ export abstract class GameScene extends LayoutScene {
   private flow!: FlowState;
   private ui!: GameScreen;
   private hint!: HintMarker;
+  private confirm!: ConfirmDialog;
 
   constructor(
     key: string,
@@ -99,6 +101,7 @@ export abstract class GameScene extends LayoutScene {
     this.feedback = new Feedback(this);
     this.buildField();
     this.hint = new HintMarker(this);
+    this.confirm = new ConfirmDialog(this);
     this.flow = startFlow(this.stages);
     this.time.addEvent({
       delay: FLOW_TICK_MS,
@@ -109,6 +112,7 @@ export abstract class GameScene extends LayoutScene {
 
   protected layout(viewport: Viewport): void {
     this.layoutField(this.ui.layout(viewport), viewport);
+    this.confirm.layout(viewport);
   }
 
   /** Shows what to do now on the 「お題」 card; highlight the key word with a colour. */
@@ -130,6 +134,28 @@ export abstract class GameScene extends LayoutScene {
   /** True while the child can act (not during clear banners). */
   protected get isPlaying(): boolean {
     return this.flow.status === 'playing';
+  }
+
+  /** True while the close-confirmation dialog holds the game still (fields stop moving). */
+  protected get isPaused(): boolean {
+    return this.confirm.isOpen;
+  }
+
+  /** × asks first, so a child who taps it by mistake can carry on; the game waits meanwhile. */
+  private askToClose(): void {
+    if (this.confirm.isOpen) return;
+    this.holdStill(true);
+    this.confirm.open(
+      () => SessionController.of(this.game).dispatch({ type: 'quit' }),
+      () => this.holdStill(false),
+    );
+  }
+
+  /** Stops (or restarts) the stage clock, hints, banners and every animation of the game. */
+  private holdStill(hold: boolean): void {
+    this.time.paused = hold;
+    if (hold) this.tweens.pauseAll();
+    else this.tweens.resumeAll();
   }
 
   private apply(result: FlowResult): void {
@@ -178,7 +204,7 @@ export abstract class GameScene extends LayoutScene {
       ...this.options,
       title: this.setup.title,
       guide: this.setup.guide,
-      onClose: () => SessionController.of(this.game).dispatch({ type: 'quit' }),
+      onClose: () => this.askToClose(),
     };
   }
 }

@@ -119,7 +119,7 @@ export class FindFishScene extends GameScene {
   update(_time: number, delta: number): void {
     const plan = this.plan;
     const field = this.field;
-    if (!plan || !field) return;
+    if (!plan || !field || this.isPaused) return;
     const step = (this.stage.speed * delta) / 1000;
     const right = field.x + field.width;
     for (const swimmer of this.swimmers) {

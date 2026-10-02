@@ -1,6 +1,7 @@
 package jp.impactmirai.kidsgame;
 
 import android.os.Bundle;
+import android.os.Process;
 import android.view.WindowManager;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -31,6 +32,20 @@ public class MainActivity extends BridgeActivity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             hideSystemBars();
+        }
+    }
+
+    /**
+     * When the game closes for good (exit, back button, idle timeout, all clear), end the whole
+     * app process too, so the next launch from the icon always starts fresh. A reused process
+     * keeps the old web view's graphics state, and the new web view then cannot draw at all
+     * (frozen light-blue screen, then the start screen's idle timeout closes it).
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (isFinishing()) {
+            Process.killProcess(Process.myPid());
         }
     }
 

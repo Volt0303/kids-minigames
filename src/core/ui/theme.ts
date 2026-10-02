@@ -67,5 +67,7 @@ export const TEXT = {
   footerStar: bold(52, '#ffc93c'),
   bubbleTitle: bold(72, COLORS.highlight),
   bubbleLine: bold(40, COLORS.textDark),
+  /** The question in the close-confirmation dialog. */
+  dialog: bold(72, COLORS.textDark),
   banner: { ...bold(150, COLORS.textLight), stroke: '#e76f51', strokeThickness: 18 },
 } as const;
