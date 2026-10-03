@@ -1,6 +1,7 @@
 import type { GameScene, GameSetup } from '../core/scenes/GameScene';
 import { DEMO_GAME_SCENE_KEY, DemoGameScene } from '../scenes/DemoGameScene';
 import { FIND_FISH_SCENE_KEY, FindFishScene } from './findfish/FindFishScene';
+import { ORDER_SCENE_KEY, OrderScene } from './order/OrderScene';
 import { GAME_HAS_GUIDE, type GameId } from './registry';
 
 export interface GameEntry {
@@ -15,11 +16,12 @@ export function createGameScene(id: GameId | undefined, title: string): GameEntr
   switch (id) {
     case 'findfish':
       return { key: FIND_FISH_SCENE_KEY, scene: new FindFishScene(setup) };
+    case 'order':
+      return { key: ORDER_SCENE_KEY, scene: new OrderScene(setup) };
     case 'ocean':
     case 'sushi':
     case 'puzzle':
     case 'diff':
-    case 'order':
     case undefined:
       return { key: DEMO_GAME_SCENE_KEY, scene: new DemoGameScene(setup) };
   }

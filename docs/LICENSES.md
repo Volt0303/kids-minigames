@@ -82,7 +82,6 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 57 | `atlases/ui/icon-hand-tap.png` | A small cartoon hand with the index finger pointing down, tapping, with three short curved "tap" lines around the fingertip. Warm skin tone. Size: 1024x1024 (square). | 2026-10-01 |
 | 58 | `atlases/ui/icon-magnifier.png` | A magnifying glass tilted to the right, round light-blue lens with a white shine highlight, rounded navy-blue handle. Size: 1024x1024 (square). | 2026-10-01 |
 | 59 | `atlases/characters/starfish.png` | A small light-blue five-armed starfish with rounded arm tips, tiny white dots and a soft white shine highlight. No face. Size: 1024x1024 (square). | 2026-10-01 |
-
 | 60 | `atlases/ui/btn-start.png` | *(prompt to be added)* | 2026-10-01 |
 | 61 | `atlases/ui/btn-close.png` | *(prompt to be added)* | 2026-10-01 |
 | 62 | `games/findfish/start-background.png` | *(prompt to be added)* | 2026-10-01 |
@@ -93,6 +92,10 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 67 | `games/findfish/header-title.png` | *(prompt to be added)* | 2026-10-02 |
 | 68 | `atlases/ui/panel-message.png` | *(prompt to be added)* | 2026-10-02 |
 | 69 | `atlases/ui/deco-bubbles.png` | *(prompt to be added)* — painted-in checkerboard removed by flood fill | 2026-10-02 |
+| 70 | `games/order/start-background.png` | *(prompt to be added)* | 2026-10-03 |
+| 71 | `games/order/start-title.png` | *(prompt to be added)* — also used as the header logo | 2026-10-03 |
+| 72 | `games/order/header-title.png` | *(prompt to be added)* — not used (opaque background) | 2026-10-03 |
+| 73 | `games/order/backdrop.png` | *(prompt to be added)* | 2026-10-03 |
 
 ### Client-provided character
 

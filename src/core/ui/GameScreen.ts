@@ -6,6 +6,7 @@ import {
   gameArtKey,
   hasGameArt,
   type BackgroundName,
+  type GameArtFile,
   type GameArtGame,
 } from '../assets/catalog';
 import { gameRegions } from '../logic/gameLayout';
@@ -51,6 +52,13 @@ export interface GameScreenConfig {
 }
 
 const UI = atlasKey('ui');
+
+/** The header shows the game's flatter header logo, or else its start-screen logo. */
+function headerLogo(art: string | undefined): { game: GameArtGame; file: GameArtFile } | undefined {
+  if (hasGameArt(art, 'header-title')) return { game: art, file: 'header-title' };
+  if (hasGameArt(art, 'start-title')) return { game: art, file: 'start-title' };
+  return undefined;
+}
 const CHARACTERS = atlasKey('characters');
 /** How long the guide keeps its 「やったね」 pose after a correct answer / a cleared stage. */
 const HAPPY_POSE_MS = 1_300;
@@ -86,7 +94,8 @@ export class GameScreen {
     loadAtlas(load, 'characters');
     if (config.background) loadBackground(load, config.background);
     if (hasGameArt(config.art, 'backdrop')) loadGameArt(load, config.art, 'backdrop');
-    if (hasGameArt(config.art, 'header-title')) loadGameArt(load, config.art, 'header-title');
+    const logo = headerLogo(config.art);
+    if (logo) loadGameArt(load, logo.game, logo.file);
   }
 
   constructor(scene: Phaser.Scene, config: GameScreenConfig) {
@@ -96,9 +105,10 @@ export class GameScreen {
     this.background = config.background && new FieldPicture(scene, backgroundKey(config.background), FIELD_RADIUS);
     this.frame = new FieldFrame(scene);
     this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
+    const logo = headerLogo(config.art);
     this.header = new Header(scene, {
       title: config.title,
-      logo: hasGameArt(config.art, 'header-title') ? { texture: gameArtKey(config.art, 'header-title') } : undefined,
+      logo: logo && { texture: gameArtKey(logo.game, logo.file) },
       icon: config.icon,
       clock: { texture: UI, frame: 'icon-clock' },
       star: { texture: UI, frame: 'icon-star' },
@@ -140,6 +150,11 @@ export class GameScreen {
 
   setPrompt(lines: RichLines, picture?: Picture): void {
     this.prompt.setPrompt(lines, picture);
+  }
+
+  /** The 「お題」 card's picture area, for games that draw their own task there. */
+  get promptContentArea(): Rect | undefined {
+    return this.prompt.contentArea;
   }
 
   setStage(index: number, total: number): void {

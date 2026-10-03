@@ -32,6 +32,7 @@ export class PromptCard {
   private readonly blocker: Phaser.GameObjects.Zone;
   private readonly bubbles: Phaser.GameObjects.Image[];
   private area?: Rect;
+  private pictureArea?: Rect;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -55,6 +56,14 @@ export class PromptCard {
       this.image.setVisible(false);
     }
     this.arrange();
+  }
+
+  /**
+   * Where the picture goes, under the text (undefined before the first layout). Games whose
+   * task is not one picture (e.g. an order of several sushi) draw their own content here.
+   */
+  get contentArea(): Rect | undefined {
+    return this.pictureArea;
   }
 
   layout(area: Rect): void {
@@ -94,6 +103,7 @@ export class PromptCard {
     this.caption.setScale(textScale).setPosition(inner.x + inner.width / 2, inner.y + textHeight / 2);
 
     const imageArea = rect(inner.x, inner.y + textHeight, inner.width, inner.height - textHeight);
+    this.pictureArea = imageArea;
     const fit = fitContain(this.image.frame.width, this.image.frame.height, imageArea);
     this.image.setPosition(fit.x, fit.y).setScale(Math.min(fit.scale, MAX_PICTURE_SCALE));
   }

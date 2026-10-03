@@ -7,6 +7,8 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
     <title>Kids Mini Games</title>
+    <!-- No page icon: stops the browser and the app's web view asking the server for favicon.ico. -->
+    <link rel="icon" href="data:," />
     <!--
       Starts fetching this the moment the browser sees <head> — before the body, before any
       script runs — so that by the time the loading screen needs it, it is usually already
@@ -143,7 +145,7 @@
         var built = document.querySelector('meta[name="game-id"]').getAttribute('content');
         var game = built && built.charAt(0) !== '%' ? built : new URLSearchParams(location.search).get('game');
         var hasGuide = { ocean: true, sushi: true, findfish: true, puzzle: true, diff: false, order: false };
-        var hasBackdrop = { findfish: true };
+        var hasBackdrop = { findfish: true, order: true };
         var root = document.documentElement;
         // Inside the app (Capacitor's bridge is there from the start): see-through until ready.
         if (window.androidBridge) root.classList.add('in-app');

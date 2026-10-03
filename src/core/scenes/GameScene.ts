@@ -120,6 +120,11 @@ export abstract class GameScene extends LayoutScene {
     this.ui.setPrompt(lines, picture);
   }
 
+  /** The 「お題」 card's picture area: for games whose task is drawn by the game itself. */
+  protected get promptContentArea(): Rect | undefined {
+    return this.ui.promptContentArea;
+  }
+
   protected reportCorrect(x: number, y: number): void {
     this.hint.hide();
     this.feedback.correct(x, y);

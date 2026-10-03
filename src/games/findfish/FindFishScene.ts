@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { loadAtlas } from '../../core/assets/atlas';
 import { atlasKey, spriteNames, spriteSpec } from '../../core/assets/catalog';
 import { minTouchSize } from '../../core/logic/layout';
+import { edgeAlpha, wrap } from '../../core/logic/loop';
 import type { Rect } from '../../core/logic/rect';
 import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
@@ -9,7 +10,7 @@ import { FIND_FISH_COPY, findPrompt, TITLE_FISH } from './copy';
 import { fishScale } from './logic/fishSize';
 import { pickEvenlyByRow } from './logic/hintPick';
 import { buildRoster, type Roster } from './logic/roster';
-import { edgeAlpha, planRows, rowCapacity, slotPositions, wrap, type SwimPlan } from './logic/rows';
+import { planRows, rowCapacity, slotPositions, type SwimPlan } from './logic/rows';
 import { STAGES, type Fish, type FindFishStage } from './stages';
 
 export const FIND_FISH_SCENE_KEY = 'FindFish';
