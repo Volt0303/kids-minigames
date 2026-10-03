@@ -5,7 +5,14 @@ import { readScreenMetrics, ViewportController } from './core/display/ViewportCo
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
 import { COLORS, toCssHex } from './core/ui/theme';
-import { GAME_ART, gameArtUrl, hasGameArt, LOADING_GUIDE_URL, type GameArtGame } from './core/assets/catalog';
+import {
+  GAME_ART,
+  gameArtUrl,
+  hasGameArt,
+  LOADING_GUIDE_URL,
+  LOADING_MASCOT_URL,
+  type GameArtGame,
+} from './core/assets/catalog';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_HAS_GUIDE, GAME_TITLES, isGameId } from './games/registry';
@@ -22,13 +29,13 @@ const play = createGameScene(gameId, title);
 const artGame = gameId && gameId in GAME_ART ? (gameId as GameArtGame) : undefined;
 document.title = title;
 
-// Before anything else loads: the loading screen already shows this game's own backdrop and,
-// for the games the client allows it in (GAME_HAS_GUIDE), the guide character.
+// Before anything else loads: the loading screen already shows this game's own backdrop and the
+// guide character — or, in the games the client does not allow it in (GAME_HAS_GUIDE), our starfish.
 const platform = createPlatform();
 configureLoadingOverlay(
   {
     backdropUrl: artGame && hasGameArt(artGame, 'backdrop') ? gameArtUrl(artGame, 'backdrop') : undefined,
-    avatarUrl: gameId && GAME_HAS_GUIDE[gameId] ? LOADING_GUIDE_URL : undefined,
+    avatarUrl: gameId && (GAME_HAS_GUIDE[gameId] ? LOADING_GUIDE_URL : LOADING_MASCOT_URL),
   },
   () => void platform.pageShown().catch((error: unknown) => console.error('pageShown failed', error)),
 );

@@ -7,8 +7,9 @@
  *   android/app/src/main/res/drawable-nodpi/launch_backdrop.jpg  the game's backdrop with the same
  *                                                                light wash as the web page (plain
  *                                                                light blue for games without one)
- *   android/app/src/main/res/drawable-nodpi/launch_guide.png     the guide character, or the plain
- *                                                                circle for games that must not show it
+ *   android/app/src/main/res/drawable-nodpi/launch_guide.png     the guide character, or our starfish
+ *                                                                for games that must not show it (the
+ *                                                                plain circle for the demo build)
  *   android/app/src/main/res/values/launch_screen.xml            its size on screen and the Android 12
  *                                                                system-splash colour
  *
@@ -19,7 +20,7 @@
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
-import { gameArtUrl, hasGameArt, LOADING_GUIDE_URL } from '../src/core/assets/catalog.ts';
+import { gameArtUrl, hasGameArt, LOADING_GUIDE_URL, LOADING_MASCOT_URL } from '../src/core/assets/catalog.ts';
 import { GAME_HAS_GUIDE, isGameId } from '../src/games/registry.ts';
 
 const RES = 'android/app/src/main/res';
@@ -62,15 +63,15 @@ async function writeBackdrop(target) {
   return `#${[dominant.r, dominant.g, dominant.b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** The character fitted into the web page's 170 × 170 box (background-size: contain). */
+/** The character (or starfish) fitted into the web page's 170 × 170 box (background-size: contain). */
 async function writeGuide(target) {
-  if (!withGuide) {
+  if (!gameId) {
     const size = 340;
     const circle = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="${CIRCLE_COLOR}"/></svg>`;
     await sharp(Buffer.from(circle)).png().toFile(target);
     return { width: AVATAR_BOX_DP, height: AVATAR_BOX_DP };
   }
-  const source = `public/${LOADING_GUIDE_URL}`;
+  const source = `public/${withGuide ? LOADING_GUIDE_URL : LOADING_MASCOT_URL}`;
   if (!existsSync(source)) throw new Error(`${source} is missing — run build-images first`);
   // 3× the on-screen size: sharp on high-density tablets without bloating the APK.
   const info = await sharp(source)
@@ -97,7 +98,7 @@ async function main() {
 `,
   );
   console.log(
-    `launch screen ${(gameId ?? 'demo').padEnd(10)} ${withGuide ? 'character' : 'circle'}, ${withBackdrop ? 'backdrop' : 'plain'}`,
+    `launch screen ${(gameId ?? 'demo').padEnd(10)} ${withGuide ? 'character' : gameId ? 'starfish' : 'circle'}, ${withBackdrop ? 'backdrop' : 'plain'}`,
   );
 }
 

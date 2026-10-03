@@ -157,6 +157,12 @@ export function gameArtUrl(game: GameArtGame, file: GameArtFile): string {
  */
 export const LOADING_GUIDE_URL = 'assets/loading-guide.png';
 
+/**
+ * The loading-screen picture for games without the guide character (⑤ ⑥): our own starfish
+ * (also shown in every game's message bar), built on its own for the same reason.
+ */
+export const LOADING_MASCOT_URL = 'assets/loading-mascot.png';
+
 /** Phaser texture key of a background. */
 export function backgroundKey(name: BackgroundName): string {
   return `bg-${name}`;

@@ -5,8 +5,8 @@ import type { SushiKind } from './stages';
 
 const SUSHI = atlasKey('sushi');
 /** Where the rice and the topping sit, at scale 1: the topping rests on the upper part of the rice. */
-const RICE_Y = 38;
-const TOPPING_Y = -30;
+const RICE_Y = 34;
+const TOPPING_Y = -14;
 
 /**
  * One sushi picture: a topping on rice, or a gunkan. Centred on (0, 0), about 230 × 215
@@ -28,7 +28,7 @@ export class Nigiri extends Phaser.GameObjects.Container {
     const art = sushiArt(kind);
     this.top.setFrame(art.top);
     this.rice.setVisible(art.onRice);
-    this.top.setY(art.onRice ? TOPPING_Y : 0);
+    this.top.setY(art.onRice ? TOPPING_Y + art.drop : 0);
     return this;
   }
 }

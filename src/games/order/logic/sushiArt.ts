@@ -12,18 +12,23 @@ export interface SushiArt {
   top: SushiFrame;
   /** Drawn on rice. */
   onRice: boolean;
+  /**
+   * How much lower than usual the topping sits (design units at scale 1). The shrimp is
+   * curved, so its middle would otherwise arch above the rice.
+   */
+  drop: number;
 }
 
 const ART: Record<SushiKind, SushiArt> = {
-  tuna: { top: 'topping-tuna', onRice: true },
-  'fatty-tuna': { top: 'topping-fatty-tuna', onRice: true },
-  salmon: { top: 'topping-salmon', onRice: true },
-  shrimp: { top: 'topping-shrimp', onRice: true },
-  egg: { top: 'topping-egg', onRice: true },
-  octopus: { top: 'topping-octopus', onRice: true },
-  squid: { top: 'topping-squid', onRice: true },
-  engawa: { top: 'topping-engawa', onRice: true },
-  ikura: { top: 'gunkan-ikura', onRice: false },
+  tuna: { top: 'topping-tuna', onRice: true, drop: 0 },
+  'fatty-tuna': { top: 'topping-fatty-tuna', onRice: true, drop: 0 },
+  salmon: { top: 'topping-salmon', onRice: true, drop: 0 },
+  shrimp: { top: 'topping-shrimp', onRice: true, drop: 14 },
+  egg: { top: 'topping-egg', onRice: true, drop: 0 },
+  octopus: { top: 'topping-octopus', onRice: true, drop: 0 },
+  squid: { top: 'topping-squid', onRice: true, drop: 0 },
+  engawa: { top: 'topping-engawa', onRice: true, drop: 0 },
+  ikura: { top: 'gunkan-ikura', onRice: false, drop: 0 },
 };
 
 export function sushiArt(kind: SushiKind): SushiArt {

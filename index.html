@@ -89,9 +89,9 @@
       /*
        * The guide character (when this game has one): no frame or circle around it, just the
        * picture itself, slowly growing and shrinking in place so it reads as "loading". Blank
-       * (not even a placeholder shape) until that picture is actually ready to show — games
-       * that must not show the character (GAME_HAS_GUIDE in games/registry.ts) get the plain
-       * breathing circle instead, immediately, since they have nothing else to wait for.
+       * (not even a placeholder shape) until that picture is actually ready to show. Games that
+       * must not show the character (GAME_HAS_GUIDE in games/registry.ts) show our starfish the
+       * same way; only an unknown game (dev without ?game=) gets the plain breathing circle.
        */
       #loading .avatar {
         width: 170px;
@@ -149,8 +149,14 @@
         var root = document.documentElement;
         // Inside the app (Capacitor's bridge is there from the start): see-through until ready.
         if (window.androidBridge) root.classList.add('in-app');
-        // No character for this game (or not known, e.g. no page address in dev): the plain circle.
-        var avatarUrl = game && hasGuide[game] ? 'assets/loading-guide.png' : null;
+        // The guide character where the client allows it, our starfish in the other games, and the
+        // plain circle only when the game is not known (e.g. no page address in dev).
+        var avatarUrl =
+          !game || !(game in hasGuide)
+            ? null
+            : hasGuide[game]
+              ? 'assets/loading-guide.png'
+              : 'assets/loading-mascot.png';
         var backdropUrl = game && hasBackdrop[game] ? 'assets/games/' + game + '/backdrop.jpg' : null;
         if (!avatarUrl) root.classList.add('no-guide');
         if (backdropUrl) root.classList.add('has-backdrop');
