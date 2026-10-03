@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { rect, type Rect } from '../../../core/logic/rect';
-import { PIECE, PIECE_GAP, planBelt, planField, planGrid, traySlots, type Point } from './placement';
+import {
+  beltCapacity,
+  beltScale,
+  PIECE,
+  PIECE_GAP,
+  planBelt,
+  planField,
+  planGrid,
+  traySlots,
+  type Point,
+} from './placement';
 
 const standardField = rect(24, 224, 1150, 660);
 const wideField = rect(24, 224, 3000, 660);
@@ -52,6 +62,16 @@ describe('planBelt', () => {
     expect(belt.loopLength).toBeGreaterThan(counter.width);
     expect(belt.spacing).toBeGreaterThanOrEqual((PIECE.width + PIECE_GAP) * belt.scale - 0.001);
     expect(belt.positions).toHaveLength(6);
+  });
+});
+
+describe('belt length', () => {
+  it('with what fits on screen plus one, the loop is at most two sushi longer than the field', () => {
+    for (const field of [standardField, wideField]) {
+      const { counter } = planField(field);
+      const belt = planBelt(counter, beltCapacity(counter, beltScale(counter)) + 1);
+      expect(belt.loopLength).toBeLessThanOrEqual(counter.width + 2 * belt.spacing);
+    }
   });
 });
 

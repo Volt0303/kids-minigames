@@ -6,7 +6,16 @@ import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import { Belt } from './Belt';
 import { ORDER_COPY, orderPrompt } from './copy';
 import { dealPieces, nextOrder, orderSize, type Order } from './logic/orders';
-import { PIECE, planBelt, planField, planGrid, type Belt as BeltPlan, type FieldPlan } from './logic/placement';
+import {
+  beltCapacity,
+  beltScale,
+  PIECE,
+  planBelt,
+  planField,
+  planGrid,
+  type Belt as BeltPlan,
+  type FieldPlan,
+} from './logic/placement';
 import { OrderTicket } from './OrderTicket';
 import { STAGES, type OrderStage, type SushiKind } from './stages';
 import { SushiPiece } from './SushiPiece';
@@ -61,6 +70,7 @@ export class OrderScene extends GameScene {
       art: 'order',
       copy: ORDER_COPY,
       icon: { texture: SUSHI, frame: 'topping-tuna' },
+      titleDeco: { texture: atlasKey('characters'), frame: 'turtle' },
     });
   }
 
@@ -118,8 +128,18 @@ export class OrderScene extends GameScene {
     this.served = this.order.map(() => 0);
     this.setPrompt(orderPrompt(this.order));
     this.ticket.show(this.order, this.served);
-    this.dealt = dealPieces(this.order, this.stage, POOL_SIZE, Math.random);
+    this.dealt = dealPieces(this.order, this.stage, this.capacity(), Math.random);
     this.placePieces(true);
+  }
+
+  /**
+   * How many sushi to put out. On the conveyor: those that fit on screen plus one coming in,
+   * so the belt is not much longer than the field and no sushi is long out of sight.
+   */
+  private capacity(): number {
+    const counter = this.plan?.counter;
+    if (!this.stage.conveyor || !counter) return POOL_SIZE;
+    return Math.min(POOL_SIZE, beltCapacity(counter, beltScale(counter)) + 1);
   }
 
   /**

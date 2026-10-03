@@ -96,6 +96,7 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 71 | `games/order/start-title.png` | *(prompt to be added)* — also used as the header logo | 2026-10-03 |
 | 72 | `games/order/header-title.png` | *(prompt to be added)* — not used (opaque background) | 2026-10-03 |
 | 73 | `games/order/backdrop.png` | *(prompt to be added)* | 2026-10-03 |
+| 74 | `atlases/characters/turtle.png` | *(prompt to be added)* — header decoration in game ⑥ | 2026-10-03 |
 
 ### Client-provided character
 

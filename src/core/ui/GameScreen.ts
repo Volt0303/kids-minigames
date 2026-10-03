@@ -46,6 +46,8 @@ export interface GameScreenConfig {
   bubbles?: boolean;
   /** Picture before the title. */
   icon?: Picture;
+  /** Decoration after the title (e.g. ⑥'s turtle). */
+  titleDeco?: Picture;
   /** Show the client's guide character (games ①–④ only). */
   guide: boolean;
   onClose: () => void;
@@ -110,6 +112,7 @@ export class GameScreen {
       title: config.title,
       logo: logo && { texture: gameArtKey(logo.game, logo.file) },
       icon: config.icon,
+      deco: config.titleDeco,
       clock: { texture: UI, frame: 'icon-clock' },
       star: { texture: UI, frame: 'icon-star' },
       onClose: config.onClose,

@@ -86,6 +86,8 @@ export const ATLASES = {
     'guide-happy': sprite('げんきくん（やったね）', 300, 420),
     /** Starfish next to the message. */
     starfish: sprite('ヒトデ', 180, 180),
+    /** Turtle next to the title in the header (game ⑥, as in the client's mockup). */
+    turtle: sprite('カメ', 260, 260),
   },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),

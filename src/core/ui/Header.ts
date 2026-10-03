@@ -12,6 +12,8 @@ export interface HeaderConfig {
   logo?: Picture;
   /** Small picture before a text title (e.g. a fish). */
   icon?: Picture;
+  /** Decoration just after the title (e.g. the turtle in ⑥'s mockup). */
+  deco?: Picture;
   clock: Picture;
   star: Picture;
   onClose: () => void;
@@ -21,6 +23,8 @@ const GAP = 22;
 const BADGE_HEIGHT = 148;
 const CLOSE_RADIUS = 54;
 const ICON_SIZE = 100;
+/** Height of the decoration after the title, relative to the header row. */
+const DECO_HEIGHT = 0.64;
 /** The logo may be a little taller than the header row, as in the mockup. */
 const LOGO_HEIGHT = 1.2;
 /** Room for the close button's white ring and shadow at the screen edge. */
@@ -33,6 +37,7 @@ const EDGE = 14;
 export class Header {
   private readonly title: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
   private readonly icon?: Phaser.GameObjects.Image;
+  private readonly deco?: Phaser.GameObjects.Image;
   private readonly status: StatusBadge;
   private readonly score: ScoreBadge;
   private readonly close: IconButton;
@@ -45,6 +50,7 @@ export class Header {
       this.icon = config.icon && scene.add.image(0, 0, config.icon.texture, config.icon.frame);
       this.title = scene.add.text(0, 0, config.title, TEXT.title).setOrigin(0, 0.5);
     }
+    this.deco = config.deco && scene.add.image(0, 0, config.deco.texture, config.deco.frame).setOrigin(0, 0.5);
     this.status = new StatusBadge(scene, BADGE_HEIGHT, config.clock);
     this.score = new ScoreBadge(scene, BADGE_HEIGHT, config.star);
     this.close = new IconButton(scene, { symbol: '×', radius: CLOSE_RADIUS, color: COLORS.close }, config.onClose);
@@ -77,7 +83,7 @@ export class Header {
     this.layoutTitle(area, titleRight, y);
   }
 
-  /** Logo (or icon + text) from the left edge, as large as the space allows. */
+  /** Logo (or icon + text) from the left edge, as large as the space allows, then the decoration. */
   private layoutTitle(area: Rect, right: number, y: number): void {
     let x = area.x;
     if (this.icon) {
@@ -85,8 +91,18 @@ export class Header {
       this.icon.setPosition(x + this.icon.displayWidth / 2, y);
       x += this.icon.displayWidth + GAP / 2;
     }
+    const decoWidth = this.layoutDeco(area.height);
+    const room = right - x - (decoWidth > 0 ? decoWidth + GAP : 0);
     const maxHeight = this.icon ? this.title.height : area.height * LOGO_HEIGHT;
-    const scale = Math.min(maxHeight / this.title.height, (right - x) / this.title.width);
+    const scale = Math.min(maxHeight / this.title.height, room / this.title.width);
     this.title.setScale(scale).setPosition(x, y);
+    this.deco?.setPosition(x + this.title.displayWidth + GAP, y);
+  }
+
+  /** Sizes the decoration to the header row; returns its width (0 without one). */
+  private layoutDeco(rowHeight: number): number {
+    if (!this.deco) return 0;
+    this.deco.setScale((rowHeight * DECO_HEIGHT) / this.deco.frame.height);
+    return this.deco.displayWidth;
   }
 }
