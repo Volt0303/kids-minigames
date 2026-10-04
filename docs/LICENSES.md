@@ -100,6 +100,8 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 75 | `atlases/sushi/topping-ikura.png` | *(prompt to be added)* — loose roe for game ②'s tray | 2026-10-04 |
 | 76 | `games/sushi/start-background.png` | *(prompt to be added)* | 2026-10-04 |
 | 77 | `games/sushi/backdrop.png` | *(prompt to be added)* | 2026-10-04 |
+| 78 | `games/sushi/start-title.png` | *(prompt to be added)* — 「お寿司を完成させよう!」 logo | 2026-10-04 |
+| 79 | `games/sushi/header-title.png` | *(prompt to be added)* — 「お寿司を完成させよう!」 logo | 2026-10-04 |
 
 ### Client-provided character
 

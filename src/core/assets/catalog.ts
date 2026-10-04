@@ -128,8 +128,7 @@ export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
   // order: its header-title picture has its own background, so the header shows the start-screen logo.
   order: ['start-background', 'start-title', 'backdrop'],
-  // sushi: title logos still to come (the first ones showed ⑥'s name), so the title is text for now.
-  sushi: ['start-background', 'backdrop'],
+  sushi: ['start-background', 'start-title', 'header-title', 'backdrop'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
 export type GameArtGame = keyof typeof GAME_ART;
