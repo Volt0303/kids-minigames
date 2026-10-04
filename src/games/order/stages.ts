@@ -2,22 +2,8 @@
  * Stage settings for 注文のお手伝いゲーム (requirements document, game ⑥).
  * Plain data: the scene reads it; tests check it.
  */
+import { SUSHI_KINDS, type SushiKind } from '../../core/assets/sushi';
 import type { StageConfig } from '../../core/logic/stageFlow';
-
-/** The sushi that can be ordered. */
-export const SUSHI_KINDS = [
-  'tuna',
-  'fatty-tuna',
-  'salmon',
-  'shrimp',
-  'egg',
-  'octopus',
-  'squid',
-  'engawa',
-  'ikura',
-] as const;
-
-export type SushiKind = (typeof SUSHI_KINDS)[number];
 
 /** `goal` is the number of sushi (貫) to serve in the stage, over several orders. */
 export interface OrderStage extends StageConfig {

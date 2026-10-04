@@ -1,5 +1,6 @@
 import { loadAtlas } from '../../core/assets/atlas';
 import { atlasKey } from '../../core/assets/catalog';
+import type { SushiKind } from '../../core/assets/sushi';
 import { edgeAlpha, wrap } from '../../core/logic/loop';
 import type { Rect } from '../../core/logic/rect';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
@@ -17,7 +18,7 @@ import {
   type FieldPlan,
 } from './logic/placement';
 import { OrderTicket } from './OrderTicket';
-import { STAGES, type OrderStage, type SushiKind } from './stages';
+import { STAGES, type OrderStage } from './stages';
 import { SushiPiece } from './SushiPiece';
 import { Tray } from './Tray';
 

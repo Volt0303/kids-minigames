@@ -1,16 +1,12 @@
 import * as Phaser from 'phaser';
-import { atlasKey } from '../../core/assets/catalog';
-import { sushiArt } from './logic/sushiArt';
-import type { SushiKind } from './stages';
+import { atlasKey } from '../assets/catalog';
+import { NIGIRI_LAYOUT, sushiArt, topY, type SushiKind } from '../assets/sushi';
 
 const SUSHI = atlasKey('sushi');
-/** Where the rice and the topping sit, at scale 1: the topping rests on the upper part of the rice. */
-const RICE_Y = 34;
-const TOPPING_Y = -14;
 
 /**
  * One sushi picture: a topping on rice, or a gunkan. Centred on (0, 0), about 230 × 215
- * design units at scale 1 (NIGIRI). Reused for any kind with `setKind`.
+ * design units at scale 1 (NIGIRI_SIZE). Reused for any kind with `setKind`.
  */
 export class Nigiri extends Phaser.GameObjects.Container {
   private readonly rice: Phaser.GameObjects.Image;
@@ -18,8 +14,8 @@ export class Nigiri extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene) {
     super(scene, 0, 0);
-    this.rice = scene.add.image(0, RICE_Y, SUSHI, 'rice');
-    this.top = scene.add.image(0, TOPPING_Y, SUSHI, 'topping-tuna');
+    this.rice = scene.add.image(0, NIGIRI_LAYOUT.riceY, SUSHI, 'rice');
+    this.top = scene.add.image(0, NIGIRI_LAYOUT.toppingY, SUSHI, 'topping-tuna');
     this.add([this.rice, this.top]);
     scene.add.existing(this);
   }
@@ -28,7 +24,7 @@ export class Nigiri extends Phaser.GameObjects.Container {
     const art = sushiArt(kind);
     this.top.setFrame(art.top);
     this.rice.setVisible(art.onRice);
-    this.top.setY(art.onRice ? TOPPING_Y + art.drop : 0);
+    this.top.setY(topY(kind));
     return this;
   }
 }

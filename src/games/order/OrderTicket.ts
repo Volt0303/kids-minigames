@@ -2,7 +2,7 @@ import type * as Phaser from 'phaser';
 import type { Rect } from '../../core/logic/rect';
 import type { Order } from './logic/orders';
 import { NIGIRI } from './logic/placement';
-import { Nigiri } from './Nigiri';
+import { Nigiri } from '../../core/ui/Nigiri';
 
 /** Most kinds in one order (stage 3). */
 const MAX_LINES = 3;

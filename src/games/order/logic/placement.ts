@@ -2,6 +2,7 @@
  * Where things go in the 注文のお手伝いゲーム field: the tray along the bottom, the sushi
  * on the counter above it (a grid), or on the conveyor (one moving lane).
  */
+import { NIGIRI_SIZE } from '../../../core/assets/sushi';
 import { rect, type Rect } from '../../../core/logic/rect';
 
 export interface Point {
@@ -11,8 +12,8 @@ export interface Point {
 
 /** A sushi on its plate, in design units at scale 1 (see SushiPiece). */
 export const PIECE = { width: 280, height: 240 } as const;
-/** A sushi without its plate (on the tray, in the order card), at scale 1 (see Nigiri). */
-export const NIGIRI = { width: 230, height: 215 } as const;
+/** A sushi without its plate (on the tray, in the order card), at scale 1. */
+export const NIGIRI = NIGIRI_SIZE;
 /** Empty space kept around each sushi. */
 export const PIECE_GAP = 40;
 /** Share of the field's height used by the tray. */

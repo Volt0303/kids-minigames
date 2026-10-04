@@ -3,8 +3,8 @@ import { atlasKey } from '../../core/assets/catalog';
 import { minTouchSize } from '../../core/logic/layout';
 import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { PIECE } from './logic/placement';
-import { Nigiri } from './Nigiri';
-import type { SushiKind } from './stages';
+import type { SushiKind } from '../../core/assets/sushi';
+import { Nigiri } from '../../core/ui/Nigiri';
 
 const SUSHI = atlasKey('sushi');
 const PLATE_Y = 72;

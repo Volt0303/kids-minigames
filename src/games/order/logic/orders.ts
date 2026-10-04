@@ -2,9 +2,9 @@
  * Orders for 注文のお手伝いゲーム: what the customer wants, and the sushi put out for it.
  * Randomness is injected so tests can fix it.
  */
-import type { OrderStage, SushiKind } from '../stages';
-
-export type Random = () => number;
+import type { SushiKind } from '../../../core/assets/sushi';
+import { pick, shuffle, type Random } from '../../../core/logic/random';
+import type { OrderStage } from '../stages';
 
 export interface OrderLine {
   kind: SushiKind;
@@ -12,26 +12,6 @@ export interface OrderLine {
 }
 
 export type Order = readonly OrderLine[];
-
-function pick<T>(items: readonly T[], random: Random): T {
-  const item = items[Math.floor(random() * items.length)];
-  if (item === undefined) throw new RangeError('orders: cannot pick from an empty list');
-  return item;
-}
-
-/** Fisher–Yates shuffle into a new array. */
-export function shuffle<T>(items: readonly T[], random: Random): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    const a = result[i];
-    const b = result[j];
-    if (a === undefined || b === undefined) continue;
-    result[i] = b;
-    result[j] = a;
-  }
-  return result;
-}
 
 export function orderSize(order: Order): number {
   return order.reduce((sum, line) => sum + line.count, 0);

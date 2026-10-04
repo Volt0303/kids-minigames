@@ -49,6 +49,8 @@ export const ATLASES = {
     'topping-squid': sprite('イカ', 320, 140),
     'topping-engawa': sprite('えんがわ', 320, 140),
     'gunkan-ikura': sprite('いくら', 280, 210),
+    /** Loose salmon roe: the いくら topping on its own (② お寿司パズル's tray). */
+    'topping-ikura': sprite('いくら', 250, 190),
     geta: sprite('げた', 900, 220),
     plate: sprite('おさら', 380, 130),
   },
@@ -126,6 +128,8 @@ export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
   // order: its header-title picture has its own background, so the header shows the start-screen logo.
   order: ['start-background', 'start-title', 'backdrop'],
+  // sushi: title logos still to come (the first ones showed ⑥'s name), so the title is text for now.
+  sushi: ['start-background', 'backdrop'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
 export type GameArtGame = keyof typeof GAME_ART;

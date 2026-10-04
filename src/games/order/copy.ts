@@ -6,7 +6,7 @@ import type { GameCopy } from '../../core/ui/GameScreen';
 import type { RichLines } from '../../core/ui/RichText';
 import { COLORS } from '../../core/ui/theme';
 import type { Order } from './logic/orders';
-import { sushiName } from './logic/sushiArt';
+import { sushiName } from '../../core/assets/sushi';
 
 const tap = { text: 'タップ', color: COLORS.action };
 

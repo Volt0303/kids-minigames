@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { STAGES, type OrderStage } from '../stages';
-import { dealPieces, nextOrder, orderSize, shuffle, type Order } from './orders';
+import { shuffle } from '../../../core/logic/random';
+import { dealPieces, nextOrder, orderSize, type Order } from './orders';
 
 /** Deterministic pseudo-random sequence (LCG) for repeatable tests. */
 function seeded(seed: number): () => number {
