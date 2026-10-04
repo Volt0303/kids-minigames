@@ -141,6 +141,11 @@ export abstract class GameScene extends LayoutScene {
     return this.flow.status === 'playing';
   }
 
+  /** Whether this game may show the client's guide character (games ①–④). */
+  protected get hasGuide(): boolean {
+    return this.setup.guide;
+  }
+
   /** True while the close-confirmation dialog holds the game still (fields stop moving). */
   protected get isPaused(): boolean {
     return this.confirm.isOpen;

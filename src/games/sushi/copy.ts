@@ -19,7 +19,7 @@ export const SUSHI_COPY: GameCopy = {
   praise: { title: 'せいかい!', line: 'できたね!' },
 };
 
-/** 「マグロの おすしを つくろう!」 with the sushi name highlighted. */
-export function makePrompt(name: string): RichLines {
-  return [[{ text: name, color: COLORS.highlight }, { text: 'の' }], [{ text: 'おすしを つくろう!' }]];
-}
+/** The bubble above the board, as in the client's mockup (with 「のせてね!」 highlighted). */
+export const INSTRUCTION: RichLines = [
+  [{ text: 'えらんだ ネタを シャリの うえに ' }, { text: 'のせてね!', color: COLORS.action }],
+];

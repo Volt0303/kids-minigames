@@ -12,15 +12,16 @@ export interface SushiPuzzleStage extends StageConfig {
 }
 
 export const STAGES: readonly SushiPuzzleStage[] = [
-  // Stage 1: 4 toppings that look very different.
-  { goal: 5, durationMs: 60_000, choices: ['tuna', 'shrimp', 'egg', 'ikura'] },
-  // Stage 2: 6 toppings.
-  { goal: 5, durationMs: 60_000, choices: ['tuna', 'salmon', 'shrimp', 'egg', 'octopus', 'ikura'] },
-  // Stage 3: 8 toppings, as in the client's mockup, with look-alikes (マグロ / トロ, イカ / えんがわ).
+  // The tray always shows all six slots filled; the stages get harder through the toppings.
+  // Stage 1: six toppings that look very different.
+  { goal: 5, durationMs: 60_000, choices: ['tuna', 'shrimp', 'egg', 'ikura', 'octopus', 'salmon'] },
+  // Stage 2: one look-alike pair (マグロ / トロ).
+  { goal: 5, durationMs: 60_000, choices: ['tuna', 'fatty-tuna', 'shrimp', 'egg', 'ikura', 'salmon'] },
+  // Stage 3: two look-alike pairs (マグロ / トロ, イカ / えんがわ).
   {
     goal: 5,
     durationMs: 60_000,
-    choices: ['tuna', 'fatty-tuna', 'salmon', 'shrimp', 'egg', 'octopus', 'squid', 'engawa'],
+    choices: ['tuna', 'fatty-tuna', 'squid', 'engawa', 'salmon', 'shrimp'],
   },
 ];
 

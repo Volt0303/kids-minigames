@@ -108,3 +108,11 @@ export function gameRegions(viewport: Viewport, withGuide = true): GameRegions {
 
   return { header, field, prompt, howTo, message, ...messageRow(message, withGuide) };
 }
+
+/** The open layout: the header, and the field filling the rest of the screen. */
+export function openRegions(viewport: Viewport): Pick<GameRegions, 'header' | 'field'> {
+  const { designWidth: width, designHeight: height } = viewport;
+  const header = inset(rect(0, 0, width, HEADER_HEIGHT), MARGIN / 2);
+  const field = rect(MARGIN / 2, HEADER_HEIGHT + MARGIN / 2, width - MARGIN, height - HEADER_HEIGHT - MARGIN);
+  return { header, field };
+}

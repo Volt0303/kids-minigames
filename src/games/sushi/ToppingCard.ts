@@ -5,12 +5,9 @@ import { fitContain, rect, type Rect } from '../../core/logic/rect';
 import { FONT_FAMILY } from '../../core/ui/theme';
 
 const SUSHI = atlasKey('sushi');
-const CARD_FILL = 0xfffaf0;
-const CARD_EDGE = 0xe6c99a;
-const RADIUS = 18;
-/** Share of the card's height used by the picture; the name goes below it. */
-const PICTURE_SHARE = 0.68;
-/** The topping is drawn above the cards and the board; while dragged, above everything in the field. */
+/** Share of the slot's height used by the picture; the name goes below it. */
+const PICTURE_SHARE = 0.7;
+/** The topping is drawn above the tray and the board; while dragged, above everything in the field. */
 const PICTURE_DEPTH = 5;
 const DRAG_DEPTH = 50;
 
@@ -20,14 +17,13 @@ export interface CardEvents {
 }
 
 /**
- * One topping in the 「ネタをえらぼう」 tray: a card with the topping's picture and name.
- * The picture can be tapped or dragged onto the rice; it goes back to its card afterwards.
+ * One topping in a slot of the 「ネタをえらぼう」 tray: its picture and name. The picture can
+ * be tapped or dragged onto the rice; it goes back to its slot afterwards.
  */
 export class ToppingCard {
   kind: SushiKind = 'tuna';
   /** The topping picture that moves (tap, drag, onto the rice and back). */
   readonly picture: Phaser.GameObjects.Image;
-  private readonly panel: Phaser.GameObjects.Graphics;
   private readonly name: Phaser.GameObjects.Text;
   private home = { x: 0, y: 0, scale: 1 };
   private dragging = false;
@@ -36,7 +32,6 @@ export class ToppingCard {
     private readonly scene: Phaser.Scene,
     events: CardEvents,
   ) {
-    this.panel = scene.add.graphics();
     this.name = scene.add
       .text(0, 0, '', { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '30px', color: '#5b3a1a' })
       .setOrigin(0.5);
@@ -58,23 +53,17 @@ export class ToppingCard {
     this.setVisible(false);
   }
 
-  /** Shows the card for a topping in `area`, its picture resting on it. */
-  show(kind: SushiKind, area: Rect): void {
+  /** Shows a topping in a tray slot, its picture resting there. */
+  show(kind: SushiKind, slot: Rect): void {
     this.kind = kind;
     this.picture.setFrame(sushiArt(kind).piece);
     this.name.setText(sushiName(kind));
-    this.panel
-      .clear()
-      .fillStyle(CARD_FILL)
-      .fillRoundedRect(area.x, area.y, area.width, area.height, RADIUS)
-      .lineStyle(4, CARD_EDGE)
-      .strokeRoundedRect(area.x, area.y, area.width, area.height, RADIUS);
-    const pictureArea = rect(area.x + 8, area.y + 8, area.width - 16, area.height * PICTURE_SHARE - 8);
+    const pictureArea = rect(slot.x + 10, slot.y + 10, slot.width - 20, slot.height * PICTURE_SHARE - 10);
     const fit = fitContain(this.picture.frame.width, this.picture.frame.height, pictureArea);
     this.home = { x: fit.x, y: fit.y, scale: fit.scale };
-    const nameY = area.y + area.height * (PICTURE_SHARE + (1 - PICTURE_SHARE) / 2);
-    this.name.setPosition(area.x + area.width / 2, nameY);
-    this.name.setScale(Math.min(1, (area.width - 12) / Math.max(1, this.name.width)));
+    const nameY = slot.y + slot.height * (PICTURE_SHARE + (1 - PICTURE_SHARE) / 2);
+    this.name.setPosition(slot.x + slot.width / 2, nameY);
+    this.name.setScale(Math.min(1, (slot.width - 12) / Math.max(1, this.name.width)));
     this.setVisible(true);
     this.goHome(false);
   }
@@ -83,7 +72,7 @@ export class ToppingCard {
     this.setVisible(false);
   }
 
-  /** Back onto the card: at once, or sliding back. */
+  /** Back into its slot: at once, or sliding back. */
   goHome(animate: boolean, onDone?: () => void): void {
     this.scene.tweens.killTweensOf(this.picture);
     const { x, y, scale } = this.home;
@@ -109,7 +98,6 @@ export class ToppingCard {
   }
 
   private setVisible(visible: boolean): void {
-    this.panel.setVisible(visible);
     this.name.setVisible(visible);
     this.picture.setVisible(visible);
     if (visible) this.picture.setInteractive();

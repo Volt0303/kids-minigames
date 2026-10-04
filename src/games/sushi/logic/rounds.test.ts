@@ -36,8 +36,8 @@ describe('nextTarget', () => {
     expect(tricky / 400).toBeGreaterThan(0.55);
   });
 
-  it('every stage has distinct toppings, 4 → 6 → 8', () => {
-    expect(STAGES.map((stage) => stage.choices.length)).toEqual([4, 6, 8]);
+  it('every stage fills all six tray slots with distinct toppings', () => {
+    expect(STAGES.map((stage) => stage.choices.length)).toEqual([6, 6, 6]);
     for (const stage of STAGES) expect(new Set(stage.choices).size).toBe(stage.choices.length);
   });
 });

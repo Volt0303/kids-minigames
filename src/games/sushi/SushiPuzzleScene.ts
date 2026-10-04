@@ -1,14 +1,18 @@
-import { loadAtlas } from '../../core/assets/atlas';
+import { loadAtlas, loadGameArt } from '../../core/assets/atlas';
 import { atlasKey } from '../../core/assets/catalog';
-import { NIGIRI_SIZE, sushiArt, sushiName, type SushiKind } from '../../core/assets/sushi';
+import { sushiArt, type SushiKind } from '../../core/assets/sushi';
 import { shuffle } from '../../core/logic/random';
-import { fitContain, type Rect } from '../../core/logic/rect';
+import type { Rect } from '../../core/logic/rect';
+import type { Viewport } from '../../core/logic/viewport';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
-import { Nigiri } from '../../core/ui/Nigiri';
 import { Board } from './Board';
-import { makePrompt, SUSHI_COPY } from './copy';
+import { Guide } from './Guide';
+import { BottomWave } from './BottomWave';
+import { INSTRUCTION, SUSHI_COPY } from './copy';
+import { Instruction } from './Instruction';
 import { planPuzzle } from './logic/layout';
 import { nextTarget } from './logic/rounds';
+import { SideCard } from './SideCard';
 import { STAGES, type SushiPuzzleStage } from './stages';
 import type { ToppingCard } from './ToppingCard';
 import { ToppingTray } from './ToppingTray';
@@ -28,16 +32,23 @@ const WRONG_NUDGE = 0.35;
 const DRAG_THRESHOLD = 14;
 
 /**
- * ② お寿司パズル: the 「お題」 card shows a sushi; the child puts the matching topping from the
- * tray onto the rice on the board, by tapping it or dragging it there. A wrong topping
- * slides back to its card. Five sushi per stage, from 4, 6, then 8 toppings.
+ * ② お寿司パズル (open layout, as in the game's design): the 「お題の おすし」 card on the left
+ * shows a sushi; the child puts the matching topping from the tray onto the rice on the
+ * board, by tapping it or dragging it there, and the finished sushi appears in the
+ * 「できたよ!」 card on the right. A wrong topping slides back to its slot. Five sushi per
+ * stage, from 4, 5, then 6 toppings.
  */
 export class SushiPuzzleScene extends GameScene {
   protected readonly stages = STAGES;
 
   private board!: Board;
+  private wave!: BottomWave;
+  /** げんきくん (absent in builds without the guide character). */
+  private guide?: Guide;
   private tray!: ToppingTray;
-  private targetPicture!: Nigiri;
+  private orderCard!: SideCard;
+  private doneCard!: SideCard;
+  private instruction!: Instruction;
   private stage: SushiPuzzleStage = FIRST_STAGE;
   private target?: SushiKind;
   /** A topping is moving: further taps wait until it has landed or gone back. */
@@ -47,7 +58,7 @@ export class SushiPuzzleScene extends GameScene {
 
   constructor(setup: GameSetup) {
     super(SUSHI_PUZZLE_SCENE_KEY, setup, {
-      background: 'sushi-counter',
+      layout: 'open',
       art: 'sushi',
       copy: SUSHI_COPY,
       icon: { texture: SUSHI, frame: 'topping-salmon' },
@@ -56,27 +67,37 @@ export class SushiPuzzleScene extends GameScene {
 
   protected preloadGame(): void {
     loadAtlas(this.load, 'sushi');
+    loadGameArt(this.load, 'sushi', 'bottom-wave');
   }
 
   protected buildField(): void {
     this.input.dragDistanceThreshold = DRAG_THRESHOLD;
+    this.wave = new BottomWave(this);
     this.board = new Board(this);
     this.tray = new ToppingTray(this, {
       onTap: (card) => this.onTap(card),
       onDrop: (card) => this.onDrop(card),
     });
-    this.targetPicture = new Nigiri(this);
+    this.orderCard = new SideCard(this, {
+      label: 'お題の おすし',
+      color: 0xf5a623,
+      fill: 0xfffaf0,
+      nameColor: '#e5383b',
+    });
+    this.doneCard = new SideCard(this, { label: 'できたよ!', color: 0x6cbf3c, fill: 0xf4fbea, nameColor: '#3d6b1e' });
+    this.instruction = new Instruction(this, INSTRUCTION);
+    this.guide = this.hasGuide ? new Guide(this) : undefined;
   }
 
-  protected layoutField(field: Rect): void {
+  protected layoutField(field: Rect, viewport: Viewport): void {
+    this.wave.layout(viewport);
     const plan = planPuzzle(field);
     this.board.layout(plan.board);
     this.tray.layout(plan.tray);
-    const area = this.promptContentArea;
-    if (area) {
-      const fit = fitContain(NIGIRI_SIZE.width, NIGIRI_SIZE.height, area);
-      this.targetPicture.setPosition(fit.x, fit.y).setScale(fit.scale);
-    }
+    this.orderCard.layout(plan.order);
+    this.doneCard.layout(plan.done);
+    this.instruction.layout(plan.instruction);
+    this.guide?.layout(plan.guide, plan.bubble);
     // A finished sushi on the board moves with the board.
     if (this.busy && this.target) this.placeOnRice(this.target, false);
   }
@@ -96,11 +117,11 @@ export class SushiPuzzleScene extends GameScene {
 
   private newOrder(): void {
     this.busy = false;
-    this.board.showRice(true);
+    this.board.setRice('plain');
     this.tray.resetPictures();
     this.target = nextTarget(this.stage.choices, this.target, Math.random);
-    this.setPrompt(makePrompt(sushiName(this.target)));
-    this.targetPicture.setKind(this.target);
+    this.orderCard.show(this.target);
+    this.doneCard.clear();
   }
 
   private onTap(card: ToppingCard): void {
@@ -128,6 +149,8 @@ export class SushiPuzzleScene extends GameScene {
   private complete(card: ToppingCard): void {
     this.busy = true;
     this.placeOnRice(card.kind, true, () => {
+      this.doneCard.show(card.kind, 'せいかい!');
+      this.guide?.cheer();
       this.reportCorrect(card.picture.x, card.picture.y);
       const round = this.round;
       this.time.delayedCall(NEXT_ORDER_MS, () => {
@@ -147,7 +170,7 @@ export class SushiPuzzleScene extends GameScene {
       const art = sushiArt(kind);
       const place = this.board.toppingPlace(kind);
       picture.setFrame(art.top).setPosition(place.x, place.y).setScale(place.scale);
-      this.board.showRice(art.onRice);
+      this.board.setRice(art.onRice ? 'topped' : 'gunkan');
     };
     if (!animate) {
       finish();

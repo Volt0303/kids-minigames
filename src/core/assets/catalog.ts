@@ -40,6 +40,8 @@ export const ATLASES = {
   },
   sushi: {
     rice: sprite('シャリ', 300, 150),
+    /** Rice on its own, seen from the front (② お寿司パズル, before a topping is put on it). */
+    'rice-plain': sprite('シャリ', 300, 170),
     'topping-tuna': sprite('マグロ', 320, 140),
     'topping-fatty-tuna': sprite('トロ', 320, 140),
     'topping-salmon': sprite('サーモン', 320, 140),
@@ -118,9 +120,10 @@ export type BackgroundName = (typeof BACKGROUNDS)[number];
  * - start-title:      start-screen title logo, transparent (PNG)
  * - header-title:     flatter title logo for the game screen's header, transparent (PNG)
  * - backdrop:         full-screen picture behind the game screen (JPEG)
+ * - bottom-wave:      wave band along the bottom of the game screen, transparent (PNG)
  * A game shows the plain look for any file it does not list here.
  */
-export const GAME_ART_FILES = ['start-background', 'start-title', 'header-title', 'backdrop'] as const;
+export const GAME_ART_FILES = ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'] as const;
 
 export type GameArtFile = (typeof GAME_ART_FILES)[number];
 
@@ -128,7 +131,7 @@ export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
   // order: its header-title picture has its own background, so the header shows the start-screen logo.
   order: ['start-background', 'start-title', 'backdrop'],
-  sushi: ['start-background', 'start-title', 'header-title', 'backdrop'],
+  sushi: ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
 export type GameArtGame = keyof typeof GAME_ART;
@@ -142,7 +145,7 @@ export function hasGameArt(game: string | undefined, file: GameArtFile): game is
 
 /** File extension after the build: transparent pictures stay PNG, the rest become JPEG. */
 export function gameArtExtension(file: GameArtFile): 'png' | 'jpg' {
-  return file === 'start-title' || file === 'header-title' ? 'png' : 'jpg';
+  return file === 'backdrop' || file === 'start-background' ? 'jpg' : 'png';
 }
 
 /** Phaser texture key of a game's picture. */

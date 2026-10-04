@@ -26,7 +26,7 @@ import { removeBackground } from './lib/remove-background.mjs';
 const SOURCE_DIR = 'assets-src/images';
 const OUT_DIR = 'public/assets';
 const JPEG_QUALITY = 86;
-/** Title logos are shown at most about this wide (design units), so larger sources are scaled down. */
+/** Transparent pictures are shown at most about this wide (design units), so larger sources are scaled down. */
 const TITLE_MAX_WIDTH = 1600;
 /** Loading-screen mascot: shown 170 px tall, so 512 px is sharp on any tablet. */
 const MASCOT_SIZE = 512;
@@ -42,7 +42,7 @@ async function convert(label, source, target) {
   const image = sharp(source);
   const info = target.endsWith('.png')
     ? await image
-        // Title logos: drop the empty transparent border so the letters fill the space they are given.
+        // Transparent pictures (title logos, wave band): drop the empty border so the picture fills its space.
         .trim({ threshold: 1 })
         .resize({ width: TITLE_MAX_WIDTH, withoutEnlargement: true })
         .png({ compressionLevel: 9, palette: true })
