@@ -15,6 +15,8 @@ export const SLOT_COUNT = 6;
 const TRAY_SHARE = 0.4;
 const GAP = 24;
 const SLOT_GAP = 14;
+/** Space between the cards and the tray: the tray's label pill rises above its edge. */
+const ROW_GAP = 60;
 /** Tray border and padding around the slots. */
 const TRAY_PADDING = 22;
 /** Room at the top of the tray for its 「ネタをえらぼう」 label. */
@@ -55,7 +57,7 @@ export interface PuzzlePlan {
 
 export function planPuzzle(field: Rect): PuzzlePlan {
   const trayArea = rect(field.x, field.y + field.height * (1 - TRAY_SHARE), field.width, field.height * TRAY_SHARE);
-  const rowHeight = trayArea.y - field.y - GAP;
+  const rowHeight = trayArea.y - field.y - ROW_GAP;
   const rowWidth = Math.min(field.width, rowHeight * MAX_ROW_ASPECT);
   const top = rect(field.x + (field.width - rowWidth) / 2, field.y, rowWidth, rowHeight);
   const cardWidth = Math.min(top.height * CARD_ASPECT, top.width * MAX_CARD_SHARE);

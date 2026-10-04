@@ -2,14 +2,17 @@ import type * as Phaser from 'phaser';
 import type { SushiKind } from '../../core/assets/sushi';
 import type { Rect } from '../../core/logic/rect';
 import { FONT_FAMILY } from '../../core/ui/theme';
-import { SLOT_COUNT, slotRects, TRAY_LABEL_SPACE, usedSlots } from './logic/layout';
+import { SLOT_COUNT, slotRects, usedSlots } from './logic/layout';
 import { ToppingCard, type CardEvents } from './ToppingCard';
 
 const WOOD = 0xf0b45a;
 const WOOD_EDGE = 0xb9772f;
 const SLOT_FILL = 0xfdf3e1;
 const SLOT_EDGE = 0xe2c08f;
-const LABEL_FILL = 0xd9822b;
+/** 「ネタをえらぼう」 pill from the mockup: dark blue with a light edge, half above the tray's top edge. */
+const LABEL_FILL = 0x1e5bb8;
+const LABEL_EDGE = 0x8cc8f5;
+const LABEL_HEIGHT = 64;
 const RADIUS = 26;
 const SLOT_RADIUS = 18;
 
@@ -20,14 +23,17 @@ const SLOT_RADIUS = 18;
 export class ToppingTray {
   private readonly panel: Phaser.GameObjects.Graphics;
   private readonly label: Phaser.GameObjects.Text;
+  /** The label's pill, drawn over the tray's edge. */
+  private readonly badge: Phaser.GameObjects.Graphics;
   private readonly cards: ToppingCard[] = [];
   private kinds: readonly SushiKind[] = [];
   private slots: Rect[] = [];
 
   constructor(scene: Phaser.Scene, events: CardEvents) {
     this.panel = scene.add.graphics();
+    this.badge = scene.add.graphics().setDepth(1);
     this.label = scene.add
-      .text(0, 0, 'ネタを えらぼう', { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '30px', color: '#ffffff' })
+      .text(0, 0, 'ネタを えらぼう', { fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: '38px', color: '#ffffff' })
       .setOrigin(0.5);
     for (let i = 0; i < SLOT_COUNT; i++) this.cards.push(new ToppingCard(scene, events));
   }
@@ -47,12 +53,18 @@ export class ToppingTray {
         .lineStyle(4, SLOT_EDGE)
         .strokeRoundedRect(slot.x, slot.y, slot.width, slot.height, SLOT_RADIUS);
     }
-    // Label pill at the top left, like the client's mockup.
-    const pillWidth = this.label.width + 48;
-    const pillHeight = TRAY_LABEL_SPACE - 8;
+    // Label pill at the top left, sitting on the tray's top edge like the client's mockup.
+    const pillWidth = this.label.width + 64;
+    const pillHeight = LABEL_HEIGHT;
     const pillX = area.x + 22;
-    const pillY = area.y + 8;
-    this.panel.fillStyle(LABEL_FILL).fillRoundedRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2);
+    const pillY = area.y - pillHeight * 0.42;
+    this.label.setDepth(1);
+    this.badge
+      .clear()
+      .fillStyle(LABEL_FILL)
+      .fillRoundedRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2)
+      .lineStyle(5, LABEL_EDGE)
+      .strokeRoundedRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2);
     this.label.setPosition(pillX + pillWidth / 2, pillY + pillHeight / 2);
     this.showCards();
   }

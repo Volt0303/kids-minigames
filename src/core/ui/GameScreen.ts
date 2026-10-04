@@ -18,7 +18,6 @@ import { Bubbles } from './Bubbles';
 import { FIELD_RADIUS, FieldFrame } from './FieldFrame';
 import { FieldPicture } from './FieldPicture';
 import { Header } from './Header';
-import { HeaderPanel } from './HeaderPanel';
 import type { Picture } from './picture';
 import type { Praise } from './PraiseBubble';
 import type { RichLines } from './RichText';
@@ -68,7 +67,7 @@ function headerLogo(art: string | undefined): { game: GameArtGame; file: GameArt
  * Everything around a game's play field. The standard layout follows the client's layout
  * diagram: header (title / progress / ×), the field with its background, bubbles and frame,
  * and the side panels (「お題」 and 「あそびかた」 cards, message bar with the guide). The open
- * layout keeps only the header over a panel: the field fills the rest of the screen on the
+ * layout keeps only the header: the field fills the rest of the screen on the
  * game's backdrop, and the game draws its own cards there (② お寿司パズル).
  */
 export class GameScreen {
@@ -77,7 +76,6 @@ export class GameScreen {
   private readonly background?: FieldPicture;
   private readonly frame?: FieldFrame;
   private readonly bubbles?: Bubbles;
-  private readonly headerPanel?: HeaderPanel;
   private readonly header: Header;
   private readonly sides?: SidePanels;
   private readonly withGuide: boolean;
@@ -100,7 +98,6 @@ export class GameScreen {
     this.background = config.background && new FieldPicture(scene, backgroundKey(config.background), FIELD_RADIUS);
     this.frame = open ? undefined : new FieldFrame(scene);
     this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
-    this.headerPanel = open ? new HeaderPanel(scene) : undefined;
     const logo = headerLogo(config.art);
     this.header = new Header(scene, {
       title: config.title,
@@ -130,7 +127,6 @@ export class GameScreen {
     this.background?.layout(regions.field);
     this.frame?.layout(regions.field);
     this.bubbles?.layout(regions.field);
-    this.headerPanel?.layout(regions.header);
     this.header.layout(regions.header);
     this.banner.layout(regions.field);
     return regions.field;
