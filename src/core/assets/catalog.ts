@@ -53,7 +53,10 @@ export const ATLASES = {
     'gunkan-ikura': sprite('いくら', 280, 210),
     /** Loose salmon roe: the いくら topping on its own (② お寿司パズル's tray). */
     'topping-ikura': sprite('いくら', 250, 190),
+    /** Wooden board (② お寿司パズル). */
     geta: sprite('げた', 900, 220),
+    /** Fish-shaped serving dish (⑥ 注文のお手伝い). */
+    'platter-fish': sprite('さかなのおさら', 900, 330),
     plate: sprite('おさら', 380, 130),
   },
   trash: {

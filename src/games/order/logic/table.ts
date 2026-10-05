@@ -1,6 +1,6 @@
 /**
- * The serving platter of stages 1–2 of 注文のお手伝いゲーム (sushi atlas `geta`, a fish-shaped
- * dish): it lies on the counter in the background picture, and the sushi to choose from stand
+ * The serving platter of stages 1–2 of 注文のお手伝いゲーム (sushi atlas `platter-fish`, a
+ * fish-shaped dish): it lies on the counter in the background picture, and the sushi to choose from stand
  * inside the dish's inner rim in one or two rows.
  */
 import { rect, type Rect } from '../../../core/logic/rect';

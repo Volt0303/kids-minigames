@@ -6,12 +6,12 @@ const SUSHI = atlasKey('sushi');
 /** Behind the sushi standing on it. */
 const DEPTH = -20;
 
-/** The wooden table (げた) the sushi to choose from stand on (stages 1–2). */
+/** The fish-shaped serving dish the sushi to choose from stand on (stages 1–2). */
 export class Table {
   private readonly image: Phaser.GameObjects.Image;
 
   constructor(scene: Phaser.Scene) {
-    this.image = scene.add.image(0, 0, SUSHI, 'geta').setOrigin(0).setDepth(DEPTH);
+    this.image = scene.add.image(0, 0, SUSHI, 'platter-fish').setOrigin(0).setDepth(DEPTH);
   }
 
   /** Width relative to height of the table picture. */
