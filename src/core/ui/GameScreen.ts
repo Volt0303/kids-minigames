@@ -21,7 +21,7 @@ import { Header } from './Header';
 import type { Picture } from './picture';
 import type { Praise } from './PraiseBubble';
 import type { RichLines } from './RichText';
-import { SidePanels } from './SidePanels';
+import { SidePanels, type OwnAreas, type OwnParts } from './SidePanels';
 
 /** The words each game shows around its field. */
 export interface GameCopy {
@@ -52,6 +52,12 @@ export interface GameScreenConfig {
    * 'open': only the header; the field fills the rest and the game draws its own cards.
    */
   layout?: 'standard' | 'open';
+  /** Parts of the standard layout the game draws itself (its own 「あそびかた」 card or bottom bar). */
+  own?: OwnParts;
+  /** Heights of the 「お題」 and 「あそびかた」 cards relative to each other (default 3 : 2). */
+  cardWeights?: readonly [number, number];
+  /** Share of the 「お題」 card's height for its text (one-line prompts can use less). */
+  promptTextShare?: number;
   onClose: () => void;
 }
 
@@ -79,6 +85,7 @@ export class GameScreen {
   private readonly header: Header;
   private readonly sides?: SidePanels;
   private readonly withGuide: boolean;
+  private readonly cardWeights?: readonly [number, number];
 
   /** Queues the shared images; call from the scene's preload. */
   static preload(load: Phaser.Loader.LoaderPlugin, config: GameScreenConfig): void {
@@ -108,8 +115,16 @@ export class GameScreen {
       star: { texture: UI, frame: 'icon-star' },
       onClose: config.onClose,
     });
-    this.sides = open ? undefined : new SidePanels(scene, { ...config.copy, guide: config.guide });
+    this.sides = open
+      ? undefined
+      : new SidePanels(scene, {
+          ...config.copy,
+          guide: config.guide,
+          own: config.own,
+          promptTextShare: config.promptTextShare,
+        });
     this.withGuide = config.guide;
+    this.cardWeights = config.cardWeights;
     this.banner = new Banner(scene);
   }
 
@@ -118,7 +133,7 @@ export class GameScreen {
     this.backdrop?.layout(rect(0, 0, viewport.designWidth, viewport.designHeight));
     let regions: Pick<GameRegions, 'header' | 'field'>;
     if (this.sides) {
-      const standard = gameRegions(viewport, this.withGuide);
+      const standard = gameRegions(viewport, this.withGuide, this.cardWeights);
       this.sides.layout(standard);
       regions = standard;
     } else {
@@ -139,6 +154,11 @@ export class GameScreen {
   /** The 「お題」 card's picture area, for games that draw their own task there. */
   get promptContentArea(): Rect | undefined {
     return this.sides?.promptContentArea;
+  }
+
+  /** Where the game draws the parts it owns. */
+  get ownAreas(): OwnAreas {
+    return this.sides?.ownAreas ?? {};
   }
 
   setStage(index: number, total: number): void {

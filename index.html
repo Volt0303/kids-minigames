@@ -26,6 +26,13 @@
         font-weight: 700;
         font-display: block;
       }
+      /* Heavy, rounded "pop" lettering for picture-card text (SIL Open Font License, see fonts/OFL-MPLUSRounded1c.txt). */
+      @font-face {
+        font-family: 'M PLUS Rounded 1c';
+        src: url('./fonts/MPLUSRounded1c-ExtraBold.ttf') format('truetype');
+        font-weight: 800;
+        font-display: block;
+      }
       html,
       body {
         margin: 0;
@@ -145,7 +152,7 @@
         var built = document.querySelector('meta[name="game-id"]').getAttribute('content');
         var game = built && built.charAt(0) !== '%' ? built : new URLSearchParams(location.search).get('game');
         var hasGuide = { ocean: true, sushi: true, findfish: true, puzzle: true, diff: false, order: false };
-        var hasBackdrop = { findfish: true, order: true, sushi: true };
+        var hasBackdrop = { findfish: true, order: true, sushi: true, ocean: true };
         var root = document.documentElement;
         // Inside the app (Capacitor's bridge is there from the start): see-through until ready.
         if (window.androidBridge) root.classList.add('in-app');

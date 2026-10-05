@@ -91,7 +91,11 @@ function messageRow(
 }
 
 /** `withGuide`: false for games without the guide character; the cards then use the full column. */
-export function gameRegions(viewport: Viewport, withGuide = true): GameRegions {
+export function gameRegions(
+  viewport: Viewport,
+  withGuide = true,
+  cardWeights: readonly [number, number] = CARD_WEIGHTS,
+): GameRegions {
   const { designWidth: width, designHeight: height } = viewport;
   const header = inset(rect(0, 0, width, HEADER_HEIGHT), MARGIN / 2);
   const message = inset(rect(0, height - MESSAGE_HEIGHT, width, MESSAGE_HEIGHT), MARGIN / 2);
@@ -104,7 +108,7 @@ export function gameRegions(viewport: Viewport, withGuide = true): GameRegions {
 
   const [field, cards] = parts(body, 'horizontal', [FIELD_WEIGHT[viewport.mode], 1], MARGIN);
   const cardColumn = rect(cards.x, cards.y, cards.width, cards.height - (withGuide ? GUIDE_RISE : 0));
-  const [prompt, howTo] = parts(cardColumn, 'vertical', CARD_WEIGHTS, MARGIN);
+  const [prompt, howTo] = parts(cardColumn, 'vertical', cardWeights, MARGIN);
 
   return { header, field, prompt, howTo, message, ...messageRow(message, withGuide) };
 }

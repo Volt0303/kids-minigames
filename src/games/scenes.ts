@@ -1,6 +1,7 @@
 import type { GameScene, GameSetup } from '../core/scenes/GameScene';
 import { DEMO_GAME_SCENE_KEY, DemoGameScene } from '../scenes/DemoGameScene';
 import { FIND_FISH_SCENE_KEY, FindFishScene } from './findfish/FindFishScene';
+import { OCEAN_SCENE_KEY, OceanScene } from './ocean/OceanScene';
 import { ORDER_SCENE_KEY, OrderScene } from './order/OrderScene';
 import { GAME_HAS_GUIDE, type GameId } from './registry';
 import { SUSHI_PUZZLE_SCENE_KEY, SushiPuzzleScene } from './sushi/SushiPuzzleScene';
@@ -22,6 +23,7 @@ export function createGameScene(id: GameId | undefined, title: string): GameEntr
     case 'sushi':
       return { key: SUSHI_PUZZLE_SCENE_KEY, scene: new SushiPuzzleScene(setup) };
     case 'ocean':
+      return { key: OCEAN_SCENE_KEY, scene: new OceanScene(setup) };
     case 'puzzle':
     case 'diff':
     case undefined:

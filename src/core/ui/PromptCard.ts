@@ -7,6 +7,7 @@ import { COLORS, TEXT } from './theme';
 
 const PADDING = 30;
 /** Share of the card's inner height used by the text above the picture. */
+/** Default share of the card's inner height used by the text above the picture (two lines). */
 const TEXT_SHARE = 0.4;
 /** Pictures may be enlarged a little to fill the card, but not so much that they blur. */
 const MAX_PICTURE_SCALE = 1.6;
@@ -38,6 +39,8 @@ export class PromptCard {
     private readonly scene: Phaser.Scene,
     /** Bubble decoration drawn in the card's empty corners. */
     bubble: Picture,
+    /** Share of the inner height for the text (less for a one-line prompt, leaving more for pictures). */
+    private readonly textShare = TEXT_SHARE,
   ) {
     this.panel = scene.add.graphics();
     this.label = scene.add.text(0, 0, 'お題', TEXT.cardLabel);
@@ -94,7 +97,7 @@ export class PromptCard {
         .setPosition(body.x + body.width * spot.x, body.y + body.height * spot.y);
     });
     const inner = inset(body, PADDING);
-    const textHeight = inner.height * TEXT_SHARE;
+    const textHeight = inner.height * this.textShare;
     const textScale = Math.min(
       1,
       inner.width / Math.max(1, this.caption.textWidth),

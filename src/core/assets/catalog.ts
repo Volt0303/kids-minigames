@@ -66,6 +66,7 @@ export const ATLASES = {
     'glass-bottle': sprite('びん', 120, 310),
     'food-tray': sprite('トレー', 270, 150),
     net: sprite('あみ', 290, 230),
+    'paper-cup': sprite('カップ', 200, 230),
   },
   props: {
     teacup: sprite('ゆのみ', 170, 190),
@@ -85,6 +86,9 @@ export const ATLASES = {
     /** Message panel with bubbles at both ends; stretched in the middle only (nine-slice). */
     'panel-message': sprite('メッセージ', 1000, 340),
     'deco-bubbles': sprite('あわ', 180, 180),
+    /** Collected-trash bags (① 海のおそうじ): white = not yet, blue = collected. */
+    'bag-empty': sprite('ふくろ', 160, 160),
+    'bag-full': sprite('ふくろ', 160, 160),
   },
   /** Characters around the play field. */
   characters: {
@@ -133,6 +137,7 @@ export type GameArtFile = (typeof GAME_ART_FILES)[number];
 export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
   order: ['start-background', 'start-title', 'header-title', 'backdrop'],
+  ocean: ['start-background', 'start-title', 'header-title', 'backdrop'],
   sushi: ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 

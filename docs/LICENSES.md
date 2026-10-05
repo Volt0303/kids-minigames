@@ -7,6 +7,7 @@ Every font, image, sound and third-party library shipped in the apps is listed h
 | File | Name | Source | License | Notes |
 |---|---|---|---|---|
 | `public/fonts/ZenMaruGothic-Bold.ttf` | Zen Maru Gothic Bold | [google/fonts](https://github.com/google/fonts/tree/main/ofl/zenmarugothic) — © 2021 The Zen Maru Gothic Project Authors | SIL Open Font License 1.1 | License text shipped as `public/fonts/OFL.txt` |
+| `public/fonts/MPLUSRounded1c-ExtraBold.ttf` | M PLUS Rounded 1c ExtraBold | [google/fonts](https://github.com/google/fonts/tree/main/ofl/mplusrounded1c) — © 2016 The Rounded M+ Project Authors | SIL Open Font License 1.1 | License text shipped as `public/fonts/OFL-MPLUSRounded1c.txt` |
 
 ## Sounds
 
@@ -105,6 +106,13 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 80 | `games/sushi/bottom-wave.png` | *(prompt to be added)* — wave band behind ②'s tray | 2026-10-04 |
 | 81 | `atlases/sushi/rice-plain.png` | *(prompt to be added)* — rice before a topping in game ② | 2026-10-05 |
 | 82 | `atlases/sushi/platter-fish.png` | *(prompt to be added)* — fish-shaped dish in game ⑥ | 2026-10-05 |
+| 83 | `games/ocean/start-background.png` | *(prompt to be added)* | 2026-10-06 |
+| 84 | `games/ocean/start-title.png` | *(prompt to be added)* — 「海のおそうじ」 logo | 2026-10-06 |
+| 85 | `games/ocean/header-title.png` | *(prompt to be added)* — 「海のおそうじ」 logo | 2026-10-06 |
+| 86 | `games/ocean/backdrop.png` | *(prompt to be added)* | 2026-10-06 |
+| 87 | `atlases/trash/paper-cup.png` | *(prompt to be added)* | 2026-10-06 |
+| 88 | `atlases/ui/bag-empty.png` | *(prompt to be added)* — collected-trash bar in game ① | 2026-10-06 |
+| 89 | `atlases/ui/bag-full.png` | *(prompt to be added)* — collected-trash bar in game ① | 2026-10-06 |
 
 ### Client-provided character
 

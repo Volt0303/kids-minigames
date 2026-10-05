@@ -17,6 +17,7 @@ import { SessionController } from '../session/SessionController';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Feedback, SFX } from '../ui/Feedback';
 import { GameScreen, type GameScreenConfig } from '../ui/GameScreen';
+import type { OwnAreas } from '../ui/SidePanels';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
 import type { Picture } from '../ui/picture';
 import type { RichLines } from '../ui/RichText';
@@ -125,6 +126,11 @@ export abstract class GameScene extends LayoutScene {
     return this.ui.promptContentArea;
   }
 
+  /** Where the game draws the parts of the screen it owns (GameSceneOptions.own). */
+  protected get ownAreas(): OwnAreas {
+    return this.ui.ownAreas;
+  }
+
   protected reportCorrect(x: number, y: number): void {
     this.hint.hide();
     this.feedback.correct(x, y);
@@ -205,8 +211,15 @@ export abstract class GameScene extends LayoutScene {
     this.startStage(this.flow.index, currentStage(this.flow));
   }
 
+  /** Called whenever the stage's progress changes (games with their own progress display). */
+  protected onProgress(_done: number, _goal: number): void {
+    // Optional.
+  }
+
   private refreshHud(): void {
-    this.ui.setProgress(this.flow.progress, currentStage(this.flow).goal, secondsLeft(this.flow));
+    const goal = currentStage(this.flow).goal;
+    this.ui.setProgress(this.flow.progress, goal, secondsLeft(this.flow));
+    this.onProgress(this.flow.progress, goal);
   }
 
   private get screenConfig(): GameScreenConfig {

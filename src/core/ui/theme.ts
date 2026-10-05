@@ -39,6 +39,9 @@ export const COLORS = {
 /** Bundled rounded Japanese font (public/fonts, SIL Open Font License), declared in index.html. */
 export const FONT_FACE = 'Zen Maru Gothic';
 export const FONT_FAMILY = `"${FONT_FACE}", sans-serif`;
+/** Heavy, rounded "pop" lettering (M PLUS Rounded 1c ExtraBold, bundled) for text in picture cards. */
+export const POP_FONT_FACE = 'M PLUS Rounded 1c';
+export const POP_FONT_FAMILY = `"${POP_FONT_FACE}", "${FONT_FACE}", sans-serif`;
 
 const bold = (fontSize: number, color: string) =>
   ({ fontFamily: FONT_FAMILY, fontStyle: 'bold', fontSize: `${fontSize}px`, color }) as const;
@@ -70,4 +73,6 @@ export const TEXT = {
   /** The question in the close-confirmation dialog. */
   dialog: bold(72, COLORS.textDark),
   banner: { ...bold(150, COLORS.textLight), stroke: '#e76f51', strokeThickness: 18 },
+  /** Pop lettering in picture cards (e.g. ①'s 「あそびかた」), dark brown as in the mockup. */
+  popCard: { fontFamily: POP_FONT_FAMILY, fontStyle: '800', fontSize: '48px', color: '#3a2412' },
 } as const;
