@@ -13,9 +13,9 @@ export interface OrderStage extends StageConfig {
   maxPerKind: number;
   /** Kinds used in this stage, for orders and for the other sushi around them. */
   menu: readonly SushiKind[];
-  /** Most sushi on the counter or the conveyor for each order, ordered ones included. */
+  /** Most sushi on the platter or the shelf for each order, ordered ones included. */
   pieces: number;
-  /** Sushi move past on a conveyor instead of standing still. */
+  /** Sushi slide past along the shelf instead of standing still on the platter. */
   conveyor: boolean;
   /** Conveyor speed in design units per second. */
   speed: number;
@@ -40,11 +40,11 @@ export const STAGES: readonly OrderStage[] = [
     kindsPerOrder: 2,
     maxPerKind: 2,
     menu: ['tuna', 'salmon', 'shrimp', 'egg', 'octopus', 'squid', 'ikura'],
-    pieces: 8,
+    pieces: 6,
     conveyor: false,
     speed: 0,
   },
-  // Stage 3: three kinds per order (one of each) on a moving conveyor, with look-alikes
+  // Stage 3: three kinds per order (one of each), sliding along the shelf, with look-alikes
   // (マグロ / トロ, イカ / えんがわ). The belt carries only what fits on screen plus one
   // (see OrderScene), so every sushi comes back round within about ten seconds.
   {

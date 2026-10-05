@@ -3,24 +3,24 @@ import { atlasKey } from '../../core/assets/catalog';
 import type { SushiKind } from '../../core/assets/sushi';
 import { edgeAlpha, wrap } from '../../core/logic/loop';
 import type { Rect } from '../../core/logic/rect';
+import { DESIGN_HEIGHT } from '../../core/logic/viewport';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
-import { Belt } from './Belt';
 import { ORDER_COPY, orderPrompt } from './copy';
-import { dealPieces, nextOrder, orderSize, type Order } from './logic/orders';
+import { dealPieces, nextOrder, type Order } from './logic/orders';
 import {
   beltCapacity,
   beltScale,
   PIECE,
+  PIECE_FOOT,
   planBelt,
-  planField,
-  planGrid,
   type Belt as BeltPlan,
-  type FieldPlan,
+  type Grid,
 } from './logic/placement';
+import { counterArea, planTable, shelfY } from './logic/table';
 import { OrderTicket } from './OrderTicket';
 import { STAGES, type OrderStage } from './stages';
 import { SushiPiece } from './SushiPiece';
-import { Tray } from './Tray';
+import { Table } from './Table';
 
 export const ORDER_SCENE_KEY = 'Order';
 
@@ -30,18 +30,25 @@ if (!FIRST_STAGE) throw new Error('order: no stages defined');
 const SUSHI = atlasKey('sushi');
 /** Enough pieces for the largest counter or belt. */
 const POOL_SIZE = 16;
-const FLY_MS = 380;
-/** Pause after an order is complete, so the full tray can be seen before the next order. */
-const NEXT_ORDER_MS = 900;
+/** A chosen sushi glides to the order card this slowly, and fades out over the last part of the way. */
+const FLY_MS = 950;
+const FADE_SHARE = 0.4;
+/** How much the sushi rises above a straight line on its way (a gentle arc), in design units. */
+const FLY_ARC = 90;
+/**
+ * A chosen sushi flies over the field and the cards, but under the sparkles (90), the praise
+ * bubble (95), the clear banner (100) and the close dialog (200).
+ */
+const FLYING_DEPTH = 50;
+/** Pause after an order is complete, before the next order's sushi are put out. */
+const NEXT_ORDER_MS = 700;
 /** Sushi fainter than this are fading out at the field's edge and cannot be tapped. */
 const TAPPABLE_ALPHA = 0.5;
-/** Belt band height relative to a sushi's height (it runs under the plates). */
-const BELT_SHARE = 0.55;
 
 /**
  * ⑥ 注文のお手伝いゲーム: an order (pictures and dots in the 「お題」 card) asks for some sushi;
- * the child taps the matching ones on the counter — or, in stage 3, on the conveyor — and
- * they go onto the tray. Orders follow one another until the stage's sushi are all served.
+ * the child taps the matching ones on the table — or, in stage 3, as they slide along the shelf — and they
+ * fly to the order card. Orders follow one another until the stage's sushi are all served.
  */
 export class OrderScene extends GameScene {
   protected readonly stages = STAGES;
@@ -49,19 +56,17 @@ export class OrderScene extends GameScene {
   /** Created once and reused for every order (object pool). */
   private readonly pieces: SushiPiece[] = [];
   private ticket!: OrderTicket;
-  private tray!: Tray;
-  private belt!: Belt;
-  private plan?: FieldPlan;
+  private table!: Table;
+  private field?: Rect;
   private beltPlan?: BeltPlan;
   private stage: OrderStage = FIRST_STAGE;
   private order: Order = [];
-  /** Pieces of each order line already on the tray. */
+  /** Pieces of each order line already served. */
   private served: number[] = [];
   /** Sushi still to serve in this stage. */
   private remaining = 0;
   /** The sushi put out for the current order (pieces[i] shows dealt[i]). */
   private dealt: SushiKind[] = [];
-  private onTray: SushiPiece[] = [];
   /** Changes with every stage, so a delayed "next order" from an earlier stage does nothing. */
   private round = 0;
 
@@ -80,15 +85,13 @@ export class OrderScene extends GameScene {
   }
 
   protected buildField(): void {
-    this.belt = new Belt(this);
-    this.tray = new Tray(this);
+    this.table = new Table(this);
     for (let i = 0; i < POOL_SIZE; i++) this.pieces.push(new SushiPiece(this, (piece) => this.onTap(piece)));
     this.ticket = new OrderTicket(this);
   }
 
   protected layoutField(field: Rect): void {
-    this.plan = planField(field);
-    this.tray.layout(this.plan.tray);
+    this.field = field;
     const ticketArea = this.promptContentArea;
     if (ticketArea) this.ticket.layout(ticketArea);
     if (this.order.length > 0) this.placePieces(false);
@@ -109,10 +112,9 @@ export class OrderScene extends GameScene {
 
   update(_time: number, delta: number): void {
     const belt = this.beltPlan;
-    const counter = this.plan?.counter;
+    const counter = this.field && counterArea(this.field);
     if (!this.stage.conveyor || !belt || !counter || this.isPaused) return;
     const dx = (this.stage.speed * delta) / 1000;
-    this.belt.move(dx);
     const halfWidth = (PIECE.width * belt.scale) / 2;
     for (const piece of this.pieces) {
       if (!piece.available) continue;
@@ -121,10 +123,9 @@ export class OrderScene extends GameScene {
     }
   }
 
-  /** Clears the tray and puts out the sushi for the next order. */
+  /** Puts out the sushi for the next order. */
   private newOrder(): void {
     for (const piece of this.pieces) piece.clear();
-    this.onTray = [];
     this.order = nextOrder(this.stage, this.remaining, this.order, Math.random);
     this.served = this.order.map(() => 0);
     this.setPrompt(orderPrompt(this.order));
@@ -134,67 +135,48 @@ export class OrderScene extends GameScene {
   }
 
   /**
-   * How many sushi to put out. On the conveyor: those that fit on screen plus one coming in,
-   * so the belt is not much longer than the field and no sushi is long out of sight.
+   * How many sushi to put out. Sliding along the shelf: those that fit on screen plus one coming in,
+   * so the loop is not much longer than the field and no sushi is long out of sight.
    */
   private capacity(): number {
-    const counter = this.plan?.counter;
+    const counter = this.field && counterArea(this.field);
     if (!this.stage.conveyor || !counter) return POOL_SIZE;
     return Math.min(POOL_SIZE, beltCapacity(counter, beltScale(counter)) + 1);
   }
 
   /**
-   * Positions the sushi on the counter (grid) or the belt, and those already chosen on the
-   * tray. `fresh` puts every dealt sushi out again; otherwise only positions are updated.
+   * Positions the sushi on the table or the belt. `fresh` puts every dealt sushi out again;
+   * otherwise only positions are updated (screen size changed).
    */
   private placePieces(fresh: boolean): void {
-    const counter = this.plan?.counter;
-    if (!counter) return;
-    const places = this.stage.conveyor ? this.beltPlaces(counter) : this.gridPlaces(counter);
+    const field = this.field;
+    if (!field) return;
+    const places = this.stage.conveyor ? this.beltPlaces(field) : this.tablePlaces(field);
     this.dealt.forEach((kind, i) => {
       const piece = this.pieces[i];
       const place = places.positions[i];
       if (!piece || !place) return;
       if (fresh) piece.serve(kind, place.x, place.y, places.scale);
       else if (piece.available) piece.setPosition(place.x, place.y).setScale(places.scale);
+      // The front row stands in front of the back row (depth 0–1: below every overlay).
+      piece.setDepth(place.y / DESIGN_HEIGHT);
     });
-    this.placeTray(false);
   }
 
-  private gridPlaces(counter: Rect): { positions: { x: number; y: number }[]; scale: number } {
+  private tablePlaces(field: Rect): Grid {
     this.beltPlan = undefined;
-    this.belt.layout(counter, 0, 0);
-    return planGrid(counter, this.dealt.length);
+    const plan = planTable(field, this.dealt.length, this.table.aspect);
+    this.table.show(plan.table);
+    return plan.sushi;
   }
 
-  private beltPlaces(counter: Rect): { positions: { x: number; y: number }[]; scale: number } {
-    const belt = planBelt(counter, this.dealt.length);
+  /** Stage 3: the sushi slide along the counter's shelf, their plates standing on it. */
+  private beltPlaces(field: Rect): Grid {
+    this.table.show(undefined);
+    const belt = planBelt(counterArea(field), this.dealt.length);
     this.beltPlan = belt;
-    const plateY = belt.y + PIECE.height * belt.scale * 0.22;
-    this.belt.layout(counter, plateY, PIECE.height * belt.scale * BELT_SHARE);
-    return { positions: belt.positions.map((x) => ({ x, y: belt.y })), scale: belt.scale };
-  }
-
-  /** Puts the chosen sushi in their tray places (flying there when `animate`). */
-  private placeTray(animate: boolean): void {
-    const slots = this.tray.slots(orderSize(this.order));
-    this.onTray.forEach((piece, i) => {
-      const slot = slots.positions[i];
-      if (!slot) return;
-      if (!animate || i < this.onTray.length - 1) {
-        piece.setPosition(slot.x, slot.y).setScale(slots.scale).setAlpha(1);
-        return;
-      }
-      this.tweens.add({
-        targets: piece,
-        x: slot.x,
-        y: slot.y,
-        scale: slots.scale,
-        alpha: 1,
-        duration: FLY_MS,
-        ease: 'Sine.easeOut',
-      });
-    });
+    const y = shelfY(field) - PIECE_FOOT * belt.scale;
+    return { positions: belt.positions.map((x) => ({ x, y })), scale: belt.scale };
   }
 
   /** The order line still waiting for this kind, or -1. */
@@ -213,12 +195,46 @@ export class OrderScene extends GameScene {
     this.remaining -= 1;
     piece.take();
     this.tweens.killTweensOf(piece);
-    this.onTray.push(piece);
     this.ticket.show(this.order, this.served);
     const { x, y } = piece;
-    this.placeTray(true);
-    if (this.onTray.length === orderSize(this.order) && this.remaining > 0) this.queueNextOrder();
+    this.flyToCard(piece);
+    if (this.served.every((done, i) => done >= (this.order[i]?.count ?? 0)) && this.remaining > 0) {
+      this.queueNextOrder();
+    }
     this.reportCorrect(x, y);
+  }
+
+  /** A chosen sushi glides to the order card, fading out as it arrives, then goes back to the pool. */
+  private flyToCard(piece: SushiPiece): void {
+    const card = this.promptContentArea;
+    const target = card
+      ? { x: card.x + card.width / 2, y: card.y + card.height / 2 }
+      : { x: piece.x, y: piece.y - 200 };
+    piece.setDepth(FLYING_DEPTH);
+    const start = { x: piece.x, y: piece.y, scale: piece.scale };
+    const fadeFrom = 1 - FADE_SHARE;
+    // One tween drives the whole flight: an eased glide along a gentle arc, shrinking a little,
+    // fully visible at first and fading out only towards the end.
+    this.tweens.addCounter({
+      from: 0,
+      to: 1,
+      duration: FLY_MS,
+      ease: 'Sine.easeInOut',
+      onUpdate: (tween) => {
+        // Put out again for a new order meanwhile: this flight no longer owns it.
+        if (piece.available) return;
+        const t = tween.getValue() ?? 1;
+        piece.setPosition(
+          start.x + (target.x - start.x) * t,
+          start.y + (target.y - start.y) * t - Math.sin(Math.PI * t) * FLY_ARC,
+        );
+        piece.setScale(start.scale * (1 - 0.55 * t));
+        piece.setAlpha(t < fadeFrom ? 1 : 1 - (t - fadeFrom) / FADE_SHARE);
+      },
+      onComplete: () => {
+        if (!piece.available) piece.clear();
+      },
+    });
   }
 
   private queueNextOrder(): void {

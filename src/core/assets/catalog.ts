@@ -129,8 +129,7 @@ export type GameArtFile = (typeof GAME_ART_FILES)[number];
 
 export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
-  // order: its header-title picture has its own background, so the header shows the start-screen logo.
-  order: ['start-background', 'start-title', 'backdrop'],
+  order: ['start-background', 'start-title', 'header-title', 'backdrop'],
   sushi: ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 

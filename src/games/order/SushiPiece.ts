@@ -7,7 +7,9 @@ import type { SushiKind } from '../../core/assets/sushi';
 import { Nigiri } from '../../core/ui/Nigiri';
 
 const SUSHI = atlasKey('sushi');
-const PLATE_Y = 72;
+/** The plate under each sushi: a little narrower than the sushi, so it frames it without taking room. */
+const PLATE_Y = 70;
+const PLATE_SCALE = 1.02;
 /** Minimum tap area on screen (requirements 6.6: about 13% of the screen height). */
 const MIN_TAP = minTouchSize(DESIGN_HEIGHT);
 
@@ -24,7 +26,7 @@ export class SushiPiece extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, onTap: (piece: SushiPiece) => void) {
     super(scene, 0, 0);
-    this.plate = scene.add.image(0, PLATE_Y, SUSHI, 'plate');
+    this.plate = scene.add.image(0, PLATE_Y, SUSHI, 'plate').setScale(PLATE_SCALE);
     this.nigiri = new Nigiri(scene);
     this.add([this.plate, this.nigiri]);
     this.setSize(PIECE.width, PIECE.height).setVisible(false);
