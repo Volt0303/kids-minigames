@@ -94,3 +94,11 @@ function main() {
 }
 
 main();
+// Gradle keeps a ~1 GB background process after a build; stop it so the emulator gets that memory back.
+try {
+  run('./gradlew', ['--stop', '-q'], { cwd: 'android' });
+} catch (error) {
+  console.warn(
+    `build-apks: could not stop the Gradle daemon (${error instanceof Error ? error.message : String(error)})`,
+  );
+}

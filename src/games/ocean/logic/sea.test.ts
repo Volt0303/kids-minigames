@@ -35,8 +35,18 @@ describe('spawnTrash', () => {
   });
 });
 
+describe('spawnTrash speed', () => {
+  it('gives pieces different sinking speeds', () => {
+    const random = seeded(2);
+    const speeds = Array.from({ length: 20 }, () => spawnTrash([], random).speed);
+    expect(Math.min(...speeds)).toBeGreaterThanOrEqual(0.7);
+    expect(Math.max(...speeds)).toBeLessThanOrEqual(1.3);
+    expect(Math.max(...speeds) - Math.min(...speeds)).toBeGreaterThan(0.2);
+  });
+});
+
 describe('trashPose', () => {
-  const trash = { x: 0.5, startY: 0.12, restY: 0.6, phase: 0 };
+  const trash = { x: 0.5, startY: 0.12, restY: 0.6, phase: 0, speed: 1 };
 
   it('sinks, then stays near its resting height', () => {
     expect(trashPose(trash, 1, 0.1).y).toBeCloseTo(0.22);

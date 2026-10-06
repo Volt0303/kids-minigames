@@ -19,7 +19,7 @@
     "prepare": "husky",
     "android:run": "npm run cap:sync && cd android && ./gradlew installDebug -q && adb shell monkey -p jp.entertainmentlane.kidsgame -c android.intent.category.LAUNCHER 1 > /dev/null 2>&1",
     "build:apks": "node tools/build-apks.mjs",
-    "assets": "node tools/build-atlases.mjs && node tools/build-images.mjs && node tools/build-launch-screen.mjs && node tools/build-app-icon.mjs",
+    "assets": "node tools/build-atlases.mjs && node tools/build-images.mjs && node tools/build-launch-screen.mjs && node tools/build-app-icon.mjs && node tools/build-puzzles.mjs",
     "style-sheet": "node tools/style-sheet.mjs"
   },
   "dependencies": {

@@ -7,6 +7,7 @@ import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import { OCEAN_COPY, TRASH_PROMPT } from './copy';
 import { BagBar } from './BagBar';
 import { RulesCard } from './RulesCard';
+import { TrashDeck } from './logic/trashDeck';
 import { School } from './School';
 import { STAGES, TRASH_KINDS, type FishKind, type OceanStage, type TrashKind } from './stages';
 import { TrashLayer, type Trash } from './TrashLayer';
@@ -23,9 +24,11 @@ const RULE_TRASH: readonly TrashKind[] = ['can', 'plastic-bag', 'pet-bottle', 'p
 const RULE_FISH: readonly FishKind[] = ['striped-orange', 'blue-tropical', 'sea-bream'];
 /** A collected piece floats to the 「お題」 card and fades; a new one appears a moment later. */
 const COLLECT_MS = 700;
-const RESPAWN_MS = 600;
-/** Delay between the pieces put out at the start of a stage. */
-const START_STAGGER_MS = 350;
+/** A new piece appears this long after one is collected (random in the range, so they arrive one by one). */
+const RESPAWN_MS = { min: 700, max: 1_800 };
+/** Pieces at the start of a stage arrive one at a time, this far apart (plus a random part). */
+const START_STAGGER_MS = 1_400;
+const START_JITTER_MS = 600;
 
 /**
  * ① 海のおそうじゲーム: trash sinks through the sea while fish swim by; the child taps the
@@ -42,7 +45,7 @@ export class OceanScene extends GameScene {
   private bags!: BagBar;
   private field?: Rect;
   private stage: OceanStage = FIRST_STAGE;
-  private lastKind?: TrashKind;
+  private readonly deck = new TrashDeck<TrashKind>(TRASH_KINDS, Math.random);
   /** Changes with every stage, so delayed spawns from an earlier stage do nothing. */
   private round = 0;
 
@@ -97,7 +100,8 @@ export class OceanScene extends GameScene {
     this.trash.clear();
     this.refreshTicket();
     this.school.start(this.stage, field, Math.random);
-    for (let i = 0; i < this.stage.trashOnScreen; i++) this.spawnLater(i * START_STAGGER_MS);
+    for (let i = 0; i < this.stage.trashOnScreen; i++)
+      this.spawnLater(i * START_STAGGER_MS + Math.random() * START_JITTER_MS);
   }
 
   protected onProgress(done: number, goal: number): void {
@@ -155,7 +159,7 @@ export class OceanScene extends GameScene {
       },
     });
     this.reportCorrect(image.x, image.y);
-    this.spawnLater(RESPAWN_MS);
+    this.spawnLater(RESPAWN_MS.min + Math.random() * (RESPAWN_MS.max - RESPAWN_MS.min));
   }
 
   /** Puts a new piece of trash in the sea after `delayMs`, if the stage is still being played. */
@@ -164,9 +168,7 @@ export class OceanScene extends GameScene {
     this.time.delayedCall(delayMs, () => {
       const field = this.field;
       if (round !== this.round || !field || this.trash.activeCount() >= this.stage.trashOnScreen) return;
-      const kinds = TRASH_KINDS.filter((kind) => kind !== this.lastKind);
-      const kind = pick(kinds.length > 0 ? kinds : TRASH_KINDS, Math.random);
-      this.lastKind = kind;
+      const kind = this.deck.next(this.trash.kindsInSea());
       this.trash.spawn(kind, field, this.stage.trashBehindFish, Math.random);
       this.refreshTicket();
     });

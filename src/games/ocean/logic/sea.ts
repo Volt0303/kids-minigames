@@ -13,6 +13,8 @@ export interface TrashMotion {
   restY: number;
   /** Phase of its gentle side-to-side sway, so pieces do not move in step. */
   phase: number;
+  /** This piece's own sinking speed, relative to the stage's (some sink faster, some slower). */
+  speed: number;
 }
 
 /** Trash keeps away from the field's sides, the top (behind the surface) and the sand line. */
@@ -40,8 +42,18 @@ export function spawnTrash(others: readonly number[], random: Random): TrashMoti
   return motion(widest, random);
 }
 
+/** Pieces sink between 0.7× and 1.3× the stage's speed, so they never move in step. */
+const SPEED_MIN = 0.7;
+const SPEED_MAX = 1.3;
+
 function motion(x: number, random: Random): TrashMotion {
-  return { x, startY: START_Y, restY: REST_MIN + random() * (REST_MAX - REST_MIN), phase: random() * Math.PI * 2 };
+  return {
+    x,
+    startY: START_Y,
+    restY: REST_MIN + random() * (REST_MAX - REST_MIN),
+    phase: random() * Math.PI * 2,
+    speed: SPEED_MIN + random() * (SPEED_MAX - SPEED_MIN),
+  };
 }
 
 /** Sway across the field (fraction of its width) and tilt (degrees). */
@@ -58,7 +70,7 @@ export function trashPose(
   seconds: number,
   sinkSpeed: number,
 ): { x: number; y: number; angle: number } {
-  const sunk = trash.startY + sinkSpeed * seconds;
+  const sunk = trash.startY + sinkSpeed * trash.speed * seconds;
   const settled = sunk >= trash.restY;
   const wave = Math.sin(trash.phase + seconds * 1.4);
   return {

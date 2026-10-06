@@ -39,7 +39,13 @@ export class TrashLayer {
   constructor(private readonly scene: Phaser.Scene) {
     for (let i = 0; i < POOL_SIZE; i++) {
       const image = scene.add.image(0, 0, TRASH, 'can').setVisible(false);
-      this.pieces.push({ image, kind: 'can', motion: { x: 0, startY: 0, restY: 0, phase: 0 }, age: 0, active: false });
+      this.pieces.push({
+        image,
+        kind: 'can',
+        motion: { x: 0, startY: 0, restY: 0, phase: 0, speed: 1 },
+        age: 0,
+        active: false,
+      });
     }
   }
 
