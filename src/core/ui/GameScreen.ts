@@ -1,14 +1,6 @@
 import type * as Phaser from 'phaser';
-import { loadAtlas, loadBackground, loadGameArt } from '../assets/atlas';
-import {
-  atlasKey,
-  backgroundKey,
-  gameArtKey,
-  hasGameArt,
-  type BackgroundName,
-  type GameArtFile,
-  type GameArtGame,
-} from '../assets/catalog';
+import { loadAtlas, loadGameArt } from '../assets/atlas';
+import { atlasKey, gameArtKey, hasGameArt, type GameArtFile, type GameArtGame } from '../assets/catalog';
 import { gameRegions, openRegions, type GameRegions } from '../logic/gameLayout';
 import { rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
@@ -36,7 +28,6 @@ export interface GameCopy {
 export interface GameScreenConfig {
   title: string;
   copy: GameCopy;
-  background?: BackgroundName;
   /** The game whose own pictures to use: its backdrop behind everything and its title logo in the header. */
   art?: GameArtGame;
   /** Rising air bubbles over the background (underwater games). */
@@ -54,6 +45,8 @@ export interface GameScreenConfig {
   layout?: 'standard' | 'open';
   /** Parts of the standard layout the game draws itself (its own 「あそびかた」 card or bottom bar). */
   own?: OwnParts;
+  /** Share of the header's free room kept for the game's own header content (see Header). */
+  headerExtraShare?: number;
   /** Heights of the 「お題」 and 「あそびかた」 cards relative to each other (default 3 : 2). */
   cardWeights?: readonly [number, number];
   /** Share of the 「お題」 card's height for its text (one-line prompts can use less). */
@@ -91,7 +84,7 @@ export class GameScreen {
   static preload(load: Phaser.Loader.LoaderPlugin, config: GameScreenConfig): void {
     loadAtlas(load, 'ui');
     loadAtlas(load, 'characters');
-    if (config.background) loadBackground(load, config.background);
+    if (hasGameArt(config.art, 'field')) loadGameArt(load, config.art, 'field');
     if (hasGameArt(config.art, 'backdrop')) loadGameArt(load, config.art, 'backdrop');
     const logo = headerLogo(config.art);
     if (logo) loadGameArt(load, logo.game, logo.file);
@@ -102,7 +95,9 @@ export class GameScreen {
     this.backdrop = hasGameArt(config.art, 'backdrop')
       ? new Background(scene, gameArtKey(config.art, 'backdrop'), BACKDROP_DEPTH)
       : undefined;
-    this.background = config.background && new FieldPicture(scene, backgroundKey(config.background), FIELD_RADIUS);
+    this.background = hasGameArt(config.art, 'field')
+      ? new FieldPicture(scene, gameArtKey(config.art, 'field'), FIELD_RADIUS)
+      : undefined;
     this.frame = open ? undefined : new FieldFrame(scene);
     this.bubbles = config.bubbles ? new Bubbles(scene) : undefined;
     const logo = headerLogo(config.art);
@@ -114,6 +109,7 @@ export class GameScreen {
       clock: { texture: UI, frame: 'icon-clock' },
       star: { texture: UI, frame: 'icon-star' },
       onClose: config.onClose,
+      extraShare: config.headerExtraShare,
     });
     this.sides = open
       ? undefined
@@ -158,7 +154,7 @@ export class GameScreen {
 
   /** Where the game draws the parts it owns. */
   get ownAreas(): OwnAreas {
-    return this.sides?.ownAreas ?? {};
+    return { ...this.sides?.ownAreas, header: this.header.extraArea };
   }
 
   setStage(index: number, total: number): void {

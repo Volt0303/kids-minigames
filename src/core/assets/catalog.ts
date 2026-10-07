@@ -5,7 +5,6 @@
  * Source art lives in assets-src/images/ (see assets-src/README.md):
  *   atlases/<atlas>/<name>.png   → packed into public/assets/<atlas>.{png,json}
  *                                  (a labelled placeholder when the art does not exist yet)
- *   backgrounds/<name>.png       → public/assets/backgrounds/<name>.jpg
  *   games/<game>/<file>.png      → public/assets/games/<game>/<file>.jpg|png
  *
  * `width` / `height`: display size in design units (screen 1080 tall).
@@ -89,6 +88,13 @@ export const ATLASES = {
     /** Collected-trash bags (① 海のおそうじ): white = not yet, blue = collected. */
     'bag-empty': sprite('ふくろ', 160, 160),
     'bag-full': sprite('ふくろ', 160, 160),
+    /** Light bulb by the hint text (④ おさかなパズル). */
+    'icon-bulb': sprite('でんきゅう', 160, 160),
+    /** ④ おさかなパズル labels and decorations (stretched in the middle where they hold text). */
+    'label-blue': sprite('ラベル', 840, 203),
+    'label-pink': sprite('ラベル', 840, 140),
+    'ribbon-pink': sprite('リボン', 700, 217),
+    'bubble-cloud': sprite('ふきだし', 800, 328),
   },
   /** Characters around the play field. */
   characters: {
@@ -99,6 +105,8 @@ export const ATLASES = {
     starfish: sprite('ヒトデ', 180, 180),
     /** Turtle next to the title in the header (game ⑥, as in the client's mockup). */
     turtle: sprite('カメ', 260, 260),
+    /** Pink starfish by the hint panel (④ おさかなパズル). */
+    'starfish-pink': sprite('ピンクのヒトデ', 200, 187),
   },
   scenery: {
     'seaweed-1': sprite('かいそう', 200, 520),
@@ -116,28 +124,32 @@ export const ATLASES = {
 export type AtlasName = keyof typeof ATLASES;
 export type SpriteName<A extends AtlasName> = keyof (typeof ATLASES)[A] & string;
 
-/** Play-field pictures shared by games: assets-src/images/backgrounds/<name>.png (built to JPEG). */
-export const BACKGROUNDS = ['sea', 'sushi-counter'] as const;
-
-export type BackgroundName = (typeof BACKGROUNDS)[number];
-
 /**
  * Pictures that belong to one game: assets-src/images/games/<game>/<file>.png.
  * - start-background: start-screen picture (JPEG)
  * - start-title:      start-screen title logo, transparent (PNG)
  * - header-title:     flatter title logo for the game screen's header, transparent (PNG)
  * - backdrop:         full-screen picture behind the game screen (JPEG)
+ * - field:            picture inside the play area's frame (JPEG)
  * - bottom-wave:      wave band along the bottom of the game screen, transparent (PNG)
  * A game shows the plain look for any file it does not list here.
  */
-export const GAME_ART_FILES = ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'] as const;
+export const GAME_ART_FILES = [
+  'start-background',
+  'start-title',
+  'header-title',
+  'backdrop',
+  'field',
+  'bottom-wave',
+] as const;
 
 export type GameArtFile = (typeof GAME_ART_FILES)[number];
 
 export const GAME_ART = {
-  findfish: ['start-background', 'start-title', 'header-title', 'backdrop'],
-  order: ['start-background', 'start-title', 'header-title', 'backdrop'],
-  ocean: ['start-background', 'start-title', 'header-title', 'backdrop'],
+  findfish: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
+  order: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
+  ocean: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
+  puzzle: ['start-background', 'start-title', 'header-title', 'backdrop'],
   sushi: ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
@@ -152,7 +164,7 @@ export function hasGameArt(game: string | undefined, file: GameArtFile): game is
 
 /** File extension after the build: transparent pictures stay PNG, the rest become JPEG. */
 export function gameArtExtension(file: GameArtFile): 'png' | 'jpg' {
-  return file === 'backdrop' || file === 'start-background' ? 'jpg' : 'png';
+  return file === 'backdrop' || file === 'start-background' || file === 'field' ? 'jpg' : 'png';
 }
 
 /** Phaser texture key of a game's picture. */
@@ -179,9 +191,6 @@ export const LOADING_GUIDE_URL = 'assets/loading-guide.png';
 export const LOADING_MASCOT_URL = 'assets/loading-mascot.png';
 
 /** Phaser texture key of a background. */
-export function backgroundKey(name: BackgroundName): string {
-  return `bg-${name}`;
-}
 
 /** Phaser texture key of an atlas. */
 export function atlasKey(atlas: AtlasName): string {

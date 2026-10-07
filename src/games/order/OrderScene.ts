@@ -72,7 +72,6 @@ export class OrderScene extends GameScene {
 
   constructor(setup: GameSetup) {
     super(ORDER_SCENE_KEY, setup, {
-      background: 'sushi-counter',
       art: 'order',
       copy: ORDER_COPY,
       icon: { texture: SUSHI, frame: 'topping-tuna' },

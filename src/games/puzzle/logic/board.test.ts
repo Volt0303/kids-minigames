@@ -5,7 +5,8 @@ import { STAGES } from '../stages';
 import { planPuzzle, slotCentres, snaps, trayPlaces } from './board';
 
 /** Play fields of the standard layout on the three screens (design units). */
-const fields = [rect(12, 212, 1260, 700), rect(12, 212, 3200, 700), rect(12, 212, 1450, 700)];
+/** Open-layout fields on the three screens (design units). */
+const fields = [rect(12, 212, 1704, 856), rect(12, 212, 3816, 856), rect(12, 212, 1896, 856)];
 
 const inside = (inner: Rect, outer: Rect): boolean =>
   inner.x >= outer.x - 0.01 &&
@@ -14,21 +15,35 @@ const inside = (inner: Rect, outer: Rect): boolean =>
   inner.y + inner.height <= outer.y + outer.height + 0.01;
 
 describe('planPuzzle', () => {
-  it('keeps the board and the tray inside the field, apart', () => {
+  it('keeps every part inside the field, the board apart from the tray, the panels apart', () => {
     for (const field of fields) {
-      const { board, tray } = planPuzzle(field, PUZZLE_SIZE);
-      expect(inside(board, field)).toBe(true);
-      expect(inside(tray, field)).toBe(true);
-      const apart = board.x + board.width <= tray.x || board.y + board.height <= tray.y;
+      const plan = planPuzzle(field, PUZZLE_SIZE);
+      for (const part of [
+        plan.puzzlePanel,
+        plan.board,
+        plan.tray,
+        plan.previewPanel,
+        plan.preview,
+        plan.bubble,
+        plan.hintPanel,
+      ]) {
+        expect(inside(part, field)).toBe(true);
+      }
+      expect(inside(plan.board, plan.puzzlePanel)).toBe(true);
+      expect(inside(plan.tray, plan.puzzlePanel)).toBe(true);
+      const apart = plan.board.y + plan.board.height < plan.tray.y || plan.tray.x + plan.tray.width < plan.board.x;
       expect(apart).toBe(true);
+      expect(plan.puzzlePanel.x + plan.puzzlePanel.width).toBeLessThan(plan.previewPanel.x);
+      expect(inside(plan.preview, plan.previewPanel)).toBe(true);
     }
   });
 
-  it('puts the tray beside a landscape board, below a tall one', () => {
+  it('puts the guide and the hint panel beside the panels on the wide screen, below them otherwise', () => {
     const wide = planPuzzle(fields[1] ?? rect(0, 0, 1, 1), PUZZLE_SIZE);
-    expect(wide.tray.x).toBeGreaterThan(wide.board.x + wide.board.width);
-    const tall = planPuzzle(rect(0, 0, 700, 1000), PUZZLE_SIZE);
-    expect(tall.tray.y).toBeGreaterThan(tall.board.y + tall.board.height);
+    expect(wide.guide.x + wide.guide.width).toBeLessThan(wide.puzzlePanel.x);
+    expect(wide.hintPanel.x).toBeGreaterThan(wide.previewPanel.x + wide.previewPanel.width);
+    const standard = planPuzzle(fields[0] ?? rect(0, 0, 1, 1), PUZZLE_SIZE);
+    expect(standard.hintPanel.y).toBeGreaterThan(standard.previewPanel.y + standard.previewPanel.height);
   });
 });
 

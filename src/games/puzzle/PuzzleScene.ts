@@ -1,4 +1,4 @@
-import type * as Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import {
   pieceKey,
   pieceUrl,
@@ -8,11 +8,16 @@ import {
   puzzleUrl,
   type PuzzleName,
 } from '../../core/assets/puzzles';
+import { tabSize } from '../../core/logic/jigsaw';
 import { shuffle } from '../../core/logic/random';
 import type { Rect } from '../../core/logic/rect';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
-import { PUZZLE_COPY, PUZZLE_PROMPT } from './copy';
-import { HintButton } from './HintButton';
+import { atlasKey } from '../../core/assets/catalog';
+import { Character } from '../../core/ui/Character';
+import { GUIDE_LINES, PRAISE_LINES, PUZZLE_COPY } from './copy';
+import { HintPanel } from './HintPanel';
+import { PuzzlePanels } from './PuzzlePanels';
+import { SpeechBubble } from './SpeechBubble';
 import { planPuzzle, slotCentres, snaps, trayPlaces, type Point, type PuzzleLayout } from './logic/board';
 import { PuzzleBoard } from './PuzzleBoard';
 import { STAGES, type PuzzleStage } from './stages';
@@ -32,11 +37,18 @@ const PIECE_DEPTH = 1;
 const DRAG_DEPTH = 50;
 const SNAP_MS = 180;
 const RETURN_MS = 260;
+const CHEER_MS = 1_300;
+/** Drop shadow of a piece: lifted higher while dragged, flat once it is in its place. */
+const SHADOW_COLOR = 0x6b3d00;
+const SHADOW_ALPHA = 0.35;
+const SHADOW_OFFSET = { tray: 8, drag: 22 };
 /** A tap must not start a drag; dragging starts after the finger moves this far (pixels). */
 const DRAG_THRESHOLD = 10;
 
 interface Piece {
   image: Phaser.GameObjects.Image;
+  /** A dark copy just below and right of the piece: its drop shadow. */
+  shadow: Phaser.GameObjects.Image;
   /** Its slot on the board (piece i belongs in slot i). */
   index: number;
   /** Its place in the tray. */
@@ -47,14 +59,19 @@ interface Piece {
 /**
  * ④ おさかなパズル: a picture is cut into pieces; the child drags each piece from the tray onto
  * the board, where it snaps into its slot when dropped near it, and otherwise slides back to
- * the tray. The hint button shows the finished picture for a moment.
+ * the tray. The finished picture is always shown beside the board; the eye button shows it
+ * on the board itself for a moment.
  */
 export class PuzzleScene extends GameScene {
   protected readonly stages = STAGES;
 
   private readonly pieces: Piece[] = [];
   private board!: PuzzleBoard;
-  private hintButton!: HintButton;
+  private hintPanel!: HintPanel;
+  private panels!: PuzzlePanels;
+  private bubble!: SpeechBubble;
+  /** げんきくん (absent in builds without the guide character). */
+  private guide?: Character;
   private stage: PuzzleStage = FIRST_STAGE;
   private field?: Rect;
   private plan?: PuzzleLayout;
@@ -62,7 +79,7 @@ export class PuzzleScene extends GameScene {
   private trayScale = 1;
 
   constructor(setup: GameSetup) {
-    super(PUZZLE_SCENE_KEY, setup, { background: 'sea', copy: PUZZLE_COPY });
+    super(PUZZLE_SCENE_KEY, setup, { layout: 'open', art: 'puzzle', copy: PUZZLE_COPY });
   }
 
   protected preloadGame(): void {
@@ -76,13 +93,24 @@ export class PuzzleScene extends GameScene {
 
   protected buildField(): void {
     this.input.dragDistanceThreshold = DRAG_THRESHOLD;
+    this.panels = new PuzzlePanels(this);
     this.board = new PuzzleBoard(this);
-    this.hintButton = new HintButton(this, () => {
+    this.hintPanel = new HintPanel(this, () => {
       if (this.isPlaying && !this.isPaused) this.board.revealPicture();
     });
+    this.bubble = new SpeechBubble(this, GUIDE_LINES);
+    this.guide = this.hasGuide
+      ? new Character(this, { texture: atlasKey('characters'), frame: 'guide' }, 8)
+      : undefined;
     for (let i = 0; i < POOL_SIZE; i++) {
       const image = this.add.image(0, 0, pieceKey('tuna', 0)).setVisible(false).setDepth(PIECE_DEPTH);
-      const piece: Piece = { image, index: 0, home: { x: 0, y: 0 }, placed: false };
+      const shadow = this.add
+        .image(0, 0, pieceKey('tuna', 0))
+        .setTintMode(Phaser.TintModes.FILL)
+        .setTint(SHADOW_COLOR)
+        .setAlpha(SHADOW_ALPHA)
+        .setVisible(false);
+      const piece: Piece = { image, shadow, index: 0, home: { x: 0, y: 0 }, placed: false };
       image.setInteractive({ draggable: true, useHandCursor: true });
       image.on('dragstart', () => this.onDragStart(piece));
       image.on('drag', (_p: Phaser.Input.Pointer, x: number, y: number) => {
@@ -101,8 +129,8 @@ export class PuzzleScene extends GameScene {
   protected startStage(index: number): void {
     this.stage = STAGES[index] ?? this.stage;
     const name = this.stage.picture;
-    this.setPrompt(PUZZLE_PROMPT, { texture: puzzleKey(name) });
     this.board.show(name);
+    this.panels.show(name);
     const order = shuffle(
       Array.from({ length: this.stage.goal }, (_, i) => i),
       Math.random,
@@ -114,13 +142,34 @@ export class PuzzleScene extends GameScene {
       if (slot === undefined) return;
       piece.index = slot;
       piece.image.setTexture(pieceKey(name, slot)).setAlpha(1);
+      piece.shadow.setTexture(pieceKey(name, slot));
     });
     this.arrange();
   }
 
-  /** The hint button pulses to invite the child to use it. */
-  protected findHintTarget(): HintButton {
-    return this.hintButton;
+  /**
+   * Keeps every piece's shadow under it (pieces move by drag and tweens). A piece in its place
+   * lies flat on the board, so its shadow is hidden. No allocation: called every frame.
+   */
+  update(): void {
+    for (const piece of this.pieces) {
+      const image = piece.image;
+      const visible = image.visible && !piece.placed;
+      piece.shadow.setVisible(visible);
+      if (!visible) continue;
+      const lifted = image.depth === DRAG_DEPTH;
+      const offset = (lifted ? SHADOW_OFFSET.drag : SHADOW_OFFSET.tray) * (image.scale / (this.plan?.scale ?? 1));
+      piece.shadow
+        .setPosition(image.x + offset, image.y + offset)
+        .setScale(image.scale)
+        .setDepth(image.depth - 0.5)
+        .setAlpha(SHADOW_ALPHA * image.alpha);
+    }
+  }
+
+  /** The eye button pulses to invite the child to use it. */
+  protected findHintTarget(): Phaser.GameObjects.Container {
+    return this.hintPanel.button;
   }
 
   /** Positions the board, the hint button and every piece (placed ones on their slots). */
@@ -129,11 +178,17 @@ export class PuzzleScene extends GameScene {
     if (!field) return;
     const plan = planPuzzle(field, PUZZLE_SIZE);
     this.plan = plan;
+    this.panels.layout(plan);
     this.board.layout(plan.board);
-    this.hintButton.setPosition(plan.hintButton.x, plan.hintButton.y);
+    this.hintPanel.layout(plan.hintPanel);
+    this.bubble.layout(plan.bubble);
+    this.guide?.layout(plan.guide);
     const { cols, rows } = PUZZLES[this.stage.picture];
     this.slots = slotCentres(plan.board, cols, rows);
-    const piece = { width: PUZZLE_SIZE.width / cols, height: PUZZLE_SIZE.height / rows };
+    const cell = { width: PUZZLE_SIZE.width / cols, height: PUZZLE_SIZE.height / rows };
+    // Piece pictures are padded by the knob height on every side (see core/logic/jigsaw).
+    const tab = tabSize(cell.width, cell.height);
+    const piece = { width: cell.width + tab * 2, height: cell.height + tab * 2 };
     const tray = trayPlaces(plan.tray, this.stage.goal, piece, plan.scale);
     this.trayScale = tray.scale;
     this.pieces.forEach((p, i) => {
@@ -164,6 +219,7 @@ export class PuzzleScene extends GameScene {
       this.tweens.add({ targets: image, x: slot.x, y: slot.y, duration: SNAP_MS, ease: 'Back.easeOut' });
       image.setDepth(PIECE_DEPTH);
       this.reportCorrect(slot.x, slot.y);
+      this.cheer();
       return;
     }
     const onBoard = inside(plan.board, image.x, image.y);
@@ -177,5 +233,12 @@ export class PuzzleScene extends GameScene {
       ease: 'Sine.easeOut',
       onComplete: () => image.setDepth(PIECE_DEPTH),
     });
+  }
+
+  /** げんきくん's 「やったね」 pose and 「ぴったり!」 in his bubble. */
+  private cheer(): void {
+    this.bubble.say(PRAISE_LINES, CHEER_MS);
+    this.guide?.showPose('guide-happy', CHEER_MS);
+    this.guide?.hop();
   }
 }

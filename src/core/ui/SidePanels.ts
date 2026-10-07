@@ -38,6 +38,8 @@ export interface OwnParts {
 export interface OwnAreas {
   howTo?: Rect;
   footer?: Rect;
+  /** Room in the header kept for the game (GameScreenConfig.headerExtraShare). */
+  header?: Rect;
 }
 
 /**

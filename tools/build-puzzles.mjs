@@ -4,32 +4,32 @@
  *
  *   assets-src/images/puzzles/<name>.png → public/assets/puzzles/<name>.jpg      the whole picture
  *                                        → public/assets/puzzles/<name>-<i>.png  piece i (left to right,
- *                                                                               top to bottom): rounded
- *                                                                               corners, white edge
+ *                                                                               top to bottom): jigsaw
+ *                                                                               shape (src/core/logic/jigsaw.ts),
+ *                                                                               white edge; padded by the
+ *                                                                               knob height on every side
  *
  * Usage: node tools/build-puzzles.mjs
  */
 import { existsSync, mkdirSync } from 'node:fs';
 import sharp from 'sharp';
 import { PUZZLE_SIZE, PUZZLES, pieceUrl, puzzleUrl } from '../src/core/assets/puzzles.ts';
+import { pieceOutline, tabSize } from '../src/core/logic/jigsaw.ts';
 
 const SOURCE_DIR = 'assets-src/images/puzzles';
-/** Corner radius and white edge, relative to the piece's shorter side. */
-const RADIUS = 0.1;
+/** White edge, relative to the piece's shorter side. */
 const EDGE = 0.025;
 
-/** A rounded-rectangle mask with a white edge drawn just inside it. */
-function pieceOverlay(width, height) {
-  const r = Math.round(Math.min(width, height) * RADIUS);
-  const edge = Math.max(3, Math.round(Math.min(width, height) * EDGE));
-  const inset = edge / 2;
+/** A jigsaw-shaped mask and its white edge, for a piece picture padded by the knob height. */
+function pieceOverlay(index, grid, size) {
+  const points = pieceOutline(index, grid);
+  const path = `M ${points.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L ')} Z`;
+  const edge = Math.max(3, Math.round(Math.min(grid.width, grid.height) * EDGE));
+  const svg = (body) =>
+    Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}">${body}</svg>`);
   return {
-    mask: Buffer.from(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="${width}" height="${height}" rx="${r}" ry="${r}"/></svg>`,
-    ),
-    edge: Buffer.from(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect x="${inset}" y="${inset}" width="${width - edge}" height="${height - edge}" rx="${r - inset}" ry="${r - inset}" fill="none" stroke="white" stroke-width="${edge}"/></svg>`,
-    ),
+    mask: svg(`<path d="${path}" fill="black"/>`),
+    edge: svg(`<path d="${path}" fill="none" stroke="white" stroke-width="${edge * 2}" stroke-linejoin="round"/>`),
   };
 }
 
@@ -45,16 +45,20 @@ async function cut(name, { cols, rows }) {
     .toFile(`public/${puzzleUrl(name)}`);
   const width = PUZZLE_SIZE.width / cols;
   const height = PUZZLE_SIZE.height / rows;
-  const { mask, edge } = pieceOverlay(width, height);
+  const tab = tabSize(width, height);
+  // The picture with a transparent margin, so border pieces can be cut with the same padding.
+  const padded = await sharp(whole)
+    .ensureAlpha()
+    .extend({ top: tab, bottom: tab, left: tab, right: tab, background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .toBuffer();
+  const size = { width: width + tab * 2, height: height + tab * 2 };
   for (let i = 0; i < cols * rows; i++) {
-    const left = (i % cols) * width;
-    const top = Math.floor(i / cols) * height;
-    await sharp(whole)
-      .extract({ left, top, width, height })
-      .ensureAlpha()
+    const { mask, edge } = pieceOverlay(i, { cols, rows, width, height }, size);
+    await sharp(padded)
+      .extract({ left: (i % cols) * width, top: Math.floor(i / cols) * height, ...size })
       .composite([
         { input: mask, blend: 'dest-in' },
-        { input: edge, blend: 'over' },
+        { input: edge, blend: 'atop' },
       ])
       .png({ compressionLevel: 9 })
       .toFile(`public/${pieceUrl(name, i)}`);

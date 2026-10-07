@@ -51,7 +51,6 @@ export class OceanScene extends GameScene {
 
   constructor(setup: GameSetup) {
     super(OCEAN_SCENE_KEY, setup, {
-      background: 'sea',
       art: 'ocean',
       bubbles: true,
       own: { howTo: true, footer: true },

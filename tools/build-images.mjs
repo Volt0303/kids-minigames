@@ -2,7 +2,6 @@
 /**
  * Converts the large pictures that are not packed into atlases (names from src/core/assets/catalog.ts):
  *
- *   assets-src/images/backgrounds/<name>.png             → public/assets/backgrounds/<name>.jpg   (BACKGROUNDS)
  *   assets-src/images/games/<game>/<file>.png            → public/assets/games/<game>/<file>.jpg (GAME_ART)
  *                                                           (title logos stay PNG: they are transparent)
  *   assets-src/images/atlases/characters/guide-happy.png → public/assets/loading-guide.png (LOADING_GUIDE_URL)
@@ -14,13 +13,7 @@
  */
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import sharp from 'sharp';
-import {
-  BACKGROUNDS,
-  GAME_ART,
-  gameArtExtension,
-  LOADING_GUIDE_URL,
-  LOADING_MASCOT_URL,
-} from '../src/core/assets/catalog.ts';
+import { GAME_ART, gameArtExtension, LOADING_GUIDE_URL, LOADING_MASCOT_URL } from '../src/core/assets/catalog.ts';
 import { removeBackground } from './lib/remove-background.mjs';
 
 const SOURCE_DIR = 'assets-src/images';
@@ -52,15 +45,6 @@ async function convert(label, source, target) {
 }
 
 async function main() {
-  for (const name of BACKGROUNDS) {
-    console.log(
-      await convert(
-        `background ${name}`,
-        `${SOURCE_DIR}/backgrounds/${name}.png`,
-        `${OUT_DIR}/backgrounds/${name}.jpg`,
-      ),
-    );
-  }
   for (const [game, files] of Object.entries(GAME_ART)) {
     for (const file of files) {
       const target = `${OUT_DIR}/games/${game}/${file}.${gameArtExtension(file)}`;

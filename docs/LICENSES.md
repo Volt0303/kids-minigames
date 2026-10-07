@@ -69,8 +69,8 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 43 | `atlases/scenery/seaweed-2.png` | Shorter bushy green seaweed with several wavy leaves, growing from the bottom, cartoon style with thick dark outline. Size: 1024x1536 (portrait). | 2026-09-30 |
 | 44 | `atlases/scenery/shell.png` | A scallop shell seen from above. Size: 1024x1024 (square). | 2026-09-29 |
 | 45 | `atlases/scenery/starfish.png` | A five-armed orange starfish seen from above, no face. Size: 1024x1024 (square). | 2026-09-29 |
-| 46 | `backgrounds/sea.png` | An underwater scene: light turquoise-blue water getting lighter toward the top, soft light rays from the surface, a sandy sea floor along the bottom fifth, a few small rocks and seaweed only at the far left and far right edges. Size: 1536x1024 (landscape). | 2026-09-29 |
-| 47 | `backgrounds/sushi-counter.png` | The inside of a clean Japanese sushi restaurant seen from the front: a light wooden counter along the bottom quarter, a soft warm beige wall behind it, a plain dark blue fabric curtain along the top edge without any writing. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 46 | `games/ocean/field.png`, `games/findfish/field.png` (same picture; was `backgrounds/sea.png`) | An underwater scene: light turquoise-blue water getting lighter toward the top, soft light rays from the surface, a sandy sea floor along the bottom fifth, a few small rocks and seaweed only at the far left and far right edges. Size: 1536x1024 (landscape). | 2026-09-29 |
+| 47 | `games/order/field.png` (was `backgrounds/sushi-counter.png`) | The inside of a clean Japanese sushi restaurant seen from the front: a light wooden counter along the bottom quarter, a soft warm beige wall behind it, a plain dark blue fabric curtain along the top edge without any writing. Size: 1536x1024 (landscape). | 2026-09-29 |
 | 48 | `puzzles/sea-bream.png` | A big red sea bream swimming in light blue water with seaweed at the bottom. Size: 1536x1024 (landscape). | 2026-09-29 |
 | 49 | `puzzles/sushi.png` | A wooden board with four pieces of nigiri sushi in a row: tuna, salmon, shrimp and egg. Size: 1536x1024 (landscape). | 2026-09-29 |
 | 50 | `puzzles/tuna.png` | A big tuna swimming in blue water with a few bubbles. Size: 1536x1024 (landscape). | 2026-09-29 |
@@ -113,6 +113,16 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 87 | `atlases/trash/paper-cup.png` | *(prompt to be added)* | 2026-10-06 |
 | 88 | `atlases/ui/bag-empty.png` | *(prompt to be added)* — collected-trash bar in game ① | 2026-10-06 |
 | 89 | `atlases/ui/bag-full.png` | *(prompt to be added)* — collected-trash bar in game ① | 2026-10-06 |
+| 90 | `atlases/ui/icon-bulb.png` | *(prompt to be added)* — hint panel in game ④ | 2026-10-07 |
+| 91 | `games/puzzle/start-background.png` | *(prompt to be added)* | 2026-10-07 |
+| 92 | `games/puzzle/start-title.png` | *(prompt to be added)* — 「おさかなパズル」 logo | 2026-10-07 |
+| 93 | `games/puzzle/header-title.png` | *(prompt to be added)* — 「おさかなパズル」 logo | 2026-10-07 |
+| 94 | `games/puzzle/backdrop.png` | *(prompt to be added)* | 2026-10-07 |
+| 95 | `atlases/ui/label-blue.png` | *(prompt to be added)* — 「パズルを うごかそう!」 label in game ④ | 2026-10-07 |
+| 96 | `atlases/ui/label-pink.png` | *(prompt to be added)* — 「えを かんせいさせよう!」 label in game ④ | 2026-10-07 |
+| 97 | `atlases/ui/ribbon-pink.png` | *(prompt to be added)* — 「かんせいず」 ribbon in game ④ | 2026-10-07 |
+| 98 | `atlases/ui/bubble-cloud.png` | *(prompt to be added)* — guide speech bubble in game ④; painted-in checkerboard removed (tolerance 75) | 2026-10-07 |
+| 99 | `atlases/characters/starfish-pink.png` | *(prompt to be added)* — decoration by game ④'s hint panel | 2026-10-07 |
 
 ### Client-provided character
 

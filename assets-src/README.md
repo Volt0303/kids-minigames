@@ -13,12 +13,12 @@ assets-src/images/
     scenery/     sea-floor decorations
     ui/          shared buttons (btn-*) and small icons (icon-*)
     characters/  guide character (client-provided) and the starfish
-  backgrounds/<name>.png          play-field pictures shared by several games (sea, sushi-counter)
   games/<game-id>/                pictures used by one game only
     start-background.png          start-screen picture
     start-title.png               start-screen title logo (transparent)
     header-title.png              flatter title logo for the game screen's header (transparent)
     backdrop.png                  full-screen picture behind the game screen
+    field.png                     picture inside the play area's frame (sea, sushi counter…)
   app-icons/<game-id>.png         launcher icon of each app: a square picture on a flat background
                                   colour (tools/build-app-icon.mjs turns it into the Android icons)
   puzzles/<picture>.png           pictures cut into pieces by the puzzle game
@@ -39,7 +39,6 @@ Game ids: `ocean` ① · `sushi` ② · `findfish` ③ · `puzzle` ④ · `diff`
 1. Save it under the right folder and name.
 2. Register it in `src/core/assets/catalog.ts`:
    - atlas sprite → add it to that atlas in `ATLASES` (with its Japanese name and display size);
-   - play-field picture → add the name to `BACKGROUNDS`;
    - game picture → list the file under the game in `GAME_ART` (e.g. `ocean: ['start-background', 'start-title']`).
 3. Record it in `docs/LICENSES.md` (tool or source, prompt, licence, date).
 4. Run `npm run assets` and check the report: atlases show `art n/m`, other pictures their size, and anything

@@ -15,8 +15,11 @@ export const PUZZLE_COPY: GameCopy = {
   praise: { title: 'ぴったり!', line: 'じょうずだね!' },
 };
 
-/** The 「お題」 card: the picture to make. */
-export const PUZZLE_PROMPT: RichLines = [
-  [{ text: 'この え', color: COLORS.highlight }, { text: 'を' }],
-  [{ text: 'つくろう!' }],
+/** げんきくん's bubble, as in the design (「ドラッグ」 highlighted). */
+export const GUIDE_LINES: RichLines = [
+  [{ text: 'ピースを ' }, { text: 'ドラッグ', color: COLORS.action }, { text: 'して、' }],
+  [{ text: 'ただしい ばしょに おこう!' }],
 ];
+
+/** Said for a moment when a piece snaps into place. */
+export const PRAISE_LINES: RichLines = [[{ text: 'ぴったり!', color: COLORS.highlight }], [{ text: 'じょうずだね!' }]];

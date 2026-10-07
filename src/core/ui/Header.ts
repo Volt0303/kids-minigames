@@ -17,6 +17,11 @@ export interface HeaderConfig {
   clock: Picture;
   star: Picture;
   onClose: () => void;
+  /**
+   * Share of the room between the title and the badges kept free for the game's own header
+   * content (e.g. ④'s note); the title gets the rest. 0 (default) keeps none.
+   */
+  extraShare?: number;
 }
 
 const GAP = 22;
@@ -41,6 +46,9 @@ export class Header {
   private readonly status: StatusBadge;
   private readonly score: ScoreBadge;
   private readonly close: IconButton;
+  private readonly extraShare: number;
+  /** The room kept for the game's own header content (see HeaderConfig.extraShare). */
+  extraArea?: Rect;
 
   constructor(scene: Phaser.Scene, config: HeaderConfig) {
     const logo = config.logo && scene.textures.exists(config.logo.texture) ? config.logo : undefined;
@@ -53,6 +61,7 @@ export class Header {
     this.deco = config.deco && scene.add.image(0, 0, config.deco.texture, config.deco.frame).setOrigin(0, 0.5);
     this.status = new StatusBadge(scene, BADGE_HEIGHT, config.clock);
     this.score = new ScoreBadge(scene, BADGE_HEIGHT, config.star);
+    this.extraShare = config.extraShare ?? 0;
     this.close = new IconButton(scene, { symbol: '×', radius: CLOSE_RADIUS, color: COLORS.close }, config.onClose);
   }
 
@@ -80,6 +89,12 @@ export class Header {
     x -= (this.score.badgeWidth / 2 + GAP + this.status.badgeWidth / 2) * scale;
     this.status.setScale(scale).setPosition(x, y);
     const titleRight = x - (this.status.badgeWidth / 2 + GAP) * scale;
+    if (this.extraShare > 0) {
+      const extraWidth = (titleRight - area.x) * this.extraShare;
+      this.extraArea = { x: titleRight - extraWidth, y: area.y, width: extraWidth, height: area.height };
+      this.layoutTitle(area, titleRight - extraWidth - GAP, y);
+      return;
+    }
     this.layoutTitle(area, titleRight, y);
   }
 
