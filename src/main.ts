@@ -5,14 +5,7 @@ import { readScreenMetrics, ViewportController } from './core/display/ViewportCo
 import { computeViewport } from './core/logic/viewport';
 import { createPlatform } from './core/platform/createPlatform';
 import { COLORS, toCssHex } from './core/ui/theme';
-import {
-  GAME_ART,
-  gameArtUrl,
-  hasGameArt,
-  LOADING_GUIDE_URL,
-  LOADING_MASCOT_URL,
-  type GameArtGame,
-} from './core/assets/catalog';
+import { gameArtUrl, hasGameArt, LOADING_GUIDE_URL, LOADING_MASCOT_URL, type GameArtGame } from './core/assets/catalog';
 import { START_SCENE_KEY, StartScene } from './core/scenes/StartScene';
 import { SessionController } from './core/session/SessionController';
 import { GAME_HAS_GUIDE, GAME_TITLES, isGameId } from './games/registry';
@@ -26,7 +19,7 @@ const requested =
 const gameId = isGameId(requested) ? requested : undefined;
 const title = gameId ? GAME_TITLES[gameId] : 'テストゲーム';
 const play = createGameScene(gameId, title);
-const artGame = gameId && gameId in GAME_ART ? (gameId as GameArtGame) : undefined;
+const artGame: GameArtGame | undefined = gameId;
 document.title = title;
 
 // Before anything else loads: the loading screen already shows this game's own backdrop and the

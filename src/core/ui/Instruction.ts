@@ -1,13 +1,16 @@
 import type * as Phaser from 'phaser';
-import type { Rect } from '../../core/logic/rect';
-import { RichText, type RichLines } from '../../core/ui/RichText';
-import { FONT_FAMILY } from '../../core/ui/theme';
+import type { Rect } from '../logic/rect';
+import { RichText, type RichLines } from './RichText';
+import { FONT_FAMILY } from './theme';
 
 const FILL = 0xffffff;
 const BORDER = 0x5cb8ef;
 const PADDING_X = 34;
 
-/** The instruction bubble above the board (「えらんだ ネタを シャリの うえに のせてね!」). */
+/**
+ * A white pill with a one-line instruction, centred in its area (e.g. ② 「えらんだ ネタを シャリの
+ * うえに のせてね!」 above the board, ⑤ above the two pictures). The text shrinks to fit.
+ */
 export class Instruction {
   private readonly panel: Phaser.GameObjects.Graphics;
   private readonly text: RichText;

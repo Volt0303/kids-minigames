@@ -123,6 +123,12 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 97 | `atlases/ui/ribbon-pink.png` | *(prompt to be added)* — 「かんせいず」 ribbon in game ④ | 2026-10-07 |
 | 98 | `atlases/ui/bubble-cloud.png` | *(prompt to be added)* — guide speech bubble in game ④; painted-in checkerboard removed (tolerance 75) | 2026-10-07 |
 | 99 | `atlases/characters/starfish-pink.png` | *(prompt to be added)* — decoration by game ④'s hint panel | 2026-10-07 |
+| 100 | `games/diff/start-background.png` | *(prompt to be added)* | 2026-10-07 |
+| 101 | `games/diff/start-title.png` | *(prompt to be added)* — 「間違い探し」 logo | 2026-10-07 |
+| 102 | `games/diff/header-title.png` | *(prompt to be added)* — 「間違い探し」 logo | 2026-10-07 |
+| 103 | `games/diff/backdrop.png` | *(prompt to be added)* | 2026-10-07 |
+| 104 | `games/diff/picture-sea.png` | Empty sunny sea scene for the spot-the-difference pictures: sky with clouds, a small palm island and seagulls; water line at about 25%; clear underwater sea with light rays and bubbles; sand from about 82%; no fish or characters, no text, no frame. 3:2. | 2026-10-08 |
+| 105 | `atlases/sushi/big-table.png` | One large, empty wooden sushi serving board (geta-style table) seen from the front and above, light honey wood with a glossy top, darker front edge, two short legs; nothing on it; plain white background. 3:2. | 2026-10-08 |
 
 ### Client-provided character
 

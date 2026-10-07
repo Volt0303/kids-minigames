@@ -1,6 +1,7 @@
 import type { GameScene, GameSetup } from '../core/scenes/GameScene';
 import { DEMO_GAME_SCENE_KEY, DemoGameScene } from '../scenes/DemoGameScene';
 import { FIND_FISH_SCENE_KEY, FindFishScene } from './findfish/FindFishScene';
+import { DIFF_SCENE_KEY, DiffScene } from './diff/DiffScene';
 import { OCEAN_SCENE_KEY, OceanScene } from './ocean/OceanScene';
 import { ORDER_SCENE_KEY, OrderScene } from './order/OrderScene';
 import { PUZZLE_SCENE_KEY, PuzzleScene } from './puzzle/PuzzleScene';
@@ -28,6 +29,7 @@ export function createGameScene(id: GameId | undefined, title: string): GameEntr
     case 'puzzle':
       return { key: PUZZLE_SCENE_KEY, scene: new PuzzleScene(setup) };
     case 'diff':
+      return { key: DIFF_SCENE_KEY, scene: new DiffScene(setup) };
     case undefined:
       return { key: DEMO_GAME_SCENE_KEY, scene: new DemoGameScene(setup) };
   }

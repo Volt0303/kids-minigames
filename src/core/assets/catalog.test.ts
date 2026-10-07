@@ -39,7 +39,9 @@ describe('sprite catalog', () => {
 describe('game art', () => {
   it('knows which games have which pictures', () => {
     expect(hasGameArt('findfish', 'start-title')).toBe(true);
-    expect(hasGameArt('diff', 'start-title')).toBe(false);
+    expect(hasGameArt('diff', 'start-title')).toBe(true);
+    expect(hasGameArt('diff', 'field')).toBe(false);
+    expect(hasGameArt('diff', 'picture-sea')).toBe(true);
     expect(hasGameArt(undefined, 'backdrop')).toBe(false);
   });
 

@@ -57,6 +57,8 @@ export const ATLASES = {
     /** Fish-shaped serving dish (⑥ 注文のお手伝い). */
     'platter-fish': sprite('さかなのおさら', 900, 330),
     plate: sprite('おさら', 380, 130),
+    /** Big empty wooden board, the table of ⑤ 間違い探し's sushi picture. */
+    'big-table': sprite('テーブル', 960, 640),
   },
   trash: {
     can: sprite('あきかん', 150, 230),
@@ -132,6 +134,7 @@ export type SpriteName<A extends AtlasName> = keyof (typeof ATLASES)[A] & string
  * - backdrop:         full-screen picture behind the game screen (JPEG)
  * - field:            picture inside the play area's frame (JPEG)
  * - bottom-wave:      wave band along the bottom of the game screen, transparent (PNG)
+ * - picture-sea:      empty sea scene inside ⑤ 間違い探し's picture frames (JPEG)
  * A game shows the plain look for any file it does not list here.
  */
 export const GAME_ART_FILES = [
@@ -141,6 +144,7 @@ export const GAME_ART_FILES = [
   'backdrop',
   'field',
   'bottom-wave',
+  'picture-sea',
 ] as const;
 
 export type GameArtFile = (typeof GAME_ART_FILES)[number];
@@ -150,6 +154,7 @@ export const GAME_ART = {
   order: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
   ocean: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
   puzzle: ['start-background', 'start-title', 'header-title', 'backdrop'],
+  diff: ['start-background', 'start-title', 'header-title', 'backdrop', 'picture-sea'],
   sushi: ['start-background', 'start-title', 'header-title', 'backdrop', 'bottom-wave'],
 } as const satisfies Record<string, readonly GameArtFile[]>;
 
@@ -164,7 +169,9 @@ export function hasGameArt(game: string | undefined, file: GameArtFile): game is
 
 /** File extension after the build: transparent pictures stay PNG, the rest become JPEG. */
 export function gameArtExtension(file: GameArtFile): 'png' | 'jpg' {
-  return file === 'backdrop' || file === 'start-background' || file === 'field' ? 'jpg' : 'png';
+  return file === 'backdrop' || file === 'start-background' || file === 'field' || file === 'picture-sea'
+    ? 'jpg'
+    : 'png';
 }
 
 /** Phaser texture key of a game's picture. */
