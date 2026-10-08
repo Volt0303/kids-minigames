@@ -92,3 +92,35 @@ describe('secondsLeft', () => {
     expect(secondsLeft(startFlow(STAGES))).toBe(60);
   });
 });
+
+describe('spending time (e.g. a hint button)', () => {
+  it('takes the time off the clock and restarts the hint clock', () => {
+    const { state, effects } = run([
+      { type: 'tick', dtMs: 7_000 },
+      { type: 'spend', ms: 5_000 },
+    ]);
+    expect(state.remainingMs).toBe(48_000);
+    expect(state.sinceProgressMs).toBe(0);
+    expect(effects).toEqual([]);
+  });
+
+  it('never ends the stage: stops at one second, and leaves a lower clock alone', () => {
+    expect(
+      run([
+        { type: 'tick', dtMs: 57_000 },
+        { type: 'spend', ms: 5_000 },
+      ]).state.remainingMs,
+    ).toBe(1_000);
+    const low = run([
+      { type: 'tick', dtMs: 59_500 },
+      { type: 'spend', ms: 5_000 },
+    ]).state;
+    expect(low.remainingMs).toBe(500);
+    expect(low.status).toBe('playing');
+  });
+
+  it('does nothing between stages', () => {
+    const cleared = run([{ type: 'correct' }, { type: 'correct' }, { type: 'correct' }]).state;
+    expect(reduceFlow(cleared, { type: 'spend', ms: 5_000 }).state).toBe(cleared);
+  });
+});

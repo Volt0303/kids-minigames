@@ -17,7 +17,7 @@ const containsPoint = (circle: Phaser.Geom.Circle, x: number, y: number): boolea
 
 /**
  * The green 「ヒント」 panel from the design: a light bulb, the 「ヒント」 pill, the explanation
- * and the round blue eye button that shows the finished picture on the board.
+ * and the round blue eye button that shows where a piece goes.
  * Lays itself out in a row, or stacked when the panel is tall (wide screen).
  */
 export class HintPanel {
@@ -45,7 +45,7 @@ export class HintPanel {
     );
     this.text.setContent([
       [{ text: 'むずかしい ときは、ヒントボタンで' }],
-      [{ text: 'えの かたちを みることが できるよ!' }],
+      [{ text: 'ピースを おく ばしょが わかるよ!' }],
     ]);
     this.button = this.makeButton(scene, onTap);
   }

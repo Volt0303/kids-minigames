@@ -29,17 +29,3 @@ export const PEN_CIRCLE: readonly number[] = buildPenCircle();
 
 /** Number of points in PEN_CIRCLE. */
 export const PEN_CIRCLE_LENGTH = PEN_CIRCLE.length / 2;
-
-/**
- * Points of a star / sparkle of radius 1 with `tips` points (inner radius `inner`), first tip
- * up, as a flat list x0, y0, x1, y1…
- */
-export function starPoints(tips: number, inner: number): number[] {
-  const points: number[] = [];
-  for (let i = 0; i < tips * 2; i++) {
-    const r = i % 2 === 0 ? 1 : inner;
-    const angle = -Math.PI / 2 + (i * Math.PI) / tips;
-    points.push(r * Math.cos(angle), r * Math.sin(angle));
-  }
-  return points;
-}

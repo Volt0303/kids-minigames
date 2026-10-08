@@ -2,7 +2,7 @@ import type * as Phaser from 'phaser';
 import { puzzleKey, type PuzzleName } from '../../core/assets/puzzles';
 import { rect, type Rect } from '../../core/logic/rect';
 import { POP_FONT_FAMILY } from '../../core/ui/theme';
-import { BLUE_LABEL, LabelPicture, PINK_LABEL, RIBBON } from './LabelPicture';
+import { BLUE_LABEL, LabelPicture, PINK_LABEL, RIBBON } from '../../core/ui/LabelPicture';
 import { LABEL_SPACE, RIBBON_SPACE, TOP_ROW } from './logic/board';
 
 /** Warm, rich yellow panel (the board mat stays light so the picture reads well). */

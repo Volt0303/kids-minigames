@@ -73,6 +73,11 @@ export class Header {
     this.status.setSecondsLeft(seconds);
   }
 
+  /** Shows that `seconds` were taken off the clock (e.g. for a hint). */
+  showTimeLoss(seconds: number): void {
+    this.status.showLoss(seconds);
+  }
+
   setScore(done: number, goal: number): void {
     this.score.setScore(done, goal);
   }

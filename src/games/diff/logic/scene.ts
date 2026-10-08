@@ -28,13 +28,12 @@ export interface Item {
   on?: number;
 }
 
-/** How the right picture differs from the left at one item. */
+/**
+ * How the right picture differs from the left at one item: gone, turned round, a different
+ * kind of thing, or (nigiri) a different topping. Never only a colour change.
+ */
 export type Change =
-  | { kind: 'hide' }
-  | { kind: 'swap'; frame: string }
-  | { kind: 'tint'; color: number }
-  | { kind: 'flip' }
-  | { kind: 'sushi'; to: SushiKind };
+  { kind: 'hide' } | { kind: 'swap'; frame: string } | { kind: 'flip' } | { kind: 'sushi'; to: SushiKind };
 
 export interface Difference {
   /** Index of the changed item in the item list. */
@@ -64,14 +63,9 @@ export interface Round {
   differences: readonly Difference[];
 }
 
-/** Tints that show clearly on light things. */
-export const BLUE = 0x7fc8ff;
-export const PINK = 0xff8a8a;
-
 export const HIDE: Change = { kind: 'hide' };
 export const FLIP: Change = { kind: 'flip' };
 export const swap = (frame: string): Change => ({ kind: 'swap', frame });
-export const tint = (color: number): Change => ({ kind: 'tint', color });
 export const toSushi = (to: SushiKind): Change => ({ kind: 'sushi', to });
 export const vary = (item: number, ...changes: Change[]): Variation => ({ item, changes });
 
@@ -105,7 +99,7 @@ export const lying = (item: Item): Item => ({ ...item, flat: true });
 export const on = (parent: number, item: Item): Item => ({ ...item, on: parent });
 
 /** Nigiri on the sushi table, as a share of its width. */
-const NIGIRI_WIDTH = 0.16;
+const NIGIRI_WIDTH = 0.145;
 
 /** A nigiri standing on item `parent`: centre x and bottom y across it. */
 export const nigiri = (kind: SushiKind, parent: number, x: number, y: number): Item => ({

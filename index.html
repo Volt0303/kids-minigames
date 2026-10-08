@@ -68,11 +68,13 @@
         justify-content: center;
         background: #dcf2ff;
         z-index: 1;
-        transition: opacity 0.2s ease-out;
       }
+      /* Fades out when a screen is ready, but comes back at once: fading in would let the
+         empty game area (plain light blue, the previous screen already gone) show through. */
       #loading.hidden {
         opacity: 0;
         pointer-events: none;
+        transition: opacity 0.2s ease-out;
       }
       #loading .backdrop {
         position: absolute;

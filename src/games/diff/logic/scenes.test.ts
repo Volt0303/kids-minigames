@@ -16,7 +16,6 @@ function fits(item: Item, change: Change): boolean {
       return item.sushi !== undefined && change.to !== item.sushi;
     case 'swap':
       return item.sushi === undefined && exists(item.atlas, change.frame) && change.frame !== item.frame;
-    case 'tint':
     case 'flip':
       return item.sushi === undefined;
   }
@@ -34,7 +33,7 @@ describe('scenes', () => {
     }
   });
 
-  it('use only sprites that exist, inside the picture, standing only on earlier plain items', () => {
+  it('use only sprites that exist, inside the picture, standing only on earlier items (e.g. wasabi on a dish on the table)', () => {
     for (const { scene } of all) {
       scene.items.forEach((item, i) => {
         expect(exists(item.atlas, item.frame), `${item.atlas}/${item.frame}`).toBe(true);
@@ -44,7 +43,6 @@ describe('scenes', () => {
         expect(item.y).toBeLessThan(1);
         if (item.on === undefined) return;
         expect(item.on).toBeLessThan(i);
-        expect(scene.items[item.on]?.on).toBeUndefined();
       });
     }
   });

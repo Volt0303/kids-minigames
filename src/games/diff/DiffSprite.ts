@@ -15,7 +15,7 @@ export interface Box {
 
 /**
  * One item of a 間違い探し picture: a plain picture, or a whole nigiri (rice and topping as
- * one piece, so they always line up). Nigiri cannot be tinted or flipped.
+ * one piece, so they always line up). Nigiri cannot be flipped.
  */
 export class DiffSprite {
   private readonly image: Phaser.GameObjects.Image;
@@ -37,7 +37,7 @@ export class DiffSprite {
    * too (its place is still needed, e.g. for things standing on it) but not shown.
    */
   setUp(item: Item, change: Change | undefined): { width: number; height: number } {
-    this.image.setVisible(false).clearTint();
+    this.image.setVisible(false);
     this.nigiri.setVisible(false);
     const shown = item.sushi ? this.setUpNigiri(item.sushi, change) : this.setUpImage(item, change);
     this.shown = change?.kind === 'hide' ? undefined : shown.setVisible(true);
@@ -51,7 +51,6 @@ export class DiffSprite {
   private setUpImage(item: Item, change: Change | undefined): Phaser.GameObjects.Image {
     const frame = change?.kind === 'swap' ? change.frame : item.frame;
     this.image.setTexture(atlasKey(item.atlas), frame);
-    if (change?.kind === 'tint') this.image.setTint(change.color);
     return this.image.setFlipX((item.flip ?? false) !== (change?.kind === 'flip'));
   }
 

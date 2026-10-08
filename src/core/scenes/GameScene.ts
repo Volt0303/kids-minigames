@@ -142,6 +142,18 @@ export abstract class GameScene extends LayoutScene {
     this.feedback.wrong(target);
   }
 
+  /**
+   * Takes time off the stage clock (e.g. for a hint button) and shows it on the timer. Never
+   * ends the stage (see stageFlow). Returns the seconds actually taken.
+   */
+  protected spendTime(ms: number): number {
+    const before = secondsLeft(this.flow);
+    this.apply(reduceFlow(this.flow, { type: 'spend', ms }));
+    const spent = before - secondsLeft(this.flow);
+    if (spent > 0) this.ui.showTimeLoss(spent);
+    return spent;
+  }
+
   /** True while the child can act (not during clear banners). */
   protected get isPlaying(): boolean {
     return this.flow.status === 'playing';

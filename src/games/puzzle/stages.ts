@@ -10,6 +10,9 @@ export interface PuzzleStage extends StageConfig {
   picture: PuzzleName;
 }
 
+/** Time the hint button takes off the stage clock. */
+export const HINT_COST_MS = 5_000;
+
 const stage = (picture: PuzzleName): PuzzleStage => ({ goal: pieceCount(picture), durationMs: 60_000, picture });
 
 export const STAGES: readonly PuzzleStage[] = [

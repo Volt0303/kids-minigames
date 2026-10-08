@@ -4,7 +4,9 @@ import { atlasKey } from '../../core/assets/catalog';
 import { rect, type Rect } from '../../core/logic/rect';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import type { HintTarget } from '../../core/ui/HintMarker';
-import { Instruction } from '../../core/ui/Instruction';
+import { LabelPicture, PINK_LABEL } from '../../core/ui/LabelPicture';
+import { RichText } from '../../core/ui/RichText';
+import { POP_FONT_FAMILY } from '../../core/ui/theme';
 import { DIFF_COPY, INSTRUCTION } from './copy';
 import { DiffPicture } from './DiffPicture';
 import { hitSpot, spots, type Spot } from './logic/spots';
@@ -39,7 +41,7 @@ export class DiffScene extends GameScene {
   private right!: DiffPicture;
   private miss!: MissMark;
   private bar!: StarBar;
-  private instruction!: Instruction;
+  private instruction!: LabelPicture;
   private starfish!: Phaser.GameObjects.Image;
   private starfishY = 0;
   private round: Round = makeRound(FIRST_STAGE.scenes, FIRST_STAGE.goal, Math.random);
@@ -64,7 +66,16 @@ export class DiffScene extends GameScene {
     this.left = new DiffPicture(this);
     this.right = new DiffPicture(this);
     this.bar = new StarBar(this);
-    this.instruction = new Instruction(this, INSTRUCTION);
+    // White rounded letters with a dark-pink outline on the glossy pink label.
+    const words = new RichText(this, {
+      fontFamily: POP_FONT_FAMILY,
+      fontStyle: '800',
+      fontSize: '56px',
+      color: '#ffffff',
+      stroke: '#c2185b',
+      strokeThickness: 8,
+    }).setContent(INSTRUCTION);
+    this.instruction = new LabelPicture(this, PINK_LABEL, words, 6);
     this.starfish = this.add.image(0, 0, atlasKey('characters'), 'starfish-pink').setDepth(30).setAngle(STARFISH_ANGLE);
     this.miss = new MissMark(this);
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => this.onTap(pointer.worldX, pointer.worldY));
@@ -83,7 +94,7 @@ export class DiffScene extends GameScene {
     // The instruction on top (wide screens: beside the star bar, the height goes to the pictures),
     // two pictures side by side, the star bar centred under them.
     const wide = field.width > field.height * WIDE_FIELD;
-    const instructionHeight = wide ? 0 : Math.min(84, field.height * 0.11);
+    const instructionHeight = wide ? 0 : Math.min(104, field.height * 0.13);
     const barHeight = Math.min(110, field.height * 0.14);
     const top = field.y + (wide ? MARGIN : instructionHeight + MARGIN);
     const pictures = rect(
@@ -103,9 +114,11 @@ export class DiffScene extends GameScene {
     this.bar.layout(rect(barX, barY, barWidth, barHeight));
     if (wide) {
       const x = barX + barWidth + MARGIN * 2;
-      this.instruction.layout(rect(x, barY, Math.min(field.x + field.width - MARGIN - x, barWidth * 1.1), barHeight));
+      const maxWidth = Math.min(field.x + field.width - MARGIN - x, barWidth * 1.2);
+      this.instruction.place({ x, y: barY - barHeight * 0.1, height: barHeight * 1.2, maxWidth });
     } else {
-      this.instruction.layout(rect(field.x + MARGIN, field.y, field.width - MARGIN * 2, instructionHeight));
+      const x = field.x + field.width / 2;
+      this.instruction.place({ x, y: field.y, height: instructionHeight, maxWidth: field.width * 0.8, centre: true });
     }
     // The pink starfish waves from just left of the star bar.
     const size = barHeight * 1.35;

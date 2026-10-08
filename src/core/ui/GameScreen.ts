@@ -161,6 +161,11 @@ export class GameScreen {
     this.header.setStage(index, total);
   }
 
+  /** Shows that `seconds` were taken off the clock (e.g. for a hint). */
+  showTimeLoss(seconds: number): void {
+    this.header.showTimeLoss(seconds);
+  }
+
   setProgress(done: number, goal: number, secondsLeft: number): void {
     this.header.setScore(done, goal);
     this.header.setSecondsLeft(secondsLeft);

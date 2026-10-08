@@ -1,9 +1,10 @@
 /**
  * The sea scenes of 間違い探し (stages 1 and 2). Fish swim below the water line (about 25% of
  * the picture), things on the floor stand in the sand (from about 82%). Flips are only offered
- * for things that look different when turned (not crabs, octopuses, bubbles or shells).
+ * for things that look different when turned (not crabs, octopuses, bubbles or shells), and
+ * changes are never just a colour: a thing is gone, turned, or a different kind of thing.
  */
-import { BLUE, FLIP, HIDE, PINK, facingRight, fish, lying, scenery, swap, tint, vary, type Scene } from './scene';
+import { FLIP, HIDE, facingRight, fish, lying, scenery, swap, vary, type Scene } from './scene';
 
 /** Stage 1: 3 easy differences. */
 export const SEA_EASY: readonly Scene[] = [
@@ -24,7 +25,7 @@ export const SEA_EASY: readonly Scene[] = [
       vary(6, HIDE),
       vary(3, swap('striped-orange'), FLIP, HIDE),
       vary(4, FLIP, swap('sea-bream')),
-      vary(5, HIDE, tint(PINK)),
+      vary(5, HIDE, swap('sea-bream')),
       vary(7, HIDE),
       vary(2, swap('coral-2')),
     ],
@@ -46,7 +47,7 @@ export const SEA_EASY: readonly Scene[] = [
       vary(3, HIDE),
       vary(4, FLIP),
       vary(5, swap('yellow-tropical'), HIDE),
-      vary(6, HIDE, tint(BLUE)),
+      vary(6, HIDE, swap('starfish')),
       vary(7, HIDE),
       vary(1, HIDE),
     ],
@@ -65,7 +66,7 @@ export const SEA_EASY: readonly Scene[] = [
       scenery('bubble', 0.45, 0.3, 0.07),
     ],
     variations: [
-      vary(3, tint(BLUE), HIDE),
+      vary(3, swap('squid'), HIDE),
       vary(4, HIDE, FLIP),
       vary(5, swap('yellow-tropical'), FLIP),
       vary(6, HIDE),
@@ -95,10 +96,10 @@ export const SEA_FULL: readonly Scene[] = [
       vary(6, HIDE),
       vary(4, swap('salmon'), FLIP),
       vary(3, FLIP),
-      vary(0, tint(BLUE)),
-      vary(5, HIDE, tint(BLUE)),
+      vary(0, swap('coral-1')),
+      vary(5, HIDE, swap('squid')),
       vary(7, HIDE),
-      vary(2, tint(PINK)),
+      vary(2, swap('rock-1')),
     ],
   },
   // Big fish: a tuna and a squid, a flatfish on the sand.
@@ -118,10 +119,10 @@ export const SEA_FULL: readonly Scene[] = [
     ],
     variations: [
       vary(3, swap('bonito'), FLIP),
-      vary(4, HIDE, tint(PINK)),
+      vary(4, HIDE, swap('octopus')),
       vary(5, HIDE),
       vary(6, swap('blue-tropical'), HIDE),
-      vary(7, FLIP, tint(BLUE)),
+      vary(7, FLIP, swap('striped-orange')),
       vary(8, HIDE),
       vary(9, HIDE),
       vary(1, swap('coral-2')),
@@ -147,9 +148,9 @@ export const SEA_FULL: readonly Scene[] = [
       vary(4, swap('yellow-tropical'), HIDE),
       vary(5, swap('sea-bream'), FLIP),
       vary(6, HIDE),
-      vary(7, HIDE, tint(BLUE)),
+      vary(7, HIDE, swap('shell')),
       vary(8, HIDE),
-      vary(2, tint(BLUE)),
+      vary(2, swap('coral-1')),
       vary(9, HIDE),
     ],
   },

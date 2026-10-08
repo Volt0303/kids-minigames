@@ -11,7 +11,7 @@ export const DIFF_COPY: GameCopy = {
   praise: { title: 'せいかい!', line: 'よく みつけたね!' },
 };
 
-/** The one-line instruction above the two pictures. */
+/** The one-line instruction on the pink label above the two pictures (white, タップ in yellow). */
 export const INSTRUCTION: RichLines = [
-  [{ text: 'ふたつの えで ちがう ところを ' }, { text: 'タップ', color: COLORS.action }, { text: 'してね!' }],
+  [{ text: 'ふたつの えで ちがう ところを ' }, { text: 'タップ', color: '#fff36b' }, { text: 'してね!' }],
 ];

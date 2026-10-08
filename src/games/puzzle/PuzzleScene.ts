@@ -16,11 +16,12 @@ import { atlasKey } from '../../core/assets/catalog';
 import { Character } from '../../core/ui/Character';
 import { GUIDE_LINES, PRAISE_LINES, PUZZLE_COPY } from './copy';
 import { HintPanel } from './HintPanel';
+import { PieceGuide } from './PieceGuide';
 import { PuzzlePanels } from './PuzzlePanels';
 import { SpeechBubble } from './SpeechBubble';
 import { planPuzzle, slotCentres, snaps, trayPlaces, type Point, type PuzzleLayout } from './logic/board';
 import { PuzzleBoard } from './PuzzleBoard';
-import { STAGES, type PuzzleStage } from './stages';
+import { HINT_COST_MS, STAGES, type PuzzleStage } from './stages';
 
 export const PUZZLE_SCENE_KEY = 'Puzzle';
 
@@ -59,8 +60,8 @@ interface Piece {
 /**
  * ④ おさかなパズル: a picture is cut into pieces; the child drags each piece from the tray onto
  * the board, where it snaps into its slot when dropped near it, and otherwise slides back to
- * the tray. The finished picture is always shown beside the board; the eye button shows it
- * on the board itself for a moment.
+ * the tray. The finished picture is always shown beside the board; the eye (hint) button
+ * shows where one piece goes, and takes HINT_COST_MS off the clock.
  */
 export class PuzzleScene extends GameScene {
   protected readonly stages = STAGES;
@@ -68,6 +69,7 @@ export class PuzzleScene extends GameScene {
   private readonly pieces: Piece[] = [];
   private board!: PuzzleBoard;
   private hintPanel!: HintPanel;
+  private pieceGuide!: PieceGuide;
   private panels!: PuzzlePanels;
   private bubble!: SpeechBubble;
   /** げんきくん (absent in builds without the guide character). */
@@ -95,9 +97,8 @@ export class PuzzleScene extends GameScene {
     this.input.dragDistanceThreshold = DRAG_THRESHOLD;
     this.panels = new PuzzlePanels(this);
     this.board = new PuzzleBoard(this);
-    this.hintPanel = new HintPanel(this, () => {
-      if (this.isPlaying && !this.isPaused) this.board.revealPicture();
-    });
+    this.hintPanel = new HintPanel(this, () => this.useHint());
+    this.pieceGuide = new PieceGuide(this);
     this.bubble = new SpeechBubble(this, GUIDE_LINES);
     this.guide = this.hasGuide
       ? new Character(this, { texture: atlasKey('characters'), frame: 'guide' }, 8)
@@ -129,6 +130,7 @@ export class PuzzleScene extends GameScene {
   protected startStage(index: number): void {
     this.stage = STAGES[index] ?? this.stage;
     const name = this.stage.picture;
+    this.pieceGuide.hide();
     this.board.show(name);
     this.panels.show(name);
     const order = shuffle(
@@ -178,6 +180,7 @@ export class PuzzleScene extends GameScene {
     if (!field) return;
     const plan = planPuzzle(field, PUZZLE_SIZE);
     this.plan = plan;
+    this.pieceGuide.hide();
     this.panels.layout(plan);
     this.board.layout(plan.board);
     this.hintPanel.layout(plan.hintPanel);
@@ -203,6 +206,7 @@ export class PuzzleScene extends GameScene {
 
   private onDragStart(piece: Piece): void {
     if (piece.placed || !this.plan) return;
+    this.pieceGuide.hide();
     this.tweens.killTweensOf(piece.image);
     // Full size while dragged, so the child sees how it fits.
     piece.image.setDepth(DRAG_DEPTH).setScale(this.plan.scale);
@@ -233,6 +237,23 @@ export class PuzzleScene extends GameScene {
       ease: 'Sine.easeOut',
       onComplete: () => image.setDepth(PIECE_DEPTH),
     });
+  }
+
+  /** The hint button: shows where one piece still in the tray goes, for some time off the clock. */
+  private useHint(): void {
+    const plan = this.plan;
+    if (!plan || !this.isPlaying || this.isPaused || this.pieceGuide.active) return;
+    const piece = this.pieces.find((p) => p.image.visible && !p.placed && p.image.depth !== DRAG_DEPTH);
+    const slot = piece && this.slots[piece.index];
+    if (!piece || !slot) return;
+    this.pieceGuide.show({
+      texture: piece.image.texture.key,
+      from: piece.home,
+      trayScale: this.trayScale,
+      to: slot,
+      boardScale: plan.scale,
+    });
+    this.spendTime(HINT_COST_MS);
   }
 
   /** げんきくん's 「やったね」 pose and 「ぴったり!」 in his bubble. */

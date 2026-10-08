@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PEN_CIRCLE, PEN_CIRCLE_LENGTH, starPoints } from './penCircle';
+import { PEN_CIRCLE, PEN_CIRCLE_LENGTH } from './penCircle';
 
 const point = (i: number): [number, number] => [PEN_CIRCLE[i * 2] ?? NaN, PEN_CIRCLE[i * 2 + 1] ?? NaN];
 
@@ -21,15 +21,5 @@ describe('PEN_CIRCLE', () => {
     const [ex, ey] = point(PEN_CIRCLE_LENGTH - 1);
     expect(Math.hypot(ex, ey)).toBeLessThan(Math.hypot(sx, sy));
     expect(Math.atan2(ey, ex)).not.toBeCloseTo(Math.atan2(sy, sx));
-  });
-});
-
-describe('starPoints', () => {
-  it('alternates tips on radius 1 and inner corners', () => {
-    const points = starPoints(4, 0.3);
-    expect(points).toHaveLength(16);
-    for (let i = 0; i < 8; i++) {
-      expect(Math.hypot(points[i * 2] ?? 0, points[i * 2 + 1] ?? 0)).toBeCloseTo(i % 2 === 0 ? 1 : 0.3);
-    }
   });
 });

@@ -8,7 +8,7 @@ import { FoundMark } from './FoundMark';
 import type { Change, Difference, Item, Setting } from './stages';
 
 /** Most items in a picture. */
-const POOL_SIZE = 14;
+const POOL_SIZE = 16;
 /** An item is at most this share of the picture's width, unless it says otherwise. */
 const MAX_WIDTH = 0.3;
 /** Items keep this far (design units) inside the picture's frame. */
@@ -20,6 +20,9 @@ const SPOT_SCALE = 0.65;
 const MIN_SPOT = 0.09;
 /** Most differences in a stage (one circle each). */
 const MAX_MARKS = 5;
+/** Circles keep this far inside the picture, and shrink at most to this share near an edge. */
+const MARK_INSET = 10;
+const MIN_MARK = 0.6;
 
 /**
  * One of the two pictures of 間違い探し: a background, the scene's sprites (with the stage's
@@ -146,8 +149,15 @@ export class DiffPicture {
     return [x, y];
   }
 
-  /** A circle's centre and radius on screen. */
+  /**
+   * A circle's centre and radius on screen. Near an edge the circle gets smaller so it stays
+   * inside the frame (never below MIN_MARK of its size: then it may touch the frame).
+   */
   private markAt(a: Rect, spot: Spot): [number, number, number] {
-    return [a.x + a.width * spot.x, a.y + a.height * spot.y, a.height * spot.radius];
+    const x = a.x + a.width * spot.x;
+    const y = a.y + a.height * spot.y;
+    const room = Math.min(x - a.x, a.x + a.width - x, y - a.y, a.y + a.height - y) - MARK_INSET;
+    const radius = a.height * spot.radius;
+    return [x, y, Math.max(radius * MIN_MARK, Math.min(radius, room))];
   }
 }

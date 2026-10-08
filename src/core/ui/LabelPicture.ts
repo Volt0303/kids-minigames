@@ -1,5 +1,6 @@
-import type * as Phaser from 'phaser';
-import { atlasKey } from '../../core/assets/catalog';
+import * as Phaser from 'phaser';
+import { atlasKey } from '../assets/catalog';
+import { RichText } from './RichText';
 
 const UI = atlasKey('ui');
 
@@ -16,7 +17,7 @@ export interface LabelShape {
   tail?: { x: number; y: number };
 }
 
-/** The pictures of ④'s labels (the user's art): blue pill with a tail, pink pill with sparks, the ribbon. */
+/** The label pictures in the ui atlas (the user's art): blue pill with a tail, pink pill with sparks, the ribbon. */
 export const BLUE_LABEL: LabelShape = {
   frame: 'label-blue',
   leftCap: 0.1,
@@ -43,13 +44,23 @@ export class LabelPicture {
   constructor(
     scene: Phaser.Scene,
     private readonly shape: LabelShape,
-    private readonly text: Phaser.GameObjects.Text,
+    private readonly text: Phaser.GameObjects.Text | RichText,
     depth: number,
   ) {
     this.picture = scene.add.nineslice(0, 0, UI, shape.frame).setOrigin(0).setDepth(depth);
     const { width, height } = this.picture.frame;
     this.picture.setSlices(width, height, width * shape.leftCap, width * shape.rightCap, 0, 0);
-    text.setOrigin(0.5).setDepth(depth + 1);
+    // Rich text is already centred on its position.
+    if (text instanceof Phaser.GameObjects.Text) text.setOrigin(0.5);
+    text.setDepth(depth + 1);
+  }
+
+  /** The text's size before scaling. */
+  private get textSize(): { width: number; height: number } {
+    const text = this.text;
+    return text instanceof RichText
+      ? { width: text.textWidth, height: text.textHeight }
+      : { width: text.width, height: text.height };
   }
 
   /** Where the tail's tip is, from the label's top-left corner, when the label is `height` tall. */
@@ -68,11 +79,9 @@ export class LabelPicture {
     const frame = this.picture.frame;
     const scale = at.height / frame.height;
     const caps = frame.width * (this.shape.leftCap + this.shape.rightCap) * scale;
-    const textScale = Math.min(
-      (at.height * this.shape.textShare) / this.text.height,
-      (at.maxWidth - caps) / this.text.width,
-    );
-    const width = Math.min(at.maxWidth, Math.max(caps * 1.4, this.text.width * textScale + caps));
+    const size = this.textSize;
+    const textScale = Math.min((at.height * this.shape.textShare) / size.height, (at.maxWidth - caps) / size.width);
+    const width = Math.min(at.maxWidth, Math.max(caps * 1.4, size.width * textScale + caps));
     const x = at.centre ? at.x - width / 2 : at.x;
     this.picture
       .setSize(width / scale, frame.height)

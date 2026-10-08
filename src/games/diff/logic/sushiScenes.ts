@@ -1,18 +1,26 @@
 /**
  * The sushi-table scenes of 間違い探し (stage 3): a big table (item 0) with three rows on it.
- * Rows: back (bottom at 0.32 of the table), middle (0.55), front (0.77) — the front edge of
- * the table top is at about 0.79.
+ * Rows: back (bottom at 0.28 of the table), middle (0.49), front (0.69) — the front edge of
+ * the table top is at about 0.79, so the front row keeps a strip of wood in front of it.
+ * Wasabi and ginger sit on small dishes (the dish is the item just before them).
  */
-import { HIDE, PINK, BLUE, nigiri, on, prop, sushi, tint, toSushi, vary, type Item, type Scene } from './scene';
+import { HIDE, nigiri, on, prop, sushi, swap, toSushi, vary, type Item, type Scene } from './scene';
 
 const TABLE: Item = { ...sushi('big-table', 0.5, 0.58, 0.9), maxWidth: 0.96 };
-const BACK = 0.32;
-const MIDDLE = 0.55;
-const FRONT = 0.77;
+const BACK = 0.28;
+const MIDDLE = 0.49;
+const FRONT = 0.69;
+/** Small dish under wasabi / ginger, as a share of the table's width. */
+const DISH = 0.18;
+
+/** A small dish on the table, bottom at y. */
+const dish = (x: number, y: number): Item => on(0, sushi('plate', x, y, DISH));
+/** `frame` (wasabi, ginger) on the dish at item `parent`. */
+const onDish = (parent: number, frame: string): Item => on(parent, prop(frame, 0.5, 0.66, 0.64));
 
 /** Stage 3: 5 differences. */
 export const SUSHI_TABLE: readonly Scene[] = [
-  // Sushi in two rows, condiments on the right and in front.
+  // Sushi in two rows, tea and soy on the right, plates in front.
   {
     setting: 'sushi',
     items: [
@@ -25,9 +33,11 @@ export const SUSHI_TABLE: readonly Scene[] = [
       nigiri('ikura', 0, 0.4, MIDDLE),
       nigiri('shrimp', 0, 0.61, MIDDLE),
       on(0, prop('soy-dish', 0.82, MIDDLE - 0.02, 0.15)),
-      on(0, sushi('plate', 0.24, FRONT, 0.22)),
-      on(0, prop('ginger', 0.5, FRONT, 0.12)),
-      on(0, prop('wasabi', 0.73, FRONT, 0.1)),
+      dish(0.22, FRONT),
+      onDish(9, 'wasabi'),
+      on(0, sushi('plate', 0.5, FRONT, 0.22)),
+      dish(0.78, FRONT),
+      onDish(12, 'ginger'),
     ],
     variations: [
       vary(1, toSushi('egg'), toSushi('salmon')),
@@ -37,9 +47,9 @@ export const SUSHI_TABLE: readonly Scene[] = [
       vary(6, toSushi('shrimp'), HIDE),
       vary(7, HIDE, toSushi('egg')),
       vary(8, HIDE),
-      vary(9, tint(PINK), HIDE),
       vary(10, HIDE),
-      vary(11, HIDE),
+      vary(11, swap('platter-fish'), HIDE),
+      vary(13, HIDE),
     ],
   },
   // Tea and soy on the left, the plate in the middle at the front.
@@ -55,9 +65,11 @@ export const SUSHI_TABLE: readonly Scene[] = [
       nigiri('octopus', 0, 0.39, MIDDLE),
       nigiri('shrimp', 0, 0.6, MIDDLE),
       nigiri('ikura', 0, 0.81, MIDDLE),
-      on(0, prop('wasabi', 0.27, FRONT, 0.1)),
+      dish(0.24, FRONT),
+      onDish(9, 'wasabi'),
       on(0, sushi('plate', 0.5, FRONT, 0.22)),
-      on(0, prop('ginger', 0.76, FRONT, 0.12)),
+      dish(0.76, FRONT),
+      onDish(12, 'ginger'),
     ],
     variations: [
       vary(1, HIDE),
@@ -68,9 +80,9 @@ export const SUSHI_TABLE: readonly Scene[] = [
       vary(6, toSushi('egg')),
       vary(7, HIDE, toSushi('salmon')),
       vary(8, toSushi('tuna')),
-      vary(9, HIDE),
-      vary(10, tint(BLUE)),
-      vary(11, HIDE),
+      vary(10, HIDE),
+      vary(11, swap('platter-fish')),
+      vary(13, HIDE),
     ],
   },
   // Condiments at the back, two rows of sushi and a plate in front.
@@ -80,8 +92,10 @@ export const SUSHI_TABLE: readonly Scene[] = [
       TABLE,
       on(0, prop('teacup', 0.15, BACK, 0.11)),
       on(0, prop('soy-dish', 0.38, BACK - 0.02, 0.15)),
-      on(0, prop('ginger', 0.6, BACK - 0.02, 0.12)),
-      on(0, prop('wasabi', 0.8, BACK - 0.02, 0.1)),
+      dish(0.6, BACK - 0.02),
+      onDish(3, 'ginger'),
+      dish(0.82, BACK - 0.02),
+      onDish(5, 'wasabi'),
       nigiri('tuna', 0, 0.2, MIDDLE),
       nigiri('engawa', 0, 0.4, MIDDLE),
       nigiri('egg', 0, 0.6, MIDDLE),
@@ -94,15 +108,15 @@ export const SUSHI_TABLE: readonly Scene[] = [
     variations: [
       vary(1, HIDE),
       vary(2, HIDE),
-      vary(3, HIDE),
       vary(4, HIDE),
-      vary(5, toSushi('salmon'), toSushi('egg')),
-      vary(6, toSushi('octopus')),
-      vary(7, HIDE, toSushi('tuna')),
-      vary(9, HIDE),
-      vary(10, toSushi('shrimp')),
-      vary(11, toSushi('octopus'), HIDE),
-      vary(12, tint(PINK)),
+      vary(6, HIDE),
+      vary(7, toSushi('salmon'), toSushi('egg')),
+      vary(8, toSushi('octopus')),
+      vary(9, HIDE, toSushi('tuna')),
+      vary(11, HIDE),
+      vary(12, toSushi('shrimp')),
+      vary(13, toSushi('octopus'), HIDE),
+      vary(14, swap('platter-fish')),
     ],
   },
 ];
