@@ -24,9 +24,18 @@ const TITLE_MAX_WIDTH = 1600;
 /** Loading-screen mascot: shown 170 px tall, so 512 px is sharp on any tablet. */
 const MASCOT_SIZE = 512;
 
+/** Screen-filling pictures should be drawn for the widest screen (32:9 = 3.56), centre safe area 16:9. */
+const WIDE_ASPECT = 32 / 9;
+const SCREEN_FILLING = new Set(['start-background', 'backdrop', 'field']);
+
 function report(label, target, info) {
   const kb = Math.round(statSync(target).size / 1024);
-  return `${label.padEnd(30)} ${info.width}x${info.height}  ${kb} KB`;
+  const file = label.split('/').pop();
+  const narrow =
+    SCREEN_FILLING.has(file) && info.width / info.height < WIDE_ASPECT * 0.97
+      ? `  ← narrow (${(info.width / info.height).toFixed(2)}:1): blurred sides on the 32:9 screen; widen to 32:9`
+      : '';
+  return `${label.padEnd(30)} ${info.width}x${info.height}  ${kb} KB${narrow}`;
 }
 
 async function convert(label, source, target) {

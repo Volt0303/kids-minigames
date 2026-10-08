@@ -37,11 +37,18 @@ export interface PuzzleLayout {
 }
 
 const GAP = 24;
-/** Room inside a panel for its label pill (top) and padding. */
-export const LABEL_SPACE = 70;
 const PAD = 22;
-/** Room under the finished picture for the 「かんせいず」 ribbon. */
-export const RIBBON_SPACE = 90;
+/**
+ * Both panels' labels sit LABEL_TOP below the panel's top edge and are LABEL_HEIGHT tall; the
+ * board and the finished picture start LABEL_GAP below them, so the two panels line up.
+ */
+export const LABEL_TOP = 16;
+export const LABEL_HEIGHT = 66;
+const LABEL_GAP = 22;
+/** The finished picture's white mat (each side), and the 「かんせいず」 ribbon below it. */
+export const PREVIEW_MAT = 12;
+export const RIBBON_GAP = 16;
+export const RIBBON_HEIGHT = 96;
 /** Fields wider than this (width / height) use the wide arrangement. */
 const WIDE = 3;
 /** The standard arrangement is at most this wide relative to its height (centred). */
@@ -54,8 +61,8 @@ function fitPicture(area: Rect, picture: { width: number; height: number }): { b
   return { box: rect(fit.x - width / 2, fit.y - height / 2, width, height), scale: fit.scale };
 }
 
-/** The yellow panel's top row, holding its label. */
-export const TOP_ROW = LABEL_SPACE + 22;
+/** The panels' top row, holding the label. */
+export const TOP_ROW = LABEL_TOP + LABEL_HEIGHT + LABEL_GAP;
 /** Space between the board and the tray strip below it. */
 const TRAY_GAP = 50;
 
@@ -71,20 +78,17 @@ function puzzleParts(
   return { board: box, scale, tray };
 }
 
-/** The finished picture is shown a little smaller than the board, so the board stands out. */
-const PREVIEW_SHARE = 0.85;
-
+/**
+ * The finished picture in the pink panel: the same size as the board and level with it (top
+ * edges in line), centred across the panel, with the 「かんせいず」 ribbon below it. Narrower or
+ * shorter only when the panel has no room for that.
+ */
 function previewPart(panel: Rect, picture: { width: number; height: number }, board: Rect): Rect {
-  const full = rect(
-    panel.x + PAD,
-    panel.y + LABEL_SPACE,
-    panel.width - PAD * 2,
-    panel.height - LABEL_SPACE - RIBBON_SPACE - PAD,
-  );
-  const width = Math.min(full.width, board.width * PREVIEW_SHARE);
-  const height = Math.min(full.height, board.height * PREVIEW_SHARE);
-  const area = rect(full.x + (full.width - width) / 2, full.y + (full.height - height) / 2, width, height);
-  return fitPicture(area, picture).box;
+  const below = rect(panel.x + PAD, board.y, panel.width - PAD * 2, panel.y + panel.height - PAD - board.y);
+  const width = Math.min(below.width - PREVIEW_MAT * 2, board.width);
+  const height = Math.min(below.height - PREVIEW_MAT - RIBBON_GAP - RIBBON_HEIGHT, board.height);
+  const { box } = fitPicture(rect(0, 0, width, height), picture);
+  return rect(below.x + (below.width - box.width) / 2, board.y, box.width, box.height);
 }
 
 function standard(field: Rect, picture: { width: number; height: number }): PuzzleLayout {

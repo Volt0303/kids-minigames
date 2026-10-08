@@ -3,7 +3,7 @@ import { puzzleKey, type PuzzleName } from '../../core/assets/puzzles';
 import { rect, type Rect } from '../../core/logic/rect';
 import { POP_FONT_FAMILY } from '../../core/ui/theme';
 import { BLUE_LABEL, LabelPicture, PINK_LABEL, RIBBON } from '../../core/ui/LabelPicture';
-import { LABEL_SPACE, RIBBON_SPACE, TOP_ROW } from './logic/board';
+import { LABEL_HEIGHT, LABEL_TOP, PREVIEW_MAT, RIBBON_GAP, RIBBON_HEIGHT } from './logic/board';
 
 /** Warm, rich yellow panel (the board mat stays light so the picture reads well). */
 const YELLOW = { fill: 0xffdf8a, edge: 0xf2a922, inner: 0xfff3d0 };
@@ -12,8 +12,6 @@ const SHADOW = { color: 0x9a5a00, alpha: 0.28, offset: 10 };
 const PINK = { fill: 0xfde4ee, edge: 0xf6a5c0 };
 const TRAY = { fill: 0xffeab0, edge: 0xe9a43a };
 const RADIUS = 30;
-/** Space between the label's tail and the board's corner. */
-const LABEL_GAP = 22;
 /** Behind the board, the pieces and everything else in the field. */
 const DEPTH = -30;
 const font = (size: number): Phaser.Types.GameObjects.Text.TextStyle => ({
@@ -73,27 +71,29 @@ export class PuzzlePanels {
     g.lineStyle(6, YELLOW.edge).strokeRoundedRect(mat.x, mat.y, mat.width, mat.height, 20);
     g.fillStyle(TRAY.fill).fillRoundedRect(parts.tray.x, parts.tray.y, parts.tray.width, parts.tray.height, 22);
     g.lineStyle(4, TRAY.edge).strokeRoundedRect(parts.tray.x, parts.tray.y, parts.tray.width, parts.tray.height, 22);
-    const labelHeight = TOP_ROW - 12;
-    // The label's tail points at the board picture's top-left corner, from a little above it.
-    const tail = this.puzzleLabel.tailOffset(labelHeight);
+    // The label in the panel's top row, its left edge in line with the board's mat (its tail
+    // points down at the board).
+    const panel = parts.puzzlePanel;
     this.puzzleLabel.place({
-      x: parts.board.x - tail.x - LABEL_GAP * 0.4,
-      y: parts.board.y - tail.y - LABEL_GAP,
-      height: labelHeight,
-      maxWidth: parts.puzzlePanel.x + parts.puzzlePanel.width - parts.board.x,
+      x: mat.x,
+      y: panel.y + LABEL_TOP,
+      height: LABEL_HEIGHT,
+      maxWidth: panel.x + panel.width - mat.x - 22,
     });
 
     this.panel(g, parts.previewPanel, PINK.fill, PINK.edge);
+    // Same height as the yellow panel's label, centred over the finished picture.
     this.previewLabel.place({
       x: parts.previewPanel.x + parts.previewPanel.width / 2,
-      y: parts.previewPanel.y + 4,
-      height: LABEL_SPACE - 4,
-      maxWidth: parts.previewPanel.width - 30,
+      y: parts.previewPanel.y + LABEL_TOP,
+      height: LABEL_HEIGHT,
+      maxWidth: parts.previewPanel.width - 44,
       centre: true,
     });
     const p = parts.preview;
-    g.fillStyle(0xffffff).fillRoundedRect(p.x - 10, p.y - 10, p.width + 20, p.height + 20, 18);
-    g.lineStyle(6, YELLOW.edge).strokeRoundedRect(p.x - 10, p.y - 10, p.width + 20, p.height + 20, 18);
+    const m = PREVIEW_MAT;
+    g.fillStyle(0xffffff).fillRoundedRect(p.x - m, p.y - m, p.width + m * 2, p.height + m * 2, 18);
+    g.lineStyle(6, YELLOW.edge).strokeRoundedRect(p.x - m, p.y - m, p.width + m * 2, p.height + m * 2, 18);
     this.preview.setPosition(p.x, p.y).setDisplaySize(p.width, p.height);
     this.ribbon(parts.previewPanel, p);
   }
@@ -104,14 +104,13 @@ export class PuzzlePanels {
     g.lineStyle(6, edge).strokeRoundedRect(area.x, area.y, area.width, area.height, RADIUS);
   }
 
-  /** The 「かんせいず」 ribbon under the finished picture. */
+  /** The 「かんせいず」 ribbon a little below the finished picture's mat, centred under it. */
   private ribbon(panel: Rect, picture: Rect): void {
-    const height = RIBBON_SPACE + 10;
     this.ribbonLabel.place({
-      x: panel.x + panel.width / 2,
-      y: picture.y + picture.height + 4,
-      height,
-      maxWidth: Math.min(panel.width - 40, picture.width * 0.95),
+      x: picture.x + picture.width / 2,
+      y: picture.y + picture.height + PREVIEW_MAT + RIBBON_GAP,
+      height: RIBBON_HEIGHT,
+      maxWidth: Math.min(panel.width - 44, picture.width * 0.9),
       centre: true,
     });
   }

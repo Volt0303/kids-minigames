@@ -10,8 +10,12 @@ import type { TrashKind } from './stages';
 const TRASH = atlasKey('trash');
 /** Most pieces at once (stage 3's trash on screen, plus pieces still flying away). */
 const POOL_SIZE = 8;
-/** Trash is this tall, as a share of the field's height (its catalog size caps it). */
-const HEIGHT_SHARE = 0.19;
+/**
+ * All trash is drawn at one scale, so pieces keep their real sizes relative to each other
+ * (catalog sizes): a PET bottle (REFERENCE units tall) is this share of the field's height.
+ */
+const HEIGHT_SHARE = 0.25;
+const REFERENCE = 340;
 /** Depth in front of the fish, or behind them (stage 3). */
 const FRONT_DEPTH = -5;
 const BEHIND_DEPTH = -15;
@@ -82,7 +86,7 @@ export class TrashLayer {
   /** Sizes a piece for the field, with a tap area of at least the minimum touch size. */
   private fit(piece: Trash, field: Rect): void {
     const image = piece.image;
-    const scale = Math.min(1, (field.height * HEIGHT_SHARE) / image.frame.height);
+    const scale = (field.height * HEIGHT_SHARE) / REFERENCE;
     image.setScale(scale);
     const halfWidth = Math.max((image.frame.width * scale) / 2 + TAP_PADDING, MIN_TAP / 2) / scale;
     const halfHeight = Math.max((image.frame.height * scale) / 2 + TAP_PADDING, MIN_TAP / 2) / scale;

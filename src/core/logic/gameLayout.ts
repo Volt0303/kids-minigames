@@ -18,6 +18,11 @@
  * rises into a space kept free under the cards, so it is large enough to see.
  *
  * The header's three areas are sized from their contents (see headerLayout.ts).
+ *
+ * The 16:9 layout (the 1920×1080 device) is the base for every screen: on wider screens (the
+ * 32:9 main device) the header, field and cards keep exactly that width and structure,
+ * centred, with the backdrop filling the rest; narrower screens (16:10) use their full width.
+ * SIDE_MARGIN is always kept free at the left and right, so the header lines up with the field.
  */
 import { inset, rect, split, type Rect } from './rect';
 import type { Viewport } from './viewport';
@@ -47,6 +52,10 @@ export interface GameRegions {
 export const HEADER_HEIGHT = 200;
 export const MESSAGE_HEIGHT = 150;
 export const MARGIN = 24;
+/** Kept free at the screen's left and right edges in every game (design units). */
+export const SIDE_MARGIN = 48;
+/** The base screen shape: content is never wider than a 16:9 screen (minus the side margins). */
+export const BASE_ASPECT = 16 / 9;
 /** Padding between a bar's border and the things inside it. */
 export const BAR_PADDING = 12;
 const BUBBLE_WIDTH = 470;
@@ -55,8 +64,8 @@ export const GUIDE_RISE = 130;
 /** Guide character width relative to its height. */
 const GUIDE_ASPECT = 0.72;
 
-/** Field width relative to the card column (weight 1), so the cards keep a similar size on every screen. */
-const FIELD_WEIGHT = { wide: 5.6, standard: 2.7 } as const;
+/** Field width relative to the card column (weight 1): the 16:9 proportions, on every screen. */
+const FIELD_WEIGHT = 2.7;
 /** Prompt card is taller than the how-to card. */
 const CARD_WEIGHTS = [3, 2] as const;
 
@@ -90,23 +99,26 @@ function messageRow(
   return { deco, mascot, footer, bubble, guide };
 }
 
+/** The horizontal band the game's content uses: a 16:9 screen at most, minus the side margins, centred. */
+export function contentBand(viewport: Viewport): { x: number; width: number } {
+  const { designWidth, designHeight } = viewport;
+  const width = Math.min(designWidth, designHeight * BASE_ASPECT) - SIDE_MARGIN * 2;
+  return { x: (designWidth - width) / 2, width };
+}
+
 /** `withGuide`: false for games without the guide character; the cards then use the full column. */
 export function gameRegions(
   viewport: Viewport,
   withGuide = true,
   cardWeights: readonly [number, number] = CARD_WEIGHTS,
 ): GameRegions {
-  const { designWidth: width, designHeight: height } = viewport;
-  const header = inset(rect(0, 0, width, HEADER_HEIGHT), MARGIN / 2);
-  const message = inset(rect(0, height - MESSAGE_HEIGHT, width, MESSAGE_HEIGHT), MARGIN / 2);
-  const body = rect(
-    MARGIN / 2,
-    HEADER_HEIGHT + MARGIN / 2,
-    width - MARGIN,
-    height - HEADER_HEIGHT - MESSAGE_HEIGHT - MARGIN,
-  );
+  const height = viewport.designHeight;
+  const { x, width } = contentBand(viewport);
+  const header = rect(x, MARGIN / 2, width, HEADER_HEIGHT - MARGIN);
+  const message = rect(x, height - MESSAGE_HEIGHT + MARGIN / 2, width, MESSAGE_HEIGHT - MARGIN);
+  const body = rect(x, HEADER_HEIGHT + MARGIN / 2, width, height - HEADER_HEIGHT - MESSAGE_HEIGHT - MARGIN);
 
-  const [field, cards] = parts(body, 'horizontal', [FIELD_WEIGHT[viewport.mode], 1], MARGIN);
+  const [field, cards] = parts(body, 'horizontal', [FIELD_WEIGHT, 1], MARGIN);
   const cardColumn = rect(cards.x, cards.y, cards.width, cards.height - (withGuide ? GUIDE_RISE : 0));
   const [prompt, howTo] = parts(cardColumn, 'vertical', cardWeights, MARGIN);
 
@@ -115,8 +127,9 @@ export function gameRegions(
 
 /** The open layout: the header, and the field filling the rest of the screen. */
 export function openRegions(viewport: Viewport): Pick<GameRegions, 'header' | 'field'> {
-  const { designWidth: width, designHeight: height } = viewport;
-  const header = inset(rect(0, 0, width, HEADER_HEIGHT), MARGIN / 2);
-  const field = rect(MARGIN / 2, HEADER_HEIGHT + MARGIN / 2, width - MARGIN, height - HEADER_HEIGHT - MARGIN);
+  const height = viewport.designHeight;
+  const { x, width } = contentBand(viewport);
+  const header = rect(x, MARGIN / 2, width, HEADER_HEIGHT - MARGIN);
+  const field = rect(x, HEADER_HEIGHT + MARGIN / 2, width, height - HEADER_HEIGHT - MARGIN);
   return { header, field };
 }

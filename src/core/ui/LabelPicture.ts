@@ -13,8 +13,6 @@ export interface LabelShape {
   textY: number;
   /** Text height as a share of the picture's height. */
   textShare: number;
-  /** Tip of the label's tail (if it has one), as shares of the picture (inside the left cap). */
-  tail?: { x: number; y: number };
 }
 
 /** The label pictures in the ui atlas (the user's art): blue pill with a tail, pink pill with sparks, the ribbon. */
@@ -22,8 +20,8 @@ export const BLUE_LABEL: LabelShape = {
   frame: 'label-blue',
   leftCap: 0.1,
   rightCap: 0.08,
-  textY: 0.44,
-  textShare: 0.5,
+  textY: 0.43,
+  textShare: 0.6,
 };
 export const PINK_LABEL: LabelShape = {
   frame: 'label-pink',
@@ -61,14 +59,6 @@ export class LabelPicture {
     return text instanceof RichText
       ? { width: text.textWidth, height: text.textHeight }
       : { width: text.width, height: text.height };
-  }
-
-  /** Where the tail's tip is, from the label's top-left corner, when the label is `height` tall. */
-  tailOffset(height: number): { x: number; y: number } {
-    const frame = this.picture.frame;
-    const scale = height / frame.height;
-    const tail = this.shape.tail ?? { x: 0, y: 1 };
-    return { x: frame.width * tail.x * scale, y: frame.height * tail.y * scale };
   }
 
   /**

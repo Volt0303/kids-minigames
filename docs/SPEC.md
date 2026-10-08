@@ -138,7 +138,8 @@ plate or conveyor; they move to the tray. Wrong sushi wobble. Orders repeat unti
   1080 px-high screen.
 - Shared sprite library: about 14 fish/sea creatures, rice + 8 toppings + battleship sushi, 6 trash items, scenery,
   UI elements, 6 app icons (512 × 512 plus adaptive icon layers).
-- Backgrounds built in layers (gradient + tileable strip + decorations) so they fit every aspect ratio.
+- Full-screen backgrounds are drawn once for the widest screen (32:9), with everything important inside the
+  centre 16:9 area; narrower screens show the centre and cut the sides evenly. One picture fits all three devices.
 - Audio: about 12 sound effects, 1–2 BGM loops, voice lines **[TBC]**. Font: a rounded Japanese font under the SIL OFL.
 - Every asset, font and library is recorded in `docs/LICENSES.md`.
 

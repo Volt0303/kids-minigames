@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gameRegions } from './gameLayout';
+import { contentBand, gameRegions, BASE_ASPECT, openRegions, SIDE_MARGIN } from './gameLayout';
 import type { Rect } from './rect';
 import { computeViewport, type Viewport } from './viewport';
 
@@ -104,4 +104,58 @@ describe.each<[string, Viewport]>([
 it('keeps the card column a similar width on every screen', () => {
   const widths = [main, sub1, sub2].map((vp) => gameRegions(vp).prompt.width);
   expect(Math.max(...widths) / Math.min(...widths)).toBeLessThan(1.4);
+});
+
+describe('content band (side margins, balanced width on the 32:9 screen)', () => {
+  it('keeps the same margin at both sides on the standard screens', () => {
+    for (const viewport of [sub1, sub2]) {
+      const band = contentBand(viewport);
+      expect(band.x).toBeCloseTo(SIDE_MARGIN);
+      expect(band.x + band.width).toBeCloseTo(viewport.designWidth - SIDE_MARGIN);
+    }
+  });
+
+  it('uses the 16:9 width on the wide screen, centred, so it matches the 1920×1080 layout', () => {
+    const band = contentBand(main);
+    const base = contentBand(sub2);
+    expect(band.width).toBeCloseTo(base.width);
+    expect(band.x * 2 + band.width).toBeCloseTo(main.designWidth);
+    expect(band.width).toBeCloseTo(main.designHeight * BASE_ASPECT - SIDE_MARGIN * 2);
+  });
+
+  it('gives the wide screen the same header, field and cards as the 1920×1080 screen', () => {
+    const shift = contentBand(main).x - contentBand(sub2).x;
+    const a = gameRegions(main);
+    const b = gameRegions(sub2);
+    for (const key of ['header', 'field', 'prompt', 'howTo', 'message'] as const) {
+      expect(a[key].x - shift).toBeCloseTo(b[key].x);
+      expect(a[key].width).toBeCloseTo(b[key].width);
+      expect(a[key].height).toBeCloseTo(b[key].height);
+    }
+  });
+
+  it('holds every region of both layouts inside the band', () => {
+    for (const viewport of [main, sub1, sub2]) {
+      const band = contentBand(viewport);
+      const g = gameRegions(viewport);
+      const open = openRegions(viewport);
+      const regions = [
+        g.header,
+        g.field,
+        g.prompt,
+        g.howTo,
+        g.message,
+        g.footer,
+        g.bubble,
+        g.guide,
+        open.header,
+        open.field,
+      ];
+      for (const r of regions) {
+        if (!r) continue;
+        expect(r.x).toBeGreaterThanOrEqual(band.x - 0.01);
+        expect(r.x + r.width).toBeLessThanOrEqual(band.x + band.width + 0.01);
+      }
+    }
+  });
 });

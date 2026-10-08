@@ -1,5 +1,6 @@
 import type * as Phaser from 'phaser';
-import { tileBackground } from '../logic/backgroundTiling';
+import { paintBackground } from '../display/paintBackground';
+import { fitBackground } from '../logic/backgroundFit';
 import type { Rect } from '../logic/rect';
 
 /** Behind the frame, the bubbles and the fish. */
@@ -10,10 +11,10 @@ const MAX_TEXTURE = 4096;
 let nextId = 0;
 
 /**
- * The play field's picture with rounded corners. The picture is drawn once per layout
- * (not per frame) into its own texture through a rounded clip, so the corners are truly
- * transparent and whatever is behind the field (a full-screen backdrop or the page colour)
- * shows through them. Tiling follows the same rules as Background (tileBackground).
+ * A background picture filling a rectangle (the play field with rounded corners, or the whole
+ * screen with none). It is drawn once per layout (not per frame) into its own texture through
+ * a rounded clip, so the corners are truly transparent. How the picture fits any screen shape:
+ * logic/backgroundFit (cut evenly at the sides; a too-narrow picture is centred whole).
  */
 export class FieldPicture {
   private readonly key = `field-picture-${nextId++}`;
@@ -24,7 +25,13 @@ export class FieldPicture {
     private readonly scene: Phaser.Scene,
     private readonly sourceKey: string,
     private readonly radius: number,
+    private readonly depth = DEPTH,
   ) {}
+
+  /** False when the picture failed to load; whatever is behind shows instead. */
+  get available(): boolean {
+    return this.scene.textures.exists(this.sourceKey);
+  }
 
   layout(area: Rect): void {
     if (!this.scene.textures.exists(this.sourceKey)) return;
@@ -44,24 +51,11 @@ export class FieldPicture {
     ctx.save();
     roundedPath(ctx, width, height, this.radius * pixels);
     ctx.clip();
-    for (const tile of tileBackground(
-      { x: 0, y: 0, width: area.width, height: area.height },
-      source.width,
-      source.height,
-    )) {
-      ctx.save();
-      ctx.translate((tile.x - tile.width / 2) * pixels, 0);
-      if (tile.flip) {
-        ctx.translate(tile.width * pixels, 0);
-        ctx.scale(-1, 1);
-      }
-      ctx.drawImage(source, 0, 0, tile.width * pixels, height);
-      ctx.restore();
-    }
+    paintBackground(ctx, source, fitBackground(area, source), { width, height });
     ctx.restore();
     texture.refresh();
 
-    this.image ??= this.scene.add.image(0, 0, this.key).setOrigin(0).setDepth(DEPTH);
+    this.image ??= this.scene.add.image(0, 0, this.key).setOrigin(0).setDepth(this.depth);
     this.image.setPosition(area.x, area.y).setDisplaySize(area.width, area.height);
   }
 

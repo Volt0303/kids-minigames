@@ -18,6 +18,8 @@ const FLAT = 0.6;
 /** A difference's spot is a little larger than its picture. */
 const SPOT_SCALE = 0.65;
 const MIN_SPOT = 0.09;
+/** Every tap circle is at least this wide, in design units (1080 = screen height): spec 6.6, 13%+. */
+const MIN_TAP = 150;
 /** Most differences in a stage (one circle each). */
 const MAX_MARKS = 5;
 /** Circles keep this far inside the picture, and shrink at most to this share near an edge. */
@@ -93,7 +95,8 @@ export class DiffPicture {
     const item = this.items[index];
     if (!a || !box || !item) return item ? spotOf(item) : undefined;
     const radius = (Math.max(box.width, box.height) * SPOT_SCALE) / a.height;
-    return { x: (box.x - a.x) / a.width, y: (box.y - a.y) / a.height, radius: Math.max(MIN_SPOT, radius) };
+    const minimum = Math.max(MIN_SPOT, MIN_TAP / 2 / a.height);
+    return { x: (box.x - a.x) / a.width, y: (box.y - a.y) / a.height, radius: Math.max(minimum, radius) };
   }
 
   private draw(): void {

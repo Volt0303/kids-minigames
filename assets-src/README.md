@@ -47,6 +47,14 @@ Game ids: `ocean` ① · `sushi` ② · `findfish` ③ · `puzzle` ④ · `diff`
 An atlas sprite without a file is drawn as a labelled placeholder; a game without its own start screen or
 backdrop shows the plain light-blue look. So art can be added one file at a time.
 
+### Screen-filling pictures (start-background, backdrop, field)
+
+- Draw them **32:9** (e.g. 3840×1080; at least 1080 px tall), the main device's shape.
+- Keep everything important (title space, characters, focal point) inside the **centre 16:9** area: the 16:10
+  and 16:9 devices show only the centre and cut the sides evenly.
+- A narrower picture still works: it is shown whole in the centre with blurred sides, and `npm run assets`
+  marks it `← narrow`. Widen it by extending its left and right sides (keep the centre unchanged).
+
 ## Requirements
 
 - PNG, sRGB. Atlas sprites on a **transparent or plain light background** (white is best): a plain background

@@ -60,14 +60,19 @@ export const ATLASES = {
     /** Big empty wooden board, the table of ⑤ 間違い探し's sushi picture. */
     'big-table': sprite('テーブル', 960, 640),
   },
+  /**
+   * Sizes in proportion to the real things (① draws them all at one scale): cup about 9 cm,
+   * can 12 cm, PET bottle 21 cm, glass bottle 23 cm, tray 22 cm, bag and net about 40 cm —
+   * the range a little compressed so the smallest stay easy to see and tap.
+   */
   trash: {
-    can: sprite('あきかん', 150, 230),
-    'pet-bottle': sprite('ペットボトル', 130, 320),
-    'plastic-bag': sprite('ビニールぶくろ', 250, 270),
-    'glass-bottle': sprite('びん', 120, 310),
-    'food-tray': sprite('トレー', 270, 150),
-    net: sprite('あみ', 290, 230),
-    'paper-cup': sprite('カップ', 200, 230),
+    can: sprite('あきかん', 125, 205),
+    'pet-bottle': sprite('ペットボトル', 120, 340),
+    'plastic-bag': sprite('ビニールぶくろ', 360, 410),
+    'glass-bottle': sprite('びん', 120, 350),
+    'food-tray': sprite('トレー', 310, 172),
+    net: sprite('あみ', 430, 330),
+    'paper-cup': sprite('カップ', 150, 172),
   },
   props: {
     teacup: sprite('ゆのみ', 170, 190),
