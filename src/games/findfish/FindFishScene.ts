@@ -85,6 +85,9 @@ export class FindFishScene extends GameScene {
   }
 
   protected buildField(): void {
+    // The scene object is reused when the game starts again (back button, long pause): drop
+    // the previous run's objects, which Phaser has already destroyed.
+    this.swimmers.length = 0;
     for (let i = 0; i < POOL_SIZE; i++) {
       const image = this.add.image(0, 0, FISH_TEXTURE, 'tuna').setVisible(false).setDepth(-10);
       const swimmer: Swimmer = { image, direction: 1, row: 0, active: false, found: false };

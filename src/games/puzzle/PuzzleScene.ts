@@ -94,6 +94,9 @@ export class PuzzleScene extends GameScene {
   }
 
   protected buildField(): void {
+    // The scene object is reused when the game starts again (back button, long pause): drop
+    // the previous run's objects, which Phaser has already destroyed.
+    this.pieces.length = 0;
     this.input.dragDistanceThreshold = DRAG_THRESHOLD;
     this.panels = new PuzzlePanels(this);
     this.board = new PuzzleBoard(this);

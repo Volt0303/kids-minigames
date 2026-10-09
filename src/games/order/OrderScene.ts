@@ -84,6 +84,9 @@ export class OrderScene extends GameScene {
   }
 
   protected buildField(): void {
+    // The scene object is reused when the game starts again (back button, long pause): drop
+    // the previous run's objects, which Phaser has already destroyed.
+    this.pieces.length = 0;
     this.table = new Table(this);
     for (let i = 0; i < POOL_SIZE; i++) this.pieces.push(new SushiPiece(this, (piece) => this.onTap(piece)));
     this.ticket = new OrderTicket(this);

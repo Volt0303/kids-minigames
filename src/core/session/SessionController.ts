@@ -37,7 +37,7 @@ export class SessionController {
       platform.onActiveChange((active) =>
         this.dispatch({ type: active ? 'foreground' : 'background', at: Date.now() }),
       ),
-      platform.onBack(() => this.dispatch({ type: 'quit' })),
+      platform.onBack(() => this.dispatch({ type: 'back', at: Date.now() })),
       platform.onRelaunch(() => this.dispatch({ type: 'relaunch', at: Date.now() })),
     ];
     window.addEventListener('pointerdown', this.onInput, { passive: true });

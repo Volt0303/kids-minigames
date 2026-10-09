@@ -1,14 +1,12 @@
-import { loadAtlas, loadGameArt } from '../../core/assets/atlas';
+import { loadAtlas } from '../../core/assets/atlas';
 import { atlasKey } from '../../core/assets/catalog';
 import { sushiArt, type SushiKind } from '../../core/assets/sushi';
 import { shuffle } from '../../core/logic/random';
 import type { Rect } from '../../core/logic/rect';
-import type { Viewport } from '../../core/logic/viewport';
 import { Instruction } from '../../core/ui/Instruction';
 import { GameScene, type GameSetup } from '../../core/scenes/GameScene';
 import { Board } from './Board';
 import { Guide } from './Guide';
-import { BottomWave } from './BottomWave';
 import { INSTRUCTION, SUSHI_COPY } from './copy';
 import { planPuzzle } from './logic/layout';
 import { nextTarget } from './logic/rounds';
@@ -42,7 +40,6 @@ export class SushiPuzzleScene extends GameScene {
   protected readonly stages = STAGES;
 
   private board!: Board;
-  private wave!: BottomWave;
   /** げんきくん (absent in builds without the guide character). */
   private guide?: Guide;
   private tray!: ToppingTray;
@@ -60,6 +57,7 @@ export class SushiPuzzleScene extends GameScene {
     super(SUSHI_PUZZLE_SCENE_KEY, setup, {
       layout: 'open',
       art: 'sushi',
+      waveShare: 0.46,
       copy: SUSHI_COPY,
       icon: { texture: SUSHI, frame: 'topping-salmon' },
     });
@@ -67,12 +65,10 @@ export class SushiPuzzleScene extends GameScene {
 
   protected preloadGame(): void {
     loadAtlas(this.load, 'sushi');
-    loadGameArt(this.load, 'sushi', 'bottom-wave');
   }
 
   protected buildField(): void {
     this.input.dragDistanceThreshold = DRAG_THRESHOLD;
-    this.wave = new BottomWave(this);
     this.board = new Board(this);
     this.tray = new ToppingTray(this, {
       onTap: (card) => this.onTap(card),
@@ -89,8 +85,7 @@ export class SushiPuzzleScene extends GameScene {
     this.guide = this.hasGuide ? new Guide(this) : undefined;
   }
 
-  protected layoutField(field: Rect, viewport: Viewport): void {
-    this.wave.layout(viewport);
+  protected layoutField(field: Rect): void {
     const plan = planPuzzle(field);
     this.board.layout(plan.board);
     this.tray.layout(plan.tray);

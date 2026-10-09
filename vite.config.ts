@@ -4,7 +4,8 @@ import { assetWatch } from './tools/vite-asset-watch.mjs';
 export default defineConfig({
   // Relative paths so the built files load inside the Android app.
   base: './',
-  server: { port: 5173 },
+  // The Android build writes copies of the page under android/; they must not reload the browser.
+  server: { port: 5173, watch: { ignored: ['**/android/**', '**/release/**'] } },
   // Dev only: a saved picture in assets-src/images is rebuilt and the page reloads.
   plugins: [assetWatch()],
   build: {

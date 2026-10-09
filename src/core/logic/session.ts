@@ -3,7 +3,8 @@
  *  1. The player chooses to play or not on the start screen.
  *  2. The app exits itself when the game ends or the player quits.
  *  3. Switching to another app pauses; returning resumes.
- * Plus: idle timeouts, and a fresh start after a long pause or a relaunch.
+ * Plus: idle timeouts, and a fresh start after a long pause or a relaunch. Android's back
+ * button returns from a game to the start screen, and exits from the start screen.
  *
  * Pure reducer: (state, event) -> (next state, effects to perform). No timers,
  * no platform calls — the caller supplies the time and executes the effects.
@@ -14,6 +15,7 @@ export type SessionPhase = 'start' | 'playing' | 'paused' | 'exited';
 export type SessionEvent =
   | { type: 'play'; at: number }
   | { type: 'quit' }
+  | { type: 'back'; at: number }
   | { type: 'finished' }
   | { type: 'input'; at: number }
   | { type: 'tick'; at: number }
@@ -72,6 +74,13 @@ function onInput(state: SessionState, at: number): SessionResult {
   return { state: { ...state, lastInputAt: at }, effects: [] };
 }
 
+/** Back: from the game to the start screen; from the start screen out of the app. */
+function onBack(state: SessionState, at: number): SessionResult {
+  if (state.phase === 'playing') return toStart(at, ['restart']);
+  if (state.phase === 'start') return exit(state);
+  return unchanged(state);
+}
+
 function onTick(state: SessionState, at: number, config: SessionConfig): SessionResult {
   const idle = at - state.lastInputAt;
   if (state.phase === 'start' && idle >= config.startIdleMs) return exit(state);
@@ -98,6 +107,8 @@ function handle(state: SessionState, event: SessionEvent, config: SessionConfig)
     case 'quit':
     case 'finished':
       return exit(state);
+    case 'back':
+      return onBack(state, event.at);
     case 'input':
       return onInput(state, event.at);
     case 'tick':

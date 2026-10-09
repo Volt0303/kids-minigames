@@ -154,3 +154,28 @@ describe('relaunch by the order app (how the game returns, since it is hidden fr
     ).toEqual(['begin-play']);
   });
 });
+
+describe("Android's back button", () => {
+  it('returns from the game to the start screen, with a fresh idle clock', () => {
+    const { state, effects } = run([
+      { type: 'play', at: 1 },
+      { type: 'back', at: 5_000 },
+    ]);
+    expect(effects).toEqual(['begin-play', 'restart']);
+    expect(state.phase).toBe('start');
+    expect(state.lastInputAt).toBe(5_000);
+  });
+
+  it('exits from the start screen', () => {
+    expect(run([{ type: 'back', at: 1 }])).toMatchObject({ state: { phase: 'exited' }, effects: ['exit'] });
+  });
+
+  it('does nothing while paused', () => {
+    const { effects } = run([
+      { type: 'play', at: 1 },
+      { type: 'background', at: 2 },
+      { type: 'back', at: 3 },
+    ]);
+    expect(effects).toEqual(['begin-play', 'pause']);
+  });
+});

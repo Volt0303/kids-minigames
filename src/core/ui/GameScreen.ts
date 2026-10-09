@@ -1,7 +1,7 @@
 import type * as Phaser from 'phaser';
 import { loadAtlas, loadGameArt } from '../assets/atlas';
 import { atlasKey, gameArtKey, hasGameArt, type GameArtFile, type GameArtGame } from '../assets/catalog';
-import { gameRegions, openRegions, type GameRegions } from '../logic/gameLayout';
+import { contentBand, gameRegions, openRegions, type GameRegions } from '../logic/gameLayout';
 import { rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { BACKDROP_DEPTH, Background } from './Background';
@@ -14,6 +14,10 @@ import type { Picture } from './picture';
 import type { Praise } from './PraiseBubble';
 import type { RichLines } from './RichText';
 import { SidePanels, type OwnAreas, type OwnParts } from './SidePanels';
+import { BottomWave } from './BottomWave';
+
+/** Share of the screen's height the bottom wave band covers, unless a game says otherwise. */
+const DEFAULT_WAVE_SHARE = 0.2;
 
 /** The words each game shows around its field. */
 export interface GameCopy {
@@ -30,6 +34,8 @@ export interface GameScreenConfig {
   copy: GameCopy;
   /** The game whose own pictures to use: its backdrop behind everything and its title logo in the header. */
   art?: GameArtGame;
+  /** How much of the screen's height the game's `bottom-wave` band covers (default 0.2). */
+  waveShare?: number;
   /** Rising air bubbles over the background (underwater games). */
   bubbles?: boolean;
   /** Picture before the title. */
@@ -77,6 +83,7 @@ export class GameScreen {
   private readonly bubbles?: Bubbles;
   private readonly header: Header;
   private readonly sides?: SidePanels;
+  private readonly wave?: BottomWave;
   private readonly withGuide: boolean;
   private readonly cardWeights?: readonly [number, number];
 
@@ -86,6 +93,7 @@ export class GameScreen {
     loadAtlas(load, 'characters');
     if (hasGameArt(config.art, 'field')) loadGameArt(load, config.art, 'field');
     if (hasGameArt(config.art, 'backdrop')) loadGameArt(load, config.art, 'backdrop');
+    if (hasGameArt(config.art, 'bottom-wave')) loadGameArt(load, config.art, 'bottom-wave');
     const logo = headerLogo(config.art);
     if (logo) loadGameArt(load, logo.game, logo.file);
   }
@@ -94,6 +102,9 @@ export class GameScreen {
     const open = config.layout === 'open';
     this.backdrop = hasGameArt(config.art, 'backdrop')
       ? new Background(scene, gameArtKey(config.art, 'backdrop'), BACKDROP_DEPTH)
+      : undefined;
+    this.wave = hasGameArt(config.art, 'bottom-wave')
+      ? new BottomWave(scene, gameArtKey(config.art, 'bottom-wave'), config.waveShare ?? DEFAULT_WAVE_SHARE)
       : undefined;
     this.background = hasGameArt(config.art, 'field')
       ? new FieldPicture(scene, gameArtKey(config.art, 'field'), FIELD_RADIUS)
@@ -126,7 +137,8 @@ export class GameScreen {
 
   /** Positions everything; returns the play field for the game's own objects. */
   layout(viewport: Viewport): Rect {
-    this.backdrop?.layout(rect(0, 0, viewport.designWidth, viewport.designHeight));
+    this.backdrop?.layout(rect(0, 0, viewport.designWidth, viewport.designHeight), contentBand(viewport));
+    this.wave?.layout(viewport);
     let regions: Pick<GameRegions, 'header' | 'field'>;
     if (this.sides) {
       const standard = gameRegions(viewport, this.withGuide, this.cardWeights);

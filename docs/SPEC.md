@@ -45,7 +45,8 @@ Implementation (landscape only, system bars hidden, screen kept on):
 | Launch | Standard Android launch intent for the package (no extra parameters). |
 | Start screen | Two large buttons: 「あそぶ」 (play) and 「やめる」 (stop). 「やめる」 exits immediately. No touch for about 30 s → exit. **[TBC: timeout]** |
 | Exit | The app finishes and removes its task (`finishAndRemoveTask`), so the calling app is shown and the game does not stay in the recent-apps list. |
-| Exit triggers | All stages finished (after the clear screen); 「やめる」 on the start screen; close button; hardware back button; no touch for about 90 s during play **[TBC: timeout]**. |
+| Exit triggers | All stages finished (after the clear screen); 「やめる」 on the start screen; close button; Android back button on the start screen; no touch for about 90 s during play **[TBC: timeout]**. |
+| Back button | During play: back to the start screen (the game starts over from あそぶ). On the start screen: exit. |
 | Pause | On switching to another app: game loop, stage timer, hints, spawning and sound stop. |
 | Resume | On return: the game continues from where it stopped. |
 | Relaunch while paused | The game is hidden from the recent-apps list, so being launched again by the order app is how it returns: a paused game **continues where it stopped**. Launching it while it is already in front changes nothing. |

@@ -8,6 +8,7 @@ import { SessionController } from '../session/SessionController';
 import { Background } from '../ui/Background';
 import { ImageButton } from '../ui/ImageButton';
 import { FONT_FAMILY } from '../ui/theme';
+import { contentBand } from '../logic/gameLayout';
 
 export const START_SCENE_KEY = 'Start';
 
@@ -73,7 +74,7 @@ export class StartScene extends LayoutScene {
 
   protected layout(viewport: Viewport): void {
     const { designWidth: width, designHeight: height } = viewport;
-    this.background?.layout(this.screen);
+    this.background?.layout(this.screen, contentBand(viewport));
     const centerX = width / 2;
 
     if (this.logo) {

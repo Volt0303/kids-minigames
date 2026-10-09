@@ -26,7 +26,7 @@ export interface BackgroundFit {
 }
 
 /** At most this share of a picture's height may be cut off; beyond it, the centre layout is used. */
-export const MAX_CROP = 0.2;
+export const MAX_CROP = 0.35;
 
 export function fitBackground(
   area: { width: number; height: number },

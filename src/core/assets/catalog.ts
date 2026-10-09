@@ -156,7 +156,7 @@ export type GameArtFile = (typeof GAME_ART_FILES)[number];
 
 export const GAME_ART = {
   findfish: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
-  order: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
+  order: ['start-background', 'start-title', 'header-title', 'backdrop', 'field', 'bottom-wave'],
   ocean: ['start-background', 'start-title', 'header-title', 'backdrop', 'field'],
   puzzle: ['start-background', 'start-title', 'header-title', 'backdrop'],
   diff: ['start-background', 'start-title', 'header-title', 'backdrop', 'picture-sea'],

@@ -104,6 +104,7 @@ followed by the message below. The atlases in `public/assets/` are built from th
 | 78 | `games/sushi/start-title.png` | *(prompt to be added)* — 「お寿司を完成させよう!」 logo | 2026-10-04 |
 | 79 | `games/sushi/header-title.png` | *(prompt to be added)* — 「お寿司を完成させよう!」 logo | 2026-10-04 |
 | 80 | `games/sushi/bottom-wave.png` | *(prompt to be added)* — wave band behind ②'s tray | 2026-10-04 |
+| 80b | `games/order/bottom-wave.png` | Same picture as row 80 (copied), wave band behind ⑥'s message bar | 2026-10-09 |
 | 81 | `atlases/sushi/rice-plain.png` | *(prompt to be added)* — rice before a topping in game ② | 2026-10-05 |
 | 82 | `atlases/sushi/platter-fish.png` | *(prompt to be added)* — fish-shaped dish in game ⑥ | 2026-10-05 |
 | 83 | `games/ocean/start-background.png` | *(prompt to be added)* | 2026-10-06 |

@@ -22,8 +22,8 @@ export class Background {
     return this.picture.available;
   }
 
-  /** Fills `area` with the picture; never draws outside it. */
-  layout(area: Rect): void {
-    this.picture.layout(area);
+  /** Fills `area` with the picture (sharp across `focus`, blurred towards the sides); never outside it. */
+  layout(area: Rect, focus?: { x: number; width: number }): void {
+    this.picture.layout(area, focus);
   }
 }

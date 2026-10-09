@@ -1,5 +1,6 @@
 import type * as Phaser from 'phaser';
 import { paintBackground } from '../display/paintBackground';
+import { paintFocused } from '../display/paintFocused';
 import { fitBackground } from '../logic/backgroundFit';
 import type { Rect } from '../logic/rect';
 
@@ -33,7 +34,11 @@ export class FieldPicture {
     return this.scene.textures.exists(this.sourceKey);
   }
 
-  layout(area: Rect): void {
+  /**
+   * Fills `area` with the picture. With `focus` (a horizontal band in the same units, e.g. the
+   * game's area) the picture is sharp across the band and softly blurred towards the sides.
+   */
+  layout(area: Rect, focus?: { x: number; width: number }): void {
     if (!this.scene.textures.exists(this.sourceKey)) return;
     const source = this.scene.textures.get(this.sourceKey).getSourceImage() as CanvasImageSource & {
       width: number;
@@ -51,7 +56,11 @@ export class FieldPicture {
     ctx.save();
     roundedPath(ctx, width, height, this.radius * pixels);
     ctx.clip();
-    paintBackground(ctx, source, fitBackground(area, source), { width, height });
+    if (focus) {
+      paintFocused(ctx, source, { width, height }, { x: (focus.x - area.x) * pixels, width: focus.width * pixels });
+    } else {
+      paintBackground(ctx, source, fitBackground(area, source), { width, height });
+    }
     ctx.restore();
     texture.refresh();
 
