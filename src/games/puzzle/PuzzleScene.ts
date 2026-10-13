@@ -211,8 +211,9 @@ export class PuzzleScene extends GameScene {
     if (piece.placed || !this.plan) return;
     this.pieceGuide.hide();
     this.tweens.killTweensOf(piece.image);
-    // Full size while dragged, so the child sees how it fits.
-    piece.image.setDepth(DRAG_DEPTH).setScale(this.plan.scale);
+    // Full size while dragged, so the child sees how it fits. Straight again: picking it up
+    // during the "wrong" wobble stops that wobble before it could straighten the piece.
+    piece.image.setDepth(DRAG_DEPTH).setScale(this.plan.scale).setAngle(0);
   }
 
   private onDrop(piece: Piece): void {
@@ -223,6 +224,8 @@ export class PuzzleScene extends GameScene {
     const size = { width: image.displayWidth, height: image.displayHeight };
     if (this.isPlaying && !this.isPaused && snaps(image, slot, size)) {
       piece.placed = true;
+      this.tweens.killTweensOf(image);
+      image.setAngle(0);
       this.tweens.add({ targets: image, x: slot.x, y: slot.y, duration: SNAP_MS, ease: 'Back.easeOut' });
       image.setDepth(PIECE_DEPTH);
       this.reportCorrect(slot.x, slot.y);
