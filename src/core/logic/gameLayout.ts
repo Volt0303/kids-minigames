@@ -99,6 +99,15 @@ function messageRow(
   return { deco, mascot, footer, bubble, guide };
 }
 
+/**
+ * The game's base area: the whole screen up to 16:9, centred. On the 32:9 main device the space
+ * left and right of it is plain white (client's request); the backdrop fills only this area.
+ */
+export function baseArea(viewport: Viewport): { x: number; width: number } {
+  const width = Math.min(viewport.designWidth, viewport.designHeight * BASE_ASPECT);
+  return { x: (viewport.designWidth - width) / 2, width };
+}
+
 /** The horizontal band the game's content uses: a 16:9 screen at most, minus the side margins, centred. */
 export function contentBand(viewport: Viewport): { x: number; width: number } {
   const { designWidth, designHeight } = viewport;

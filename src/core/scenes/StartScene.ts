@@ -8,7 +8,9 @@ import { SessionController } from '../session/SessionController';
 import { Background } from '../ui/Background';
 import { ImageButton } from '../ui/ImageButton';
 import { FONT_FAMILY } from '../ui/theme';
-import { contentBand } from '../logic/gameLayout';
+import { baseArea } from '../logic/gameLayout';
+import { rect } from '../logic/rect';
+import { SIDE_COLOR } from '../ui/GameScreen';
 
 export const START_SCENE_KEY = 'Start';
 
@@ -53,6 +55,7 @@ export class StartScene extends LayoutScene {
   }
 
   protected build(): void {
+    this.cameras.main.setBackgroundColor(SIDE_COLOR);
     const session = SessionController.of(this.game);
     const backgroundKey = this.artGame && gameArtKey(this.artGame, 'start-background');
     const titleKey = this.artGame && gameArtKey(this.artGame, 'start-title');
@@ -74,7 +77,9 @@ export class StartScene extends LayoutScene {
 
   protected layout(viewport: Viewport): void {
     const { designWidth: width, designHeight: height } = viewport;
-    this.background?.layout(this.screen, contentBand(viewport));
+    // The start picture fills the 16:9 base area; any space beside it stays white.
+    const base = baseArea(viewport);
+    this.background?.layout(rect(base.x, 0, base.width, height));
     const centerX = width / 2;
 
     if (this.logo) {

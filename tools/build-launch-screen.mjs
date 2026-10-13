@@ -84,7 +84,10 @@ async function writeGuide(target) {
 
 async function main() {
   mkdirSync(`${RES}/drawable-nodpi`, { recursive: true });
-  const splashColor = await writeBackdrop(`${RES}/drawable-nodpi/launch_backdrop.jpg`);
+  await writeBackdrop(`${RES}/drawable-nodpi/launch_backdrop.jpg`);
+  // Android 12's system splash fills the whole screen with one colour: white, like the space
+  // beside the game's 16:9 area on the wide screen, so nothing flashes before the backdrop.
+  const splashColor = '#ffffff';
   const guide = await writeGuide(`${RES}/drawable-nodpi/launch_guide.png`);
   writeFileSync(
     `${RES}/values/launch_screen.xml`,

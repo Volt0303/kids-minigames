@@ -1,7 +1,7 @@
 import type * as Phaser from 'phaser';
 import { loadAtlas, loadGameArt } from '../assets/atlas';
 import { atlasKey, gameArtKey, hasGameArt, type GameArtFile, type GameArtGame } from '../assets/catalog';
-import { contentBand, gameRegions, openRegions, type GameRegions } from '../logic/gameLayout';
+import { baseArea, gameRegions, openRegions, type GameRegions } from '../logic/gameLayout';
 import { rect, type Rect } from '../logic/rect';
 import type { Viewport } from '../logic/viewport';
 import { BACKDROP_DEPTH, Background } from './Background';
@@ -18,6 +18,8 @@ import { BottomWave } from './BottomWave';
 
 /** Share of the screen's height the bottom wave band covers, unless a game says otherwise. */
 const DEFAULT_WAVE_SHARE = 0.2;
+/** The space beside the 16:9 base area on wider screens. */
+export const SIDE_COLOR = '#ffffff';
 
 /** The words each game shows around its field. */
 export interface GameCopy {
@@ -99,6 +101,8 @@ export class GameScreen {
   }
 
   constructor(scene: Phaser.Scene, config: GameScreenConfig) {
+    // White beside the base area on screens wider than 16:9 (client's request).
+    scene.cameras.main.setBackgroundColor(SIDE_COLOR);
     const open = config.layout === 'open';
     this.backdrop = hasGameArt(config.art, 'backdrop')
       ? new Background(scene, gameArtKey(config.art, 'backdrop'), BACKDROP_DEPTH)
@@ -137,7 +141,9 @@ export class GameScreen {
 
   /** Positions everything; returns the play field for the game's own objects. */
   layout(viewport: Viewport): Rect {
-    this.backdrop?.layout(rect(0, 0, viewport.designWidth, viewport.designHeight), contentBand(viewport));
+    // The backdrop fills the 16:9 base area; any space beside it (32:9 screen) stays white.
+    const base = baseArea(viewport);
+    this.backdrop?.layout(rect(base.x, 0, base.width, viewport.designHeight));
     this.wave?.layout(viewport);
     let regions: Pick<GameRegions, 'header' | 'field'>;
     if (this.sides) {
