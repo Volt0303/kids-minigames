@@ -2,7 +2,8 @@ import type * as Phaser from 'phaser';
 import type { Rect } from '../logic/rect';
 import { TEXT } from './theme';
 
-const SHOW_MS = 1400;
+/** How long a banner stays before the game moves on (the final one is held longer). */
+export const SHOW_MS = 1400;
 
 /**
  * Large celebratory message over the play field ("クリア！", "ぜんぶクリア！").
@@ -23,13 +24,13 @@ export class Banner {
     this.text.setPosition(area.x + area.width / 2, area.y + area.height / 2);
   }
 
-  /** Shows the message, then calls `onDone` once it has been visible long enough. */
-  show(message: string, onDone: () => void): void {
+  /** Shows the message, then calls `onDone` once it has been visible for `ms`. */
+  show(message: string, onDone: () => void, ms = SHOW_MS): void {
     this.timer?.remove();
     this.shade.setVisible(true);
     this.text.setText(message).setVisible(true).setScale(0.3);
     this.scene.tweens.add({ targets: this.text, scale: 1, duration: 350, ease: 'Back.easeOut' });
-    this.timer = this.scene.time.delayedCall(SHOW_MS, () => {
+    this.timer = this.scene.time.delayedCall(ms, () => {
       this.hide();
       onDone();
     });

@@ -12,7 +12,7 @@ import { planPuzzle } from './logic/layout';
 import { nextTarget } from './logic/rounds';
 import { SideCard } from './SideCard';
 import { STAGES, type SushiPuzzleStage } from './stages';
-import type { ToppingCard } from './ToppingCard';
+import { RETURN_MS, type ToppingCard } from './ToppingCard';
 import { ToppingTray } from './ToppingTray';
 
 export const SUSHI_PUZZLE_SCENE_KEY = 'SushiPuzzle';
@@ -22,6 +22,8 @@ if (!FIRST_STAGE) throw new Error('sushi: no stages defined');
 
 const SUSHI = atlasKey('sushi');
 const PLACE_MS = 320;
+/** A wrong topping's nudge towards the rice (then it slides back: RETURN_MS). */
+const NUDGE_MS = 180;
 /** The finished sushi stays on the board this long before the next order. */
 const NEXT_ORDER_MS = 1_100;
 /** A wrong topping moves this far towards the rice before it slides back (a "no" nudge). */
@@ -50,6 +52,8 @@ export class SushiPuzzleScene extends GameScene {
   private target?: SushiKind;
   /** A topping is moving: further taps wait until it has landed or gone back. */
   private busy = false;
+  /** The finished sushi is on the board (until the next order). */
+  private onRice = false;
   /** Changes with every stage, so a delayed "next order" from an earlier stage does nothing. */
   private round = 0;
 
@@ -94,13 +98,14 @@ export class SushiPuzzleScene extends GameScene {
     this.instruction.layout(plan.instruction);
     this.guide?.layout(plan.guide, plan.bubble);
     // A finished sushi on the board moves with the board.
-    if (this.busy && this.target) this.placeOnRice(this.target, false);
+    if (this.onRice && this.target) this.placeOnRice(this.target, false);
   }
 
   protected startStage(index: number): void {
     this.stage = STAGES[index] ?? this.stage;
     this.round += 1;
     this.busy = false;
+    this.onRice = false;
     this.target = undefined;
     this.tray.setKinds(shuffle(this.stage.choices, Math.random));
     this.newOrder();
@@ -112,6 +117,7 @@ export class SushiPuzzleScene extends GameScene {
 
   private newOrder(): void {
     this.busy = false;
+    this.onRice = false;
     this.board.setRice('plain');
     this.tray.resetPictures();
     this.target = nextTarget(this.stage.choices, this.target, Math.random);
@@ -140,16 +146,32 @@ export class SushiPuzzleScene extends GameScene {
     return this.isPlaying && !this.isPaused && !this.busy && this.target !== undefined;
   }
 
+  /**
+   * Runs `step` after `ms`, unless the stage has changed meanwhile. The game's steps follow
+   * these timers, never an animation's end: an animation that is cut short (e.g. by a touch)
+   * must not leave the game waiting for ever.
+   */
+  private after(ms: number, step: () => void): void {
+    const round = this.round;
+    this.time.delayedCall(ms, () => {
+      if (round === this.round) step();
+    });
+  }
+
   /** The right topping: onto the rice, then the next order. */
   private complete(card: ToppingCard): void {
     this.busy = true;
-    this.placeOnRice(card.kind, true, () => {
+    card.hold(PLACE_MS);
+    this.placeOnRice(card.kind, true);
+    this.after(PLACE_MS, () => {
+      // Exactly in place, even if the flight was interrupted.
+      this.placeOnRice(card.kind, false);
+      this.onRice = true;
       this.doneCard.show(card.kind, 'せいかい!');
       this.guide?.cheer();
       this.reportCorrect(card.picture.x, card.picture.y);
-      const round = this.round;
-      this.time.delayedCall(NEXT_ORDER_MS, () => {
-        if (round === this.round && this.isPlaying) this.newOrder();
+      this.after(NEXT_ORDER_MS, () => {
+        if (this.isPlaying) this.newOrder();
       });
     });
   }
@@ -158,17 +180,15 @@ export class SushiPuzzleScene extends GameScene {
    * Puts the target topping on the rice. The いくら roe lands on the rice and then becomes the
    * gunkan picture (which has its own rice, so the board's rice is hidden).
    */
-  private placeOnRice(kind: SushiKind, animate: boolean, onDone?: () => void): void {
+  private placeOnRice(kind: SushiKind, animate: boolean): void {
     const picture = this.tray.cardFor(kind)?.picture;
     if (!picture) return;
-    const finish = (): void => {
+    this.tweens.killTweensOf(picture);
+    if (!animate) {
       const art = sushiArt(kind);
       const place = this.board.toppingPlace(kind);
-      picture.setFrame(art.top).setPosition(place.x, place.y).setScale(place.scale);
+      picture.setFrame(art.top).setPosition(place.x, place.y).setScale(place.scale).setAngle(0);
       this.board.setRice(art.onRice ? 'topped' : 'gunkan');
-    };
-    if (!animate) {
-      finish();
       return;
     }
     const landing = this.board.landingPlace(kind);
@@ -179,33 +199,31 @@ export class SushiPuzzleScene extends GameScene {
       scale: landing.scale,
       duration: PLACE_MS,
       ease: 'Back.easeOut',
-      onComplete: () => {
-        finish();
-        onDone?.();
-      },
     });
   }
 
   /** A wrong topping: a small nudge towards the rice (when tapped), back to its card, and a wobble. */
   private reject(card: ToppingCard, nudge: boolean): void {
     this.busy = true;
-    const done = (): void => {
-      this.busy = false;
-      this.reportWrong(card.picture);
-    };
-    if (!nudge) {
-      card.goHome(true, done);
-      return;
-    }
-    const place = this.board.toppingPlace(card.kind);
     const picture = card.picture;
-    this.tweens.add({
-      targets: picture,
-      x: picture.x + (place.x - picture.x) * WRONG_NUDGE,
-      y: picture.y + (place.y - picture.y) * WRONG_NUDGE,
-      duration: 180,
-      ease: 'Sine.easeOut',
-      onComplete: () => card.goHome(true, done),
+    const nudgeMs = nudge ? NUDGE_MS : 0;
+    card.hold(nudgeMs + RETURN_MS);
+    if (nudge) {
+      const place = this.board.toppingPlace(card.kind);
+      this.tweens.add({
+        targets: picture,
+        x: picture.x + (place.x - picture.x) * WRONG_NUDGE,
+        y: picture.y + (place.y - picture.y) * WRONG_NUDGE,
+        duration: NUDGE_MS,
+        ease: 'Sine.easeOut',
+      });
+    }
+    this.after(nudgeMs, () => card.goHome(true));
+    this.after(nudgeMs + RETURN_MS, () => {
+      // Exactly home, even if the slide was interrupted; then the child may pick again.
+      card.goHome(false);
+      this.busy = false;
+      this.reportWrong(picture);
     });
   }
 }

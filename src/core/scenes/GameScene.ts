@@ -21,6 +21,10 @@ import type { OwnAreas } from '../ui/SidePanels';
 import { HintMarker, type HintTarget } from '../ui/HintMarker';
 import type { Picture } from '../ui/picture';
 import type { RichLines } from '../ui/RichText';
+import { SHOW_MS } from '../ui/Banner';
+
+/** 「ぜんぶクリア！」 stays this much longer than a stage banner before the app closes. */
+const ALL_CLEAR_EXTRA_MS = 3_000;
 
 /** The stage clock is advanced on a timer, not every frame, to keep per-frame work at zero. */
 const FLOW_TICK_MS = 100;
@@ -208,7 +212,12 @@ export abstract class GameScene extends LayoutScene {
       case 'all-clear':
         this.feedback.clear();
         this.ui.celebrate();
-        this.ui.banner.show('ぜんぶクリア！', () => SessionController.of(this.game).dispatch({ type: 'finished' }));
+        // Held longer before the app closes, so the child sees the game has finished (client's request).
+        this.ui.banner.show(
+          'ぜんぶクリア！',
+          () => SessionController.of(this.game).dispatch({ type: 'finished' }),
+          SHOW_MS + ALL_CLEAR_EXTRA_MS,
+        );
         break;
       case 'stage-start':
         this.enterStage();

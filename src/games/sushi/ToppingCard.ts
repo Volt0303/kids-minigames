@@ -10,6 +10,8 @@ const PICTURE_SHARE = 0.7;
 /** The topping is drawn above the tray and the board; while dragged, above everything in the field. */
 const PICTURE_DEPTH = 5;
 const DRAG_DEPTH = 50;
+/** How long a topping takes to slide back to its slot. */
+export const RETURN_MS = 260;
 
 export interface CardEvents {
   onTap: (card: ToppingCard) => void;
@@ -27,6 +29,8 @@ export class ToppingCard {
   private readonly name: Phaser.GameObjects.Text;
   private home = { x: 0, y: 0, scale: 1 };
   private dragging = false;
+  /** Scene time until which the picture is moving on its own and must not be dragged. */
+  private heldUntil = 0;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -41,16 +45,33 @@ export class ToppingCard {
     this.picture.on('pointerdown', () => {
       this.dragging = false;
     });
+    // A topping that is moving on its own (onto the rice, or back to its slot) cannot be grabbed:
+    // a drag would cut its animation short. The touch then counts as a tap, which the game ignores
+    // while a topping is moving.
     this.picture.on('dragstart', () => {
+      if (this.held) return;
       this.dragging = true;
       this.picture.setDepth(DRAG_DEPTH);
     });
-    this.picture.on('drag', (_pointer: Phaser.Input.Pointer, x: number, y: number) => this.picture.setPosition(x, y));
-    this.picture.on('dragend', () => events.onDrop(this));
+    this.picture.on('drag', (_pointer: Phaser.Input.Pointer, x: number, y: number) => {
+      if (this.dragging) this.picture.setPosition(x, y);
+    });
+    this.picture.on('dragend', () => {
+      if (this.dragging) events.onDrop(this);
+    });
     this.picture.on('pointerup', () => {
       if (!this.dragging) events.onTap(this);
     });
     this.setVisible(false);
+  }
+
+  /** The picture moves on its own for `ms`: it cannot be dragged meanwhile. */
+  hold(ms: number): void {
+    this.heldUntil = this.scene.time.now + ms;
+  }
+
+  private get held(): boolean {
+    return this.scene.time.now < this.heldUntil;
   }
 
   /** Shows a topping in a tray slot, its picture resting there. */
@@ -88,7 +109,7 @@ export class ToppingCard {
       x,
       y,
       scale,
-      duration: 260,
+      duration: RETURN_MS,
       ease: 'Sine.easeOut',
       onComplete: () => {
         this.picture.setDepth(PICTURE_DEPTH);
