@@ -89,9 +89,9 @@ export abstract class GameScene extends LayoutScene {
   preload(): void {
     // Spinner on until this screen's own pictures are ready (an already-loaded screen just blips it).
     watchSceneLoading(this);
-    this.load.audio(SFX.correct, 'sfx/correct.wav');
-    this.load.audio(SFX.wrong, 'sfx/wrong.wav');
-    this.load.audio(SFX.clear, 'sfx/clear.wav');
+    this.load.audio(SFX.correct, 'sfx/correct.mp3');
+    this.load.audio(SFX.wrong, 'sfx/wrong.mp3');
+    this.load.audio(SFX.clear, 'sfx/clear.mp3');
     GameScreen.preload(this.load, this.screenConfig);
     this.preloadGame();
   }

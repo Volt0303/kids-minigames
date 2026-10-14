@@ -10,6 +10,8 @@ const WOBBLE_DEGREES = 14;
 type Wobbly = Phaser.GameObjects.Components.Transform & Phaser.GameObjects.GameObject;
 
 export const SFX = { correct: 'sfx-correct', wrong: 'sfx-wrong', clear: 'sfx-clear' } as const;
+/** Volume of each sound: the gentle "wrong" sound stays quieter than the praise. */
+const VOLUME: Record<string, number> = { [SFX.correct]: 0.9, [SFX.wrong]: 0.6, [SFX.clear]: 1 };
 
 function ensureStarTexture(scene: Phaser.Scene): void {
   if (scene.textures.exists(STAR_TEXTURE)) return;
@@ -67,7 +69,13 @@ export class Feedback {
     this.play(SFX.clear);
   }
 
+  /** Plays a sound; the same sound starts over instead of piling up when it comes again quickly. */
   private play(key: string): void {
-    if (this.scene.cache.audio.exists(key)) this.scene.sound.play(key);
+    if (!this.scene.cache.audio.exists(key)) return;
+    this.scene.sound.stopByKey(key);
+    const sound = this.scene.sound.add(key, { volume: VOLUME[key] ?? 1 });
+    sound.once('complete', () => sound.destroy());
+    sound.once('stop', () => sound.destroy());
+    sound.play();
   }
 }
