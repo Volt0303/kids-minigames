@@ -37,6 +37,7 @@ CLAUDE.local.md
 
 # Generated Android launch screen for the game being built (tools/build-launch-screen.mjs)
 /android/app/src/main/res/drawable-nodpi/launch_backdrop.jpg
+/android/app/src/main/res/drawable-nodpi/launch_window_backdrop.jpg
 /android/app/src/main/res/drawable-nodpi/launch_guide.png
 /android/app/src/main/res/values/launch_screen.xml
 # Generated launcher icon for the game being built (tools/build-app-icon.mjs)

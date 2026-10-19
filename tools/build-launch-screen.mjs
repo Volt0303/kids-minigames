@@ -31,13 +31,21 @@ const AVATAR_BOX_DP = 170;
 const CIRCLE_COLOR = '#2b7de9';
 /** Launch pictures are only shown for a moment; this keeps the APK small. */
 const BACKDROP_WIDTH = 1280;
+/**
+ * Android 9 draws its launch frame (res/drawable/launch_screen.xml) stretched to fill the screen,
+ * then the app's own loading background (LaunchBackdrop.java) shows the picture cut to 16:9.
+ * The launch frame therefore gets its own copy already cut to 16:9, so on a 16:9 screen the two
+ * match exactly instead of the picture jumping from stretched to cropped.
+ */
+const WINDOW_BACKDROP_HEIGHT = 720;
 
 const game = process.env.VITE_GAME;
 const gameId = isGameId(game) ? game : undefined;
 const withGuide = gameId !== undefined && GAME_HAS_GUIDE[gameId];
 const withBackdrop = hasGameArt(gameId, 'backdrop');
 
-async function writeBackdrop(target) {
+/** The backdrop with the page's light wash: whole (`height` undefined), or cut to that height. */
+async function writeBackdrop(target, height) {
   if (!withBackdrop) {
     await sharp({ create: { width: 8, height: 8, channels: 3, background: PAGE_COLOR } })
       .jpeg()
@@ -46,11 +54,15 @@ async function writeBackdrop(target) {
   }
   const source = `public/${gameArtUrl(gameId, 'backdrop')}`;
   if (!existsSync(source)) throw new Error(`${source} is missing — run build-images first`);
-  const base = sharp(source).resize({ width: BACKDROP_WIDTH });
+  const base = sharp(source).resize({ width: BACKDROP_WIDTH, height, fit: 'cover' });
   const { info } = await base.clone().toBuffer({ resolveWithObject: true });
-  const { width, height } = info;
   const wash = await sharp({
-    create: { width, height, channels: 4, background: { r: 220, g: 242, b: 255, alpha: WASH_OPACITY } },
+    create: {
+      width: info.width,
+      height: info.height,
+      channels: 4,
+      background: { r: 220, g: 242, b: 255, alpha: WASH_OPACITY },
+    },
   })
     .png()
     .toBuffer();
@@ -85,6 +97,7 @@ async function writeGuide(target) {
 async function main() {
   mkdirSync(`${RES}/drawable-nodpi`, { recursive: true });
   await writeBackdrop(`${RES}/drawable-nodpi/launch_backdrop.jpg`);
+  await writeBackdrop(`${RES}/drawable-nodpi/launch_window_backdrop.jpg`, WINDOW_BACKDROP_HEIGHT);
   // Android 12's system splash fills the whole screen with one colour: white, like the space
   // beside the game's 16:9 area on the wide screen, so nothing flashes before the backdrop.
   const splashColor = '#ffffff';

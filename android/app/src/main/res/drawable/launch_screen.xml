@@ -6,7 +6,7 @@
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <bitmap android:src="@drawable/launch_backdrop" android:gravity="fill" />
+        <bitmap android:src="@drawable/launch_window_backdrop" android:gravity="fill" />
     </item>
     <item
         android:drawable="@drawable/launch_guide"
